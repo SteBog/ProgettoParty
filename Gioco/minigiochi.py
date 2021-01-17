@@ -1,4 +1,5 @@
 import pygame
+import os
 
 def encode_pos(tup):
 	"""
@@ -21,6 +22,9 @@ def split_pos(stringa):
 	pos = stringa.split("/")
 	return pos
 
+PERCORSO = os.path.realpath(__file__)[:-20]
+print(PERCORSO)
+
 class Giocatore:
 	def __init__(self, x, y, numPlayer=1):
 		self.x = x
@@ -30,9 +34,9 @@ class Giocatore:
 		self.immagini = []
 		for i in range(0, 12):
 			if i < 10:
-				percorso = "/Users/stebog/RepositoryParty/ProgettoParty/Gioco/Immagini/w_p" + str(numPlayer) + "/Wraith_0" + str(numPlayer) + "_Moving Forward_00" + str(i) + ".png"
+				percorso = PERCORSO + "/Gioco/Immagini/w_p" + str(numPlayer) + "/Wraith_0" + str(numPlayer) + "_Moving Forward_00" + str(i) + ".png"
 			else:
-				percorso = "/Users/stebog/RepositoryParty/ProgettoParty/Gioco/Immagini/w_p" + str(numPlayer) + "/Wraith_0" + str(numPlayer) + "_Moving Forward_0" + str(i) + ".png"
+				percorso = PERCORSO + "/Gioco/Immagini/w_p" + str(numPlayer) + "/Wraith_0" + str(numPlayer) + "_Moving Forward_0" + str(i) + ".png"
 			self.immagini.append(pygame.image.load(percorso))
 			self.immagini[i] = pygame.transform.scale(self.immagini[i], (self.WIDTH, self.HEIGHT))
 		self.rivoltoDestra = True
@@ -112,7 +116,7 @@ class sopravviviSuPiattaforma:
 	def __init__(self, finestra, connessione, schermoAltezza, schermoLarghezza):
 		self.FINESTRA = finestra
 		self.net = connessione
-		self.IMMAGINE_SFONDO = pygame.image.load("/Users/stebog/RepositoryParty/ProgettoParty/mappaPiattaforma.png")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Mappa1.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		self.localPlayer = Giocatore(x=1000, y=300)
@@ -180,6 +184,9 @@ class sopravviviSuPiattaforma:
 			#	collisioni con tutti gli altri giocatori
 			#	singolarmente
 			##############################################################################
+
+			for giocatore in self.remotePlayers:
+				self.localPlayer.collisione(giocatore)
 
 			if self.localPlayer.ancoraVivo:	#	visualizzare e permettere il movimento solo ai giocatori che non sono usciti dal cerchio
 				self.localPlayer.muovi(keys, self.SCREENHEIGHT, self.SCREENWIDTH)

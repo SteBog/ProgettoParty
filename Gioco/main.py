@@ -1,5 +1,6 @@
 import pygame
 import socket
+import os
 from Network import Connessione
 from minigiochi import *
 
@@ -9,7 +10,8 @@ if __name__ == "__main__":
 	FINESTRA = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 	SCREENWIDTH, SCREENHEIGHT = pygame.display.get_surface().get_size()
 
-	SFONDO_SCHERMATA_PRINCIPALE = pygame.image.load("/Users/stebog/RepositoryParty/ProgettoParty/Sfondo Beta Pygame.png")
+	PERCORSO = os.path.realpath(__file__)[:-14]
+	SFONDO_SCHERMATA_PRINCIPALE = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
 	FINESTRA.blit(SFONDO_SCHERMATA_PRINCIPALE, (0, 0))
 
 	click = False
