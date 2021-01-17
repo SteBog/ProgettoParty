@@ -5,15 +5,14 @@ def encode_pos(tup):
 	"""
 	Trasformare un tuple in stringa
 	"""
-	return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3])
+	return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3]) + "," + str(tup[4])
 
 def decode_pos(stringa):
 	"""
 	Trasformare una stringa in tuple
 	"""
-	print(stringa)
 	pos = stringa.split(",")
-	return int(pos[0]), int(pos[1]), int(pos[2]), int(pos[3])
+	return int(pos[0]), int(pos[1]), int(pos[2]), int(pos[3]), int(pos[4])
 
 def split_pos(stringa):
 	"""
@@ -23,7 +22,6 @@ def split_pos(stringa):
 	return pos
 
 PERCORSO = os.path.realpath(__file__)[:-20]
-print(PERCORSO)
 
 class Giocatore:
 	def __init__(self, x, y, numPlayer=1):
@@ -43,6 +41,7 @@ class Giocatore:
 		self.velocita = 10
 		self.ancoraVivo = True
 		self.indexAnimation = 0
+		self.numeroGiocatore = 0
 		self.rettangoloCollisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
 		
 
@@ -114,14 +113,14 @@ class Giocatore:
 
 class sopravviviSuPiattaforma:
 	def __init__(self, finestra, connessione, schermoAltezza, schermoLarghezza):
-		self.FINESTRA = finestra
 		self.net = connessione
+		
+		self.FINESTRA = finestra
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Mappa1.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		self.localPlayer = Giocatore(x=1000, y=300)
-		self.testPlayer = Giocatore(x=960, y=540)
-		self.remotePlayers = []
+		self.remotePlayers = [Giocatore(x=0, y=0), Giocatore(x=0, y=0), Giocatore(x=0, y=0)]
 
 		self.SCREENHEIGHT = schermoAltezza
 		self.SCREENWIDTH = schermoLarghezza
@@ -134,21 +133,13 @@ class sopravviviSuPiattaforma:
 			##############################################################################
 			#	Gestione multi-player
 			##############################################################################
-			remotePos = self.net.send(encode_pos((self.localPlayer.x, self.localPlayer.y, int(self.localPlayer.rivoltoDestra), int(self.localPlayer.ancoraVivo))))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+			remotePos = self.net.send(encode_pos((self.localPlayer.x, self.localPlayer.y, int(self.localPlayer.rivoltoDestra), int(self.localPlayer.ancoraVivo), 0)))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 			if remotePos:
 				remotePos = split_pos(remotePos)
 			else:
-				pass
-				
-			#	Se si ricevono più posizioni di quelle rappresentate su schermo aggiungere altri giocatori sullo schermo
-			conGioc = 0
-			for i in remotePos:
-				if i != "0,0,0,0":
-					conGioc += 1
+				remotePos = []
 
-			for i in range(conGioc - len(self.remotePlayers)):
-				self.remotePlayers.append(Giocatore(x=1, y=1))
-
+			
 			#	Modificare posizione giocatori remoti
 			for remotePlayer, pos in zip(self.remotePlayers, remotePos):
 				if pos:
@@ -156,6 +147,7 @@ class sopravviviSuPiattaforma:
 					remotePlayer.y = decode_pos(pos)[1]
 					remotePlayer.rivoltoDestra = decode_pos(pos)[2]
 					remotePlayer.ancoraVivo = decode_pos(pos)[3]
+					remotePlayer.numeroGiocatore = decode_pos(pos)[4]
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
@@ -193,7 +185,6 @@ class sopravviviSuPiattaforma:
 				self.localPlayer.disegna(self.FINESTRA)
 				if (self.localPlayer.x - 960)**2 + (self.localPlayer.y - 540)**2 > 425**2:	#	verificare che il giocatore sia all'interno del cerchio (piattaforma)
 					self.localPlayer.ancoraVivo = False
-					print("x: " + str(self.localPlayer.x) + " y: " + str(self.localPlayer.y))
 
 			for remotePlayer in self.remotePlayers:
 				if remotePlayer.ancoraVivo:

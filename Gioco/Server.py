@@ -16,7 +16,12 @@ sock.listen(4)
 print("Server online")
 print("Attendo connessione...")
 
-pos = [(0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0)]
+pos = [(0, 0, 0, 0, 0), (0, 0, 0, 0, 0), (0, 0, 0, 0, 0), (0, 0, 0, 0, 0)]
+#	pos[0] = coordinata X
+#	pos[1] = coordinata Y
+#	pos[2] = è rivolto a destra?
+#	pos[3] = è ancora vivo?
+#	pos[4] = numero giocatore
 numGiocatore = 0
 
 
@@ -24,14 +29,14 @@ def encode_pos(tup):
 	"""
 	Trasformare un tuple in stringa
 	"""
-	return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3])
+	return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3]) + "," + str(tup[4])
 
 def decode_pos(str):
 	"""
 	Trasformare una stringa in tuple
 	"""
 	pos = str.split(",")
-	return int(pos[0]), int(pos[1]), int(pos[2]), int(pos[3])
+	return int(pos[0]), int(pos[1]), int(pos[2]), int(pos[3]), int (pos[4])
 
 def t_client(conn, numGio):
 	conn.send(str.encode(encode_pos(pos[numGio])))
@@ -41,6 +46,7 @@ def t_client(conn, numGio):
 		try:
 			data = decode_pos(conn.recv(2048).decode())
 			pos[numGio] = data
+			pos[numGio][4] = numGio
 
 			if not data:
 				print("Disconnesso")
