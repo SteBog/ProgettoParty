@@ -1,7 +1,7 @@
 import socket
 from _thread import *
 
-INDIRIZZO_IP_SERVER = "192.168.1.2"
+INDIRIZZO_IP_SERVER = "192.168.1.8"
 PORTA_SERVER = 5555
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,7 +16,7 @@ sock.listen(4)
 print("Server online")
 print("Attendo connessione...")
 
-pos = [(0, 0, 0), (0, 0, 0), (0, 0, 0), (0, 0, 0)]
+pos = [(0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0), (0, 0, 0, 0)]
 numGiocatore = 0
 
 
@@ -24,14 +24,14 @@ def encode_pos(tup):
 	"""
 	Trasformare un tuple in stringa
 	"""
-	return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2])
+	return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3])
 
 def decode_pos(str):
 	"""
 	Trasformare una stringa in tuple
 	"""
 	pos = str.split(",")
-	return int(pos[0]), int(pos[1]), int(pos[2])
+	return int(pos[0]), int(pos[1]), int(pos[2]), int(pos[3])
 
 def t_client(conn, numGio):
 	conn.send(str.encode(encode_pos(pos[numGio])))
