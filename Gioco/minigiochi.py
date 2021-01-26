@@ -24,7 +24,7 @@ def split_pos(stringa):
 PERCORSO = os.path.realpath(__file__)[:-20]
 
 class Giocatore:
-	def __init__(self, x, y, numPlayer=1):
+	def __init__(self, x, y, num_player=1):
 		self.x = x
 		self.y = y
 		self.HEIGHT = 278 // 3
@@ -32,33 +32,33 @@ class Giocatore:
 		self.immagini = []
 		for i in range(0, 12):
 			if i < 10:
-				percorso = PERCORSO + "/Gioco/Immagini/w_p" + str(numPlayer) + "/Wraith_0" + str(numPlayer) + "_Moving Forward_00" + str(i) + ".png"
+				percorso_frame = PERCORSO + "/Gioco/Immagini/w_p" + str(num_player) + "/Wraith_0" + str(num_player) + "_Moving Forward_00" + str(i) + ".png"
 			else:
-				percorso = PERCORSO + "/Gioco/Immagini/w_p" + str(numPlayer) + "/Wraith_0" + str(numPlayer) + "_Moving Forward_0" + str(i) + ".png"
-			self.immagini.append(pygame.image.load(percorso))
+				percorso_frame = PERCORSO + "/Gioco/Immagini/w_p" + str(num_player) + "/Wraith_0" + str(num_player) + "_Moving Forward_0" + str(i) + ".png"
+			self.immagini.append(pygame.image.load(percorso_frame))
 			self.immagini[i] = pygame.transform.scale(self.immagini[i], (self.WIDTH, self.HEIGHT))
-		self.rivoltoDestra = True
+		self.rivolto_destra = True
 		self.velocita = 10
-		self.ancoraVivo = True
-		self.indexAnimation = 0
-		self.numeroGiocatore = 0
-		self.rettangoloCollisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
+		self.ancora_vivo = False
+		self.index_animation = 0
+		self.numero_giocatore = 0
+		self.rettangolo_collisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
 		
 
 	def disegna(self, finestra):
-		if self.indexAnimation < 11:
-			self.indexAnimation += 1
-		elif self.indexAnimation >= 11:
-			self.indexAnimation = 0
+		if self.index_animation < 11:
+			self.index_animation += 1
+		elif self.index_animation >= 11:
+			self.index_animation = 0
 
-		self.rettangoloCollisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
+		self.rettangolo_collisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
 
-		if self.rivoltoDestra:
-			finestra.blit(self.immagini[self.indexAnimation], (self.x, self.y))
+		if self.rivolto_destra:
+			finestra.blit(self.immagini[self.index_animation], (self.x, self.y))
 		else:
-			finestra.blit(pygame.transform.flip(self.immagini[self.indexAnimation], True, False), (self.x, self.y)) #   Se sta andando a sinistra flippa l'immagine prima di "stamparla"
+			finestra.blit(pygame.transform.flip(self.immagini[self.index_animation], True, False), (self.x, self.y)) #   Se sta andando a sinistra flippa l'immagine prima di "stamparla"
 
-	def muovi(self, tasti, screenHeight, screenWidth):
+	def muovi(self, tasti, screen_height, screen_width):
 		#   Evitare che la velocità in diagonale sia (10^2 + 10^2)^1/2 ma renderla 10 (come in orizzontale e verticale)
 		if (tasti[pygame.K_UP] or tasti[pygame.K_DOWN]) and (tasti[pygame.K_LEFT] or tasti[pygame.K_RIGHT]):
 			self.velocita = 7
@@ -69,23 +69,23 @@ class Giocatore:
 		if tasti[pygame.K_UP] and self.y >= 0:
 			self.y -= self.velocita
 
-		if tasti[pygame.K_DOWN] and self.y <= screenHeight - self.HEIGHT:
+		if tasti[pygame.K_DOWN] and self.y <= screen_height - self.HEIGHT:
 			self.y += self.velocita
 
 		if tasti[pygame.K_LEFT] and self.x >= 0:
 			self.x -= self.velocita
 
-			if self.rivoltoDestra:
-				self.rivoltoDestra = False
+			if self.rivolto_destra:
+				self.rivolto_destra = False
 
-		if tasti[pygame.K_RIGHT] and self.x <= screenWidth - self.WIDTH:
+		if tasti[pygame.K_RIGHT] and self.x <= screen_width - self.WIDTH:
 			self.x += self.velocita
 
-			if not self.rivoltoDestra:
-				self.rivoltoDestra = True
+			if not self.rivolto_destra:
+				self.rivolto_destra = True
 
 	def collisione(self, avversario):
-		if self.rettangoloCollisione.colliderect(avversario.rettangoloCollisione):
+		if self.rettangolo_collisione.colliderect(avversario.rettangolo_collisione):
 			if avversario.x >= self.x - (self.WIDTH / 3) and avversario.x <= self.x + (self.WIDTH / 3):
 				#	verticale
 				if self.y < avversario.y:
@@ -111,43 +111,43 @@ class Giocatore:
 					self.x += 70
 
 
-class sopravviviSuPiattaforma:
-	def __init__(self, finestra, connessione, schermoAltezza, schermoLarghezza):
-		self.net = connessione
-		
+class SpintoniSuPiattaforma:
+	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
+		self.NET = connessione
+
 		self.FINESTRA = finestra
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Mappa1.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
-		self.localPlayer = Giocatore(x=1000, y=300)
-		self.remotePlayers = [Giocatore(x=0, y=0), Giocatore(x=0, y=0), Giocatore(x=0, y=0)]
+		self.local_player = Giocatore(x=1000, y=300)
+		self.local_player.ancora_vivo = True
+		self.remote_players = [Giocatore(x=0, y=0), Giocatore(x=0, y=0), Giocatore(x=0, y=0)]
 
-		self.SCREENHEIGHT = schermoAltezza
-		self.SCREENWIDTH = schermoLarghezza
+		self.SCREEN_HEIGHT = schermo_altezza
+		self.SCREEN_WIDTH = schermo_larghezza
 
-		self.esecuzioneInCorso = True
+		self.esecuzione_in_corso = True
 
 	def main(self):
-		while self.esecuzioneInCorso:
+		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 			##############################################################################
 			#	Gestione multi-player
 			##############################################################################
-			remotePos = self.net.send(encode_pos((self.localPlayer.x, self.localPlayer.y, int(self.localPlayer.rivoltoDestra), int(self.localPlayer.ancoraVivo), 0)))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+			remotePos = self.NET.send(encode_pos((self.local_player.x, self.local_player.y, int(self.local_player.rivolto_destra), int(self.local_player.ancora_vivo), 0)))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 			if remotePos:
 				remotePos = split_pos(remotePos)
 			else:
 				remotePos = []
 
-			
 			#	Modificare posizione giocatori remoti
-			for remotePlayer, pos in zip(self.remotePlayers, remotePos):
+			for remote_player, pos in zip(self.remote_players, remotePos):
 				if pos:
-					remotePlayer.x = decode_pos(pos)[0]
-					remotePlayer.y = decode_pos(pos)[1]
-					remotePlayer.rivoltoDestra = decode_pos(pos)[2]
-					remotePlayer.ancoraVivo = decode_pos(pos)[3]
-					remotePlayer.numeroGiocatore = decode_pos(pos)[4]
+					remote_player.x = decode_pos(pos)[0]
+					remote_player.y = decode_pos(pos)[1]
+					remote_player.rivolto_destra = decode_pos(pos)[2]
+					remote_player.ancora_vivo = decode_pos(pos)[3]
+					remote_player.numero_giocatore = decode_pos(pos)[4]
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
@@ -158,7 +158,7 @@ class sopravviviSuPiattaforma:
 
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
-					self.esecuzioneInCorso = False
+					self.esecuzione_in_corso = False
 
 			##############################################################################
 			#
@@ -166,7 +166,7 @@ class sopravviviSuPiattaforma:
 
 			keys = pygame.key.get_pressed()
 
-			if keys[pygame.K_ESCAPE]: self.esecuzioneInCorso = False
+			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
 
 			##############################################################################
 			#	To do:
@@ -177,17 +177,18 @@ class sopravviviSuPiattaforma:
 			#	singolarmente
 			##############################################################################
 
-			for giocatore in self.remotePlayers:
-				self.localPlayer.collisione(giocatore)
+			for giocatore in self.remote_players:
+				self.local_player.collisione(giocatore)
 
-			if self.localPlayer.ancoraVivo:	#	visualizzare e permettere il movimento solo ai giocatori che non sono usciti dal cerchio
-				self.localPlayer.muovi(keys, self.SCREENHEIGHT, self.SCREENWIDTH)
-				self.localPlayer.disegna(self.FINESTRA)
-				if (self.localPlayer.x - 960)**2 + (self.localPlayer.y - 540)**2 > 425**2:	#	verificare che il giocatore sia all'interno del cerchio (piattaforma)
-					self.localPlayer.ancoraVivo = False
+			if self.local_player.ancora_vivo:	#	visualizzare e permettere il movimento solo ai giocatori che non sono usciti dal cerchio
+				self.local_player.muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+				self.local_player.disegna(self.FINESTRA)
+				if (self.local_player.x - 960)**2 + (self.local_player.y - 540)**2 > 425**2:	#	verificare che il giocatore sia all'interno del cerchio (piattaforma)
+					self.local_player.ancora_vivo = False
 
-			for remotePlayer in self.remotePlayers:
-				if remotePlayer.ancoraVivo:
-					remotePlayer.disegna(self.FINESTRA)
+			for remote_player in self.remote_players:
+				if remote_player.ancora_vivo:
+					remote_player.disegna(self.FINESTRA)
 
 			pygame.display.update()
+

@@ -8,14 +8,14 @@ pygame.init()
 
 if __name__ == "__main__":
 	FINESTRA = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-	SCREENWIDTH, SCREENHEIGHT = pygame.display.get_surface().get_size()
+	SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.get_surface().get_size()
 
 	PERCORSO = os.path.realpath(__file__)[:-14]
 	SFONDO_SCHERMATA_PRINCIPALE = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
 	FINESTRA.blit(SFONDO_SCHERMATA_PRINCIPALE, (0, 0))
 
 	click = False
-	net = Connessione()
+	NET = Connessione()
 	
 	while True:
 		pygame.time.delay(17)
@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
 		if pulsante_1.collidepoint((mouse_x, mouse_y)):
 			if click:
-				minigioco = sopravviviSuPiattaforma(FINESTRA, net, SCREENHEIGHT, SCREENWIDTH)
+				minigioco = SpintoniSuPiattaforma(FINESTRA, NET, SCREEN_HEIGHT, SCREEN_WIDTH)
 				minigioco.main()
 
 		pygame.draw.rect(FINESTRA, (0, 0, 255), pulsante_1)

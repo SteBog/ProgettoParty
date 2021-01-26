@@ -1,8 +1,9 @@
+# coding=utf-8
 import socket
 from _thread import *
 
-INDIRIZZO_IP_SERVER = "192.168.1.8"
-PORTA_SERVER = 5555
+INDIRIZZO_IP_SERVER = "87.250.73.23"
+PORTA_SERVER = 8100
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -25,11 +26,11 @@ pos = [(0, 0, 0, 0, 0), (0, 0, 0, 0, 0), (0, 0, 0, 0, 0), (0, 0, 0, 0, 0)]
 numGiocatore = 0
 
 
-def encode_pos(tup):
+def encode_pos(tup, numero):
 	"""
 	Trasformare un tuple in stringa
 	"""
-	return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3]) + "," + str(tup[4])
+	return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3]) + "," + str(numero)
 
 def decode_pos(str):
 	"""
@@ -39,14 +40,13 @@ def decode_pos(str):
 	return int(pos[0]), int(pos[1]), int(pos[2]), int(pos[3]), int (pos[4])
 
 def t_client(conn, numGio):
-	conn.send(str.encode(encode_pos(pos[numGio])))
+	conn.send(str.encode(encode_pos(pos[numGio], numGio)))
 	risposta = ""
 
 	while True:
 		try:
 			data = decode_pos(conn.recv(2048).decode())
 			pos[numGio] = data
-			pos[numGio][4] = numGio
 
 			if not data:
 				print("Disconnesso")
@@ -55,13 +55,12 @@ def t_client(conn, numGio):
 				risposta = ""
 				for i in range(len(pos)):
 					if i != numGio:
-						risposta += encode_pos(pos[i]) + "/"
+						risposta += encode_pos(pos[i], numGio) + "/"
 
 				risposta = risposta[:-1]
 
 			conn.sendall(str.encode(risposta))
 		except:
-			print("Si è verificato un errore")
 			break
 	
 	print("Connessione terminata")
@@ -72,7 +71,7 @@ def t_client(conn, numGio):
 while True:
 	conn, addr = sock.accept()
 	print("Connesso a: ", addr)
-
+	print("Giocatore numero: ", numGiocatore)
 
 	start_new_thread(t_client, (conn, numGiocatore))
 	numGiocatore += 1
