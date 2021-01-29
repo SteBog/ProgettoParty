@@ -24,7 +24,7 @@ def split_pos(stringa):
 PERCORSO = os.path.realpath(__file__)[:-20]
 
 class Giocatore:
-	def __init__(self, x, y, num_player=1):
+	def __init__(self, x, y):
 		self.x = x
 		self.y = y
 		self.HEIGHT = 278 // 3
@@ -32,9 +32,9 @@ class Giocatore:
 		self.immagini = []
 		for i in range(0, 12):
 			if i < 10:
-				percorso_frame = PERCORSO + "/Gioco/Immagini/w_p" + str(num_player) + "/Wraith_0" + str(num_player) + "_Moving Forward_00" + str(i) + ".png"
+				percorso_frame = PERCORSO + "/Gioco/Immagini/w_p1/Wraith_01_Moving Forward_00" + str(i) + ".png"
 			else:
-				percorso_frame = PERCORSO + "/Gioco/Immagini/w_p" + str(num_player) + "/Wraith_0" + str(num_player) + "_Moving Forward_0" + str(i) + ".png"
+				percorso_frame = PERCORSO + "/Gioco/Immagini/w_p1/Wraith_01_Moving Forward_0" + str(i) + ".png"
 			self.immagini.append(pygame.image.load(percorso_frame))
 			self.immagini[i] = pygame.transform.scale(self.immagini[i], (self.WIDTH, self.HEIGHT))
 		self.rivolto_destra = True
@@ -110,7 +110,6 @@ class Giocatore:
 				else:
 					self.x += 70
 
-
 class SpintoniSuPiattaforma:
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
 		self.NET = connessione
@@ -136,6 +135,8 @@ class SpintoniSuPiattaforma:
 			##############################################################################
 			remotePos = self.NET.send(encode_pos((self.local_player.x, self.local_player.y, int(self.local_player.rivolto_destra), int(self.local_player.ancora_vivo), 0)))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 			if remotePos:
+				self.local_player.numero_giocatore = remotePos[0]
+				remotePos = remotePos[1:]
 				remotePos = split_pos(remotePos)
 			else:
 				remotePos = []
@@ -169,18 +170,13 @@ class SpintoniSuPiattaforma:
 			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
 
 			##############################################################################
-			#	To do:
-			#	Usare la funzione collisione di sopra
-			#	su tutti i giocatori:
-			#	ogni giocatore deve verificare che non vi siano
-			#	collisioni con tutti gli altri giocatori
-			#	singolarmente
+			#	Visualizzare e muovere solo i giocatori ancora vivi
 			##############################################################################
 
 			for giocatore in self.remote_players:
 				self.local_player.collisione(giocatore)
 
-			if self.local_player.ancora_vivo:	#	visualizzare e permettere il movimento solo ai giocatori che non sono usciti dal cerchio
+			if self.local_player.ancora_vivo:
 				self.local_player.muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
 				self.local_player.disegna(self.FINESTRA)
 				if (self.local_player.x - 960)**2 + (self.local_player.y - 540)**2 > 425**2:	#	verificare che il giocatore sia all'interno del cerchio (piattaforma)
@@ -192,3 +188,116 @@ class SpintoniSuPiattaforma:
 
 			pygame.display.update()
 
+class GiocatorePong(Giocatore):
+	def __init__(self, x, y):
+		super().__init__(x, y)
+		self.meta_campo = None
+	
+	def muovi(self, tasti, screen_height, screen_width):
+		if self.meta_campo == "sx":
+			x_minimo = 0
+			x_massimo = 0.5
+		else:
+			x_minimo = 0.5
+			x_massimo = 1
+
+		#   Evitare che la velocità in diagonale sia (10^2 + 10^2)^1/2 ma renderla 10 (come in orizzontale e verticale)
+		if (tasti[pygame.K_UP] or tasti[pygame.K_DOWN]) and (tasti[pygame.K_LEFT] or tasti[pygame.K_RIGHT]):
+			self.velocita = 7*2
+		else:
+			self.velocita = 10*2
+
+		#   A seconda del tasto premuto muovere il giocatore
+		if tasti[pygame.K_UP] and self.y >= 0:
+			self.y -= self.velocita
+
+		if tasti[pygame.K_DOWN] and self.y <= screen_height - self.HEIGHT:
+			self.y += self.velocita
+
+		if tasti[pygame.K_LEFT] and self.x >= screen_width * x_minimo:
+			self.x -= self.velocita
+
+			if self.rivolto_destra:
+				self.rivolto_destra = False
+
+		if tasti[pygame.K_RIGHT] and self.x <= screen_width * x_massimo - self.WIDTH:
+			self.x += self.velocita
+
+			if not self.rivolto_destra:
+				self.rivolto_destra = True
+
+class Pong:
+	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
+		self.NET = connessione
+
+		self.FINESTRA = finestra
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
+		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+
+		self.local_player = GiocatorePong(x=200, y=300)
+		self.local_player.ancora_vivo = True
+		self.remote_players = [GiocatorePong(x=0, y=0), GiocatorePong(x=0, y=0), GiocatorePong(x=0, y=0)]
+
+		self.SCREEN_HEIGHT = schermo_altezza
+		self.SCREEN_WIDTH = schermo_larghezza
+
+		self.esecuzione_in_corso = True
+
+	def main(self):
+		while self.esecuzione_in_corso:
+			pygame.time.delay(20)
+			##############################################################################
+			#	Gestione multi-player
+			##############################################################################
+			remotePos = self.NET.send(encode_pos((self.local_player.x, self.local_player.y, int(self.local_player.rivolto_destra), int(self.local_player.ancora_vivo), 0)))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+			if remotePos:
+				self.local_player.numero_giocatore = remotePos[0]
+				remotePos = remotePos[1:]
+				remotePos = split_pos(remotePos)
+			else:
+				remotePos = []
+
+			if int(self.local_player.numero_giocatore) < 2:
+				self.local_player.meta_campo = "sx"
+			else:
+				self.local_player.meta_campo = "dx"
+			#	Modificare posizione giocatori remoti
+			for remote_player, pos in zip(self.remote_players, remotePos):
+				if pos:
+					remote_player.x = decode_pos(pos)[0]
+					remote_player.y = decode_pos(pos)[1]
+					remote_player.rivolto_destra = decode_pos(pos)[2]
+					remote_player.ancora_vivo = decode_pos(pos)[3]
+					remote_player.numero_giocatore = decode_pos(pos)[4]
+
+			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+
+			##############################################################################
+			#   Listener per spegnere il gioco quando clicchi sulla
+			#   x rossa
+			##############################################################################
+
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					self.esecuzione_in_corso = False
+
+			##############################################################################
+			#
+			##############################################################################
+
+			keys = pygame.key.get_pressed()
+
+			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
+
+			##############################################################################
+			#	Visualizzare e muovere solo i giocatori ancora vivi
+			##############################################################################
+
+			self.local_player.muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+			self.local_player.disegna(self.FINESTRA)
+
+			for remote_player in self.remote_players:
+				if remote_player.ancora_vivo:
+					remote_player.disegna(self.FINESTRA)
+
+			pygame.display.update()

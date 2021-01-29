@@ -3,6 +3,7 @@ import socket
 import os
 from Network import Connessione
 from minigiochi import *
+from SchermataPrincipale import *
 
 pygame.init()
 
@@ -18,14 +19,14 @@ if __name__ == "__main__":
 	NET = Connessione()
 	
 	while True:
-		pygame.time.delay(17)
+		pygame.time.delay(20)
 		FINESTRA.blit(SFONDO_SCHERMATA_PRINCIPALE, (0, 0))
 		mouse_x, mouse_y = pygame.mouse.get_pos()
 		pulsante_1 = pygame.Rect(100, 100, 100, 30)
 
 		if pulsante_1.collidepoint((mouse_x, mouse_y)):
 			if click:
-				minigioco = SpintoniSuPiattaforma(FINESTRA, NET, SCREEN_HEIGHT, SCREEN_WIDTH)
+				minigioco = Schermata_Principale(FINESTRA, NET, SCREEN_HEIGHT, SCREEN_WIDTH)
 				minigioco.main()
 
 		pygame.draw.rect(FINESTRA, (0, 0, 255), pulsante_1)

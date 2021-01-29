@@ -41,7 +41,7 @@ def decode_pos(str):
 
 def t_client(conn, numGio):
 	conn.send(str.encode(encode_pos(pos[numGio], numGio)))
-	risposta = ""
+	risposta = str(numGio)
 
 	while True:
 		try:
@@ -52,7 +52,7 @@ def t_client(conn, numGio):
 				print("Disconnesso")
 				break
 			else:
-				risposta = ""
+				risposta = str(numGio)
 				for i in range(len(pos)):
 					if i != numGio:
 						risposta += encode_pos(pos[i], numGio) + "/"

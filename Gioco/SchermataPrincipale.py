@@ -43,7 +43,6 @@ class Schermata_Principale:
 			remotePos = self.NET.send(encode_pos((0, 0, 0, 1, 0)))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 			if remotePos:
 				self.numero_giocatore = remotePos[0]
-				print(self.numero_giocatore)
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
