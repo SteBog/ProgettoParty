@@ -1,5 +1,6 @@
 # coding=utf-8
 import socket
+import json
 from _thread import *
 
 INDIRIZZO_IP_SERVER = "87.250.73.23"
@@ -17,47 +18,46 @@ sock.listen(4)
 print("Server online")
 print("Attendo connessione...")
 
-pos = [(0, 0, 0, 0, 0), (0, 0, 0, 0, 0), (0, 0, 0, 0, 0), (0, 0, 0, 0, 0)]
-#	pos[0] = coordinata X
-#	pos[1] = coordinata Y
-#	pos[2] = è rivolto a destra?
-#	pos[3] = è ancora vivo?
-#	pos[4] = numero giocatore
+def crea_giocatore():
+	giocatore = {
+		"minigioco": 0,
+		"numero_giocatore": -1,
+		"coordinata_x": 0,
+		"coordinata_y": 0,
+		"rivolto_a_destra": 0,
+		"ancora_vivo": 0,
+	}
+	return giocatore
+
+def encode_pos():
+	return json.dumps(giocatori)
+
+def decode_pos(stringa_json):
+	return json.loads(stringa_json)
+
+giocatori = []
+
+for i in range(4):
+	giocatori.append(crea_giocatore())
+
 numGiocatore = 0
 
 
-def encode_pos(tup, numero):
-	"""
-	Trasformare un tuple in stringa
-	"""
-	return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3]) + "," + str(numero)
-
-def decode_pos(str):
-	"""
-	Trasformare una stringa in tuple
-	"""
-	pos = str.split(",")
-	return int(pos[0]), int(pos[1]), int(pos[2]), int(pos[3]), int (pos[4])
-
 def t_client(conn, numGio):
-	conn.send(str.encode(encode_pos(pos[numGio], numGio)))
+	conn.send(str.encode(encode_pos()))
 	risposta = str(numGio)
 
 	while True:
 		try:
 			data = decode_pos(conn.recv(2048).decode())
-			pos[numGio] = data
+			giocatori[numGio] = data
 
 			if not data:
 				print("Disconnesso")
 				break
 			else:
 				risposta = str(numGio)
-				for i in range(len(pos)):
-					if i != numGio:
-						risposta += encode_pos(pos[i], numGio) + "/"
-
-				risposta = risposta[:-1]
+				risposta += encode_pos()
 
 			conn.sendall(str.encode(risposta))
 		except:

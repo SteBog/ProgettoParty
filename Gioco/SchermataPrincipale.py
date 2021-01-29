@@ -1,25 +1,7 @@
 import pygame
 import os
+from minigiochi import *
 
-def encode_pos(tup):
-	"""
-	Trasformare un tuple in stringa
-	"""
-	return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3]) + "," + str(tup[4])
-
-def decode_pos(stringa):
-	"""
-	Trasformare una stringa in tuple
-	"""
-	pos = stringa.split(",")
-	return int(pos[0]), int(pos[1]), int(pos[2]), int(pos[3]), int(pos[4])
-
-def split_pos(stringa):
-	"""
-	Splittare le posizioni di più utenti in un oggetto iterabile
-	"""
-	pos = stringa.split("/")
-	return pos
 
 PERCORSO = os.path.realpath(__file__)[:-29]
 
@@ -37,14 +19,33 @@ class Schermata_Principale:
 		self.esecuzione_in_corso = True
 		self.numero_giocatore = None
 
+
 	def main(self):
+		click = False
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
-			remotePos = self.NET.send(encode_pos((0, 0, 0, 1, 0)))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+			remotePos = self.NET.send('{"minigioco": 0, "numero_giocatore": 0, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 			if remotePos:
 				self.numero_giocatore = remotePos[0]
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+			mouse_x, mouse_y = pygame.mouse.get_pos()
+			pulsante_minigioco_1 = pygame.Rect(100, 100, 100, 30)
+			pulsante_minigioco_2 = pygame.Rect(300, 100, 100, 30)
+
+			if pulsante_minigioco_1.collidepoint((mouse_x, mouse_y)):
+				if click:
+					minigioco = SpintoniSuPiattaforma(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+					minigioco.main()
+			if pulsante_minigioco_2.collidepoint((mouse_x, mouse_y)):
+				if click:
+					minigioco = Pong(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+					minigioco.main()
+
+			click = False
+
+			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_1)
+			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_2)
 
 			##############################################################################
 			#   Listener per spegnere il gioco quando clicchi sulla
@@ -53,7 +54,10 @@ class Schermata_Principale:
 
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
-					self.esecuzione_in_corso = False
+					pygame.quit()
+				if event.type == pygame.MOUSEBUTTONDOWN:
+					if event.button == 1:
+						click = True
 
 			##############################################################################
 			#

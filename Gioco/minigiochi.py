@@ -1,25 +1,21 @@
 import pygame
 import os
+from random import randint
+import json
 
-def encode_pos(tup):
-	"""
-	Trasformare un tuple in stringa
-	"""
-	return str(tup[0]) + "," + str(tup[1]) + "," + str(tup[2]) + "," + str(tup[3]) + "," + str(tup[4])
+def encode_pos(minigioco, giocatore):
+	stringa_json = {
+		"minigioco": minigioco,
+		"numero_giocatore": giocatore.numero_giocatore,
+		"coordinata_x": giocatore.x,
+		"coordinata_y": giocatore.y,
+		"rivolto_a_destra": giocatore.rivolto_destra,
+		"ancora_vivo": giocatore.ancora_vivo,
+	}
+	return json.dumps(stringa_json)
 
-def decode_pos(stringa):
-	"""
-	Trasformare una stringa in tuple
-	"""
-	pos = stringa.split(",")
-	return int(pos[0]), int(pos[1]), int(pos[2]), int(pos[3]), int(pos[4])
-
-def split_pos(stringa):
-	"""
-	Splittare le posizioni di più utenti in un oggetto iterabile
-	"""
-	pos = stringa.split("/")
-	return pos
+def decode_pos(stringa_json):
+	return json.loads(stringa_json)
 
 PERCORSO = os.path.realpath(__file__)[:-20]
 
@@ -74,15 +70,11 @@ class Giocatore:
 
 		if tasti[pygame.K_LEFT] and self.x >= 0:
 			self.x -= self.velocita
-
-			if self.rivolto_destra:
-				self.rivolto_destra = False
+			self.rivolto_destra = False
 
 		if tasti[pygame.K_RIGHT] and self.x <= screen_width - self.WIDTH:
 			self.x += self.velocita
-
-			if not self.rivolto_destra:
-				self.rivolto_destra = True
+			self.rivolto_destra = True
 
 	def collisione(self, avversario):
 		if self.rettangolo_collisione.colliderect(avversario.rettangolo_collisione):
@@ -133,22 +125,24 @@ class SpintoniSuPiattaforma:
 			##############################################################################
 			#	Gestione multi-player
 			##############################################################################
-			remotePos = self.NET.send(encode_pos((self.local_player.x, self.local_player.y, int(self.local_player.rivolto_destra), int(self.local_player.ancora_vivo), 0)))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+			remotePos = self.NET.send(encode_pos("Spintoni", self.local_player))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 			if remotePos:
-				self.local_player.numero_giocatore = remotePos[0]
-				remotePos = remotePos[1:]
-				remotePos = split_pos(remotePos)
+				self.local_player.numero_giocatore = int(remotePos[0])
+				remotePos = decode_pos(remotePos[1:])
 			else:
 				remotePos = []
 
 			#	Modificare posizione giocatori remoti
-			for remote_player, pos in zip(self.remote_players, remotePos):
-				if pos:
-					remote_player.x = decode_pos(pos)[0]
-					remote_player.y = decode_pos(pos)[1]
-					remote_player.rivolto_destra = decode_pos(pos)[2]
-					remote_player.ancora_vivo = decode_pos(pos)[3]
-					remote_player.numero_giocatore = decode_pos(pos)[4]
+
+			index_remote_players = 0
+			while index_remote_players < 3:
+				if index_remote_players != self.local_player.numero_giocatore:
+					self.remote_players[index_remote_players].x = int(remotePos[index_remote_players]["coordinata_x"])
+					self.remote_players[index_remote_players].y = int(remotePos[index_remote_players]["coordinata_y"])
+					self.remote_players[index_remote_players].rivolto_destra = int(remotePos[index_remote_players]["rivolto_a_destra"])
+					self.remote_players[index_remote_players].ancora_vivo = int(remotePos[index_remote_players]["ancora_vivo"])
+					self.remote_players[index_remote_players].numero_giocatore = int(remotePos[index_remote_players]["numero_giocatore"])
+				index_remote_players += 1
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
@@ -174,7 +168,8 @@ class SpintoniSuPiattaforma:
 			##############################################################################
 
 			for giocatore in self.remote_players:
-				self.local_player.collisione(giocatore)
+				if giocatore.ancora_vivo:
+					self.local_player.collisione(giocatore)
 
 			if self.local_player.ancora_vivo:
 				self.local_player.muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
@@ -203,9 +198,9 @@ class GiocatorePong(Giocatore):
 
 		#   Evitare che la velocità in diagonale sia (10^2 + 10^2)^1/2 ma renderla 10 (come in orizzontale e verticale)
 		if (tasti[pygame.K_UP] or tasti[pygame.K_DOWN]) and (tasti[pygame.K_LEFT] or tasti[pygame.K_RIGHT]):
-			self.velocita = 7*2
+			self.velocita = 7
 		else:
-			self.velocita = 10*2
+			self.velocita = 10
 
 		#   A seconda del tasto premuto muovere il giocatore
 		if tasti[pygame.K_UP] and self.y >= 0:
@@ -216,15 +211,68 @@ class GiocatorePong(Giocatore):
 
 		if tasti[pygame.K_LEFT] and self.x >= screen_width * x_minimo:
 			self.x -= self.velocita
-
-			if self.rivolto_destra:
-				self.rivolto_destra = False
+			self.rivolto_destra = False
 
 		if tasti[pygame.K_RIGHT] and self.x <= screen_width * x_massimo - self.WIDTH:
 			self.x += self.velocita
+			self.rivolto_destra = True
 
-			if not self.rivolto_destra:
-				self.rivolto_destra = True
+class PallinaPong:
+	def __init__(self):
+		self.x = randint(500, 1420)
+		self.y = randint(250, 830)
+		self.WIDTH = 20
+		self.HEIGHT = 20
+		self.velocita = 10
+		self.IMMAGINE = pygame.image.load(PERCORSO + "/Gioco/Immagini/Palla.png")
+		self.IMMAGINE = pygame.transform.scale(self.IMMAGINE, (self.WIDTH, self.HEIGHT))
+		self.direzione_orizzontale = False
+		self.direzione_verticale = False
+		self.rettangolo_collisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
+
+	def disegna(self, finestra):
+		self.rettangolo_collisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
+		finestra.blit(self.IMMAGINE, (self.x, self.y))
+
+	def muovi(self):
+		if self.direzione_orizzontale == 1:
+			self.x += self.velocita
+		else:
+			self.x -= self.velocita
+
+		if self.direzione_verticale == 1:
+			self.y -= self.velocita
+		elif self.direzione_verticale == -1:
+			self.y += self.velocita
+
+	def collisione(self, avversario):
+		#	Direzione orizzontale = 1  -> verso destra
+		#	Direzione orizzontale = -1 -> verso sinistra
+
+		#	Direzione verticale = 1  -> verso l'alto
+		#	Direzione verticale = 0  -> dritto
+		#	Direzione verticale = -1 -> verso il basso
+		
+		if self.rettangolo_collisione.colliderect(avversario.rettangolo_collisione):
+			if int(avversario.numero_giocatore) < 2:
+				self.direzione_orizzontale = 1
+			else:
+				self.direzione_orizzontale = -1
+
+			if self.y >= avversario.y - self.HEIGHT and self.y <= avversario.y + 20:
+				self.direzione_verticale = 1
+			elif self.y <= avversario.y + avversario.HEIGHT and self.y >= avversario.y + avversario.HEIGHT - 20:
+				self.direzione_verticale = -1
+			else:
+				self.direzione_verticale = 0
+
+			self.velocita += 2
+
+	def controlla_gol(self, schermo_larghezza):
+		if self.x > schermo_larghezza:
+			pass
+		elif self.x < -self.WIDTH:
+			pass
 
 class Pong:
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
@@ -238,6 +286,8 @@ class Pong:
 		self.local_player.ancora_vivo = True
 		self.remote_players = [GiocatorePong(x=0, y=0), GiocatorePong(x=0, y=0), GiocatorePong(x=0, y=0)]
 
+		self.pallina = PallinaPong()
+
 		self.SCREEN_HEIGHT = schermo_altezza
 		self.SCREEN_WIDTH = schermo_larghezza
 
@@ -245,15 +295,17 @@ class Pong:
 
 	def main(self):
 		while self.esecuzione_in_corso:
+
 			pygame.time.delay(20)
+
 			##############################################################################
 			#	Gestione multi-player
 			##############################################################################
-			remotePos = self.NET.send(encode_pos((self.local_player.x, self.local_player.y, int(self.local_player.rivolto_destra), int(self.local_player.ancora_vivo), 0)))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+
+			remotePos = self.NET.send(encode_pos("Pong", self.local_player))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 			if remotePos:
-				self.local_player.numero_giocatore = remotePos[0]
-				remotePos = remotePos[1:]
-				remotePos = split_pos(remotePos)
+				self.local_player.numero_giocatore = int(remotePos[0])
+				remotePos = decode_pos(remotePos[1:])
 			else:
 				remotePos = []
 
@@ -261,14 +313,18 @@ class Pong:
 				self.local_player.meta_campo = "sx"
 			else:
 				self.local_player.meta_campo = "dx"
+
 			#	Modificare posizione giocatori remoti
-			for remote_player, pos in zip(self.remote_players, remotePos):
-				if pos:
-					remote_player.x = decode_pos(pos)[0]
-					remote_player.y = decode_pos(pos)[1]
-					remote_player.rivolto_destra = decode_pos(pos)[2]
-					remote_player.ancora_vivo = decode_pos(pos)[3]
-					remote_player.numero_giocatore = decode_pos(pos)[4]
+
+			index_remote_players = 0
+			while index_remote_players < 3:
+				if index_remote_players != self.local_player.numero_giocatore:
+					self.remote_players[index_remote_players].x = int(remotePos[index_remote_players]["coordinata_x"])
+					self.remote_players[index_remote_players].y = int(remotePos[index_remote_players]["coordinata_y"])
+					self.remote_players[index_remote_players].rivolto_destra = int(remotePos[index_remote_players]["rivolto_a_destra"])
+					self.remote_players[index_remote_players].ancora_vivo = int(remotePos[index_remote_players]["ancora_vivo"])
+					self.remote_players[index_remote_players].numero_giocatore = int(remotePos[index_remote_players]["numero_giocatore"])
+				index_remote_players += 1
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
@@ -295,6 +351,13 @@ class Pong:
 
 			self.local_player.muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
 			self.local_player.disegna(self.FINESTRA)
+
+			self.pallina.collisione(self.local_player)
+			for remote_player in self.remote_players:
+				self.pallina.collisione(remote_player)
+
+			self.pallina.muovi()
+			self.pallina.disegna(self.FINESTRA)
 
 			for remote_player in self.remote_players:
 				if remote_player.ancora_vivo:

@@ -2,7 +2,6 @@ import pygame
 import socket
 import os
 from Network import Connessione
-from minigiochi import *
 from SchermataPrincipale import *
 
 pygame.init()
