@@ -269,10 +269,17 @@ class PallinaPong:
 			self.velocita += 2
 
 	def controlla_gol(self, schermo_larghezza):
+		"""
+		1  = gol giocatori a sinistra
+		-1 = gol giocatori a destra
+		0  = no gol
+		"""
 		if self.x > schermo_larghezza:
-			pass
+			return 1
 		elif self.x < -self.WIDTH:
-			pass
+			return -1
+		else:
+			return 0
 
 class Pong:
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
@@ -287,15 +294,23 @@ class Pong:
 		self.remote_players = [GiocatorePong(x=0, y=0), GiocatorePong(x=0, y=0), GiocatorePong(x=0, y=0)]
 
 		self.pallina = PallinaPong()
+		self.punteggio_sinistra = 0
+		self.punteggio_destra = 0
+		self.FONT = pygame.font.SysFont("comicsans", 50)
 
 		self.SCREEN_HEIGHT = schermo_altezza
 		self.SCREEN_WIDTH = schermo_larghezza
 
 		self.esecuzione_in_corso = True
 
+	def segna_risultato(self, finestra, schermo_larghezza):
+		txt_punteggio_sinistra = self.FONT.render(str(self.punteggio_sinistra), 1, (0, 0, 0))
+		txt_punteggio_destra = self.FONT.render(str(self.punteggio_destra), 1, (0, 0, 0))
+		finestra.blit(txt_punteggio_sinistra, ((schermo_larghezza - txt_punteggio_sinistra.get_width()) // 2 - 20, 30))
+		finestra.blit(txt_punteggio_destra, ((schermo_larghezza - txt_punteggio_sinistra.get_width()) // 2 + 20, 30))
+
 	def main(self):
 		while self.esecuzione_in_corso:
-
 			pygame.time.delay(20)
 
 			##############################################################################
@@ -358,9 +373,22 @@ class Pong:
 
 			self.pallina.muovi()
 			self.pallina.disegna(self.FINESTRA)
+			e_gol = self.pallina.controlla_gol(self.SCREEN_WIDTH)
+			if e_gol == 1:
+				self.punteggio_sinistra += 1
+				self.pallina.x = 1420
+				self.pallina.y = randint(300, 780)
+				self.pallina.direzione_orizzontale = -1
+			elif e_gol == -1:
+				self.punteggio_destra += 1
+				self.pallina.x = 1420
+				self.pallina.y = randint(300, 780)
+				self.pallina.direzione_orizzontale = -1
 
 			for remote_player in self.remote_players:
 				if remote_player.ancora_vivo:
 					remote_player.disegna(self.FINESTRA)
+
+			self.segna_risultato(self.FINESTRA, self.SCREEN_WIDTH)
 
 			pygame.display.update()
