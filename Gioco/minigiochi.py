@@ -5,12 +5,14 @@ import json
 
 def encode_pos(minigioco, giocatore):
 	stringa_json = {
-		"minigioco": minigioco,
-		"numero_giocatore": giocatore.numero_giocatore,
-		"coordinata_x": giocatore.x,
-		"coordinata_y": giocatore.y,
-		"rivolto_a_destra": giocatore.rivolto_destra,
-		"ancora_vivo": giocatore.ancora_vivo,
+		"giocatore": {
+			"minigioco": minigioco,
+			"numero_giocatore": giocatore.numero_giocatore,
+			"coordinata_x": giocatore.x,
+			"coordinata_y": giocatore.y,
+			"rivolto_a_destra": giocatore.rivolto_destra,
+			"ancora_vivo": giocatore.ancora_vivo,
+		}
 	}
 	return json.dumps(stringa_json)
 
@@ -219,8 +221,8 @@ class GiocatorePong(Giocatore):
 
 class PallinaPong:
 	def __init__(self):
-		self.x = randint(500, 1420)
-		self.y = randint(250, 830)
+		self.x = 950
+		self.y = 530
 		self.WIDTH = 20
 		self.HEIGHT = 20
 		self.velocita = 10
@@ -268,18 +270,24 @@ class PallinaPong:
 
 			self.velocita += 2
 
-	def controlla_gol(self, schermo_larghezza):
+	def controlla_bordi(self, schermo_larghezza, schermo_altezza):
 		"""
 		1  = gol giocatori a sinistra
 		-1 = gol giocatori a destra
 		0  = no gol
 		"""
+		if self.y <= 0:
+			self.direzione_verticale = -1
+		elif self.y >= schermo_altezza - self.HEIGHT:
+			self.direzione_verticale = 1
+		
 		if self.x > schermo_larghezza:
 			return 1
 		elif self.x < -self.WIDTH:
 			return -1
 		else:
 			return 0
+
 
 class Pong:
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
@@ -373,17 +381,19 @@ class Pong:
 
 			self.pallina.muovi()
 			self.pallina.disegna(self.FINESTRA)
-			e_gol = self.pallina.controlla_gol(self.SCREEN_WIDTH)
+			e_gol = self.pallina.controlla_bordi(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
 			if e_gol == 1:
 				self.punteggio_sinistra += 1
-				self.pallina.x = 1420
-				self.pallina.y = randint(300, 780)
+				self.pallina.x = 950
+				self.pallina.y = 530
 				self.pallina.direzione_orizzontale = -1
+				self.pallina.direzione_verticale = 0
 			elif e_gol == -1:
 				self.punteggio_destra += 1
-				self.pallina.x = 1420
-				self.pallina.y = randint(300, 780)
+				self.pallina.x = 950
+				self.pallina.y = 530
 				self.pallina.direzione_orizzontale = -1
+				self.pallina.direzione_verticale = 0
 
 			for remote_player in self.remote_players:
 				if remote_player.ancora_vivo:

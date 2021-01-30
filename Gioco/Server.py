@@ -41,6 +41,7 @@ for i in range(4):
 	giocatori.append(crea_giocatore())
 
 numGiocatore = 0
+	
 
 
 def t_client(conn, numGio):
@@ -50,7 +51,7 @@ def t_client(conn, numGio):
 	while True:
 		try:
 			data = decode_pos(conn.recv(2048).decode())
-			giocatori[numGio] = data
+			giocatori[numGio] = data["giocatore"]
 
 			if not data:
 				print("Disconnesso")
