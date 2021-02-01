@@ -1,10 +1,14 @@
 # coding=utf-8
 import socket
 import json
+from random import randint
+import time
 from _thread import *
 
 INDIRIZZO_IP_SERVER = "87.250.73.23"
 PORTA_SERVER = 8100
+
+SECONDI_SPAWN_MONETA = 2
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -29,23 +33,35 @@ def crea_giocatore():
 	}
 	return giocatore
 
-def encode_pos():
-	return json.dumps(giocatori)
+def crea_moneta(numero):
+	moneta = {
+		"id_moneta": numero,
+		"tipo_moneta": randint(1, 10),
+		"coordinata_x" : randint(20, 1900),
+		"coordinata_y": randint(20, 1060),
+	}
+	return moneta
+
+def encode_pos(oggetto):
+	return json.dumps(oggetto)
 
 def decode_pos(stringa_json):
 	return json.loads(stringa_json)
 
 giocatori = []
+monete = []
+contatore_monete = 1
+
 
 for i in range(4):
 	giocatori.append(crea_giocatore())
 
 numGiocatore = 0
-	
+
 
 
 def t_client(conn, numGio):
-	conn.send(str.encode(encode_pos()))
+	conn.send(str.encode(encode_pos({"giocatori": giocatori})))
 	risposta = str(numGio)
 
 	while True:
@@ -57,8 +73,15 @@ def t_client(conn, numGio):
 				print("Disconnesso")
 				break
 			else:
-				risposta = str(numGio)
-				risposta += encode_pos()
+				if data["giocatore"]["minigioco"] == "Spintoni":
+					risposta = str(numGio)
+					risposta += encode_pos({"giocatori": giocatori})
+				if data["giocatore"]["minigioco"] == "Pong":
+					risposta = str(numGio)
+					risposta += encode_pos({"giocatori": giocatori})
+				if data["giocatore"]["minigioco"] == "RaccogliMonete":
+					risposta = str(numGio)
+					#	Restituire posizione giocatori e delle monete
 
 			conn.sendall(str.encode(risposta))
 		except:
@@ -68,6 +91,10 @@ def t_client(conn, numGio):
 	conn.close()
 	global numGiocatore
 	numGiocatore -= 1
+
+def gestione_raccogli_moneta(conn):
+	print("Nuovo thread: raccogli le monete")
+	time.sleep(SECONDI_SPAWN_MONETA)
 
 while True:
 	conn, addr = sock.accept()
