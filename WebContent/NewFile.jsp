@@ -7,6 +7,11 @@
 <title>Insert title here</title>
 </head>
 <body>
-BUON NATALE!11!11!
+
+<form name="esempio" action="/ProvaServlet/ProvaServlet" method="post">
+	<a href="/ProvaServlet/ProvaServlet" target="_top">Servlet</a>
+	<input type="text" name="nome">		<!-- Parametro passato tramite testo -->
+	<input type="submit" name="nome">
+</form>
 </body>
 </html>
