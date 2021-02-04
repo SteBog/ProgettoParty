@@ -34,15 +34,6 @@ def crea_giocatore():
 	}
 	return giocatore
 
-def crea_moneta(numero):
-	moneta = {
-		"id_moneta": numero,
-		"tipo_moneta": randint(1, 10),
-		"coordinata_x" : randint(20, 1900),
-		"coordinata_y": randint(20, 1060),
-	}
-	return moneta
-
 def encode_pos(oggetto):
 	return json.dumps(oggetto)
 
@@ -50,15 +41,12 @@ def decode_pos(stringa_json):
 	return json.loads(stringa_json)
 
 giocatori = []
-monete = []
-contatore_monete = 1
 
 
 for i in range(4):
 	giocatori.append(crea_giocatore())
 
 numGiocatore = 0
-
 
 
 def t_client(conn, numGio):
@@ -80,9 +68,9 @@ def t_client(conn, numGio):
 				if data["giocatore"]["minigioco"] == "Pong":
 					risposta = str(numGio)
 					risposta += encode_pos({"giocatori": giocatori})
-				if data["giocatore"]["minigioco"] == "RaccogliMonete":
+				if data["giocatore"]["minigioco"] == "Gara":
 					risposta = str(numGio)
-					#	Restituire posizione giocatori e delle monete
+					risposta += encode_pos({"giocatori": giocatori})
 
 			conn.sendall(str.encode(risposta))
 		except:
@@ -92,10 +80,6 @@ def t_client(conn, numGio):
 	conn.close()
 	global numGiocatore
 	numGiocatore -= 1
-
-def gestione_raccogli_moneta(conn):
-	print("Nuovo thread: raccogli le monete")
-	time.sleep(SECONDI_SPAWN_MONETA)
 
 while True:
 	conn, addr = sock.accept()
