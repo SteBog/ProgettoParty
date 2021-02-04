@@ -30,6 +30,7 @@ def crea_giocatore():
 		"coordinata_y": 0,
 		"rivolto_a_destra": 0,
 		"ancora_vivo": 0,
+		"pronto": 0
 	}
 	return giocatore
 
