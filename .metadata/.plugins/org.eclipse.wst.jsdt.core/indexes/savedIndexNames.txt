@@ -1,0 +1,7 @@
+INDEX VERSION 1.4+C:\Users\HP_home\Desktop\Simo_ONLINE\Progetto_Party\ProgettoParty\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+826763596.index
+1309752577.index
+677747882.index
+147776658.index
+555279769.index
+2785889402.index
