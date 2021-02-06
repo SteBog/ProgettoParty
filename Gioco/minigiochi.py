@@ -133,7 +133,7 @@ class MiniGioco:
 			self.local_player.numero_giocatore = int(dati_server[0])
 			dati_server = decode_pos(dati_server[1:])
 		else:
-			dati_server = []
+			dati_server = None
 
 		index_remote_players = 0
 		while index_remote_players < 3:
@@ -145,11 +145,12 @@ class MiniGioco:
 				self.remote_players[index_remote_players].numero_giocatore = int(dati_server["giocatori"][index_remote_players]["numero_giocatore"])
 				self.remote_players[index_remote_players].pronto = int(dati_server["giocatori"][index_remote_players]["pronto"])
 				self.remote_players[index_remote_players].punti = int(dati_server["giocatori"][index_remote_players]["punti"])
+				self.info = dati_server["info"]
 			index_remote_players += 1
 
 	def pronto_check(self, keys):
 		if not self.local_player.pronto and keys[pygame.K_SPACE]:
-				self.local_player.pronto = True
+			self.local_player.pronto = True
 
 		if not self.tutti_pronti:
 			var_appoggio = 0
@@ -517,6 +518,8 @@ class BattagliaNavale(MiniGioco):
 
 		self.info = {
 			"minigioco": "BattagliaNavale",
+			"celle_avversari": [0 for _ in range(16)],
+			"casella_giocatore": self.local_player.casella_squadra,
 			"turno": 0,
 			"scelta": -1
 		}
@@ -527,9 +530,13 @@ class BattagliaNavale(MiniGioco):
 		for i in range(4):
 			for j in range(4):
 				pygame.draw.rect(self.FINESTRA, (0, 0, 0), pygame.Rect(150 * i + 200, 150 * j + 200, 100, 100))
-		for i in range(4):
-			for j in range(4):
-				pygame.draw.rect(self.FINESTRA, (0, 0, 0), pygame.Rect(150 * i + 1170, 150 * j + 200, 100, 100))
+		for i in range(16):
+			if self.info["celle_avversari"][i] == 0:
+				pygame.draw.rect(self.FINESTRA, (0, 0, 0), pygame.Rect(150 * (i % 4) + 1170, 150 * (i // 4) + 200, 100, 100))
+			if self.info["celle_avversari"][i] == 1:
+				pygame.draw.rect(self.FINESTRA, (0, 0, 255), pygame.Rect(150 * (i % 4) + 1170, 150 * (i // 4) + 200, 100, 100))
+			if self.info["celle_avversari"][i] == 2:
+				pygame.draw.rect(self.FINESTRA, (255, 0, 0), pygame.Rect(150 * (i % 4) + 1170, 150 * (i // 4) + 200, 100, 100))
 
 	def attacca(self, tasti):
 		if tasti[pygame.K_UP] and self.scelta > 3:
@@ -544,7 +551,7 @@ class BattagliaNavale(MiniGioco):
 		if tasti[pygame.K_RIGHT] and self.scelta % 4 != 3:
 			self.scelta += 1
 
-		pygame.draw.rect(self.FINESTRA, (255, 0, 0), pygame.Rect(150 * self.scelta % 4 + 1170, 150 * self.scelta // 4 + 200, 100, 100))
+		pygame.draw.rect(self.FINESTRA, (255, 0, 0), pygame.Rect(150 * (self.scelta % 4) + 1170, 150 * (self.scelta // 4) + 200, 100, 100))
 
 
 	def main(self):
@@ -572,9 +579,16 @@ class BattagliaNavale(MiniGioco):
 			keys = pygame.key.get_pressed()
 
 			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
+			if keys[pygame.K_SPACE]: self.tutti_pronti = True
 
-			self.local_player.muovi(keys)
-			self.attacca(keys)
+			if self.tutti_pronti:
+				self.attacca(keys)
+			else:
+				self.local_player.muovi(keys)
+				if (self.local_player.numero_giocatore < 2 and self.info["turno"] == 0) or (self.local_player.numero_giocatore >= 2 and self.info["turno"] == 1):
+					if keys[pygame.K_RETURN] and not self.info["celle_avversari"][self.scelta]:
+						self.info["scelta"] = self.scelta
+						print("Scelta")
 
 			self.local_player.disegna(self.FINESTRA)
 

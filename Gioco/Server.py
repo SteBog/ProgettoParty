@@ -78,9 +78,27 @@ def gestione_paracadutismo(numero_giocatore):
 	risposta += encode_pos({"giocatori": giocatori})
 	return risposta
 
-def gestione_battaglia_navale(numero_giocatore):
+
+##############################################################################
+#	Battaglia Navale
+##############################################################################
+
+celle_squadra_uno = [0 for _ in range(16)]
+celle_squadra_due = [0 for _ in range(16)]
+numero_cella_giocatori = [-1, -1, -1, -1]
+turno = 0
+
+def gestione_battaglia_navale(numero_giocatore, dati):
+	if numero_giocatore < 2:
+		info = {
+			"minigioco": "BattagliaNavale",
+			"celle_avversari": celle_squadra_due,
+			"casella_giocatore": 0,
+			"turno": turno,
+			"scelta": -1
+		}
 	risposta = str(numero_giocatore)
-	risposta += encode_pos({"giocatori": giocatori})
+	risposta += encode_pos({"giocatori": giocatori, "info": info})
 	return risposta
 
 ##############################################################################
@@ -110,7 +128,7 @@ def t_client(conn, numGio):
 				if data["info"]["minigioco"] == "Paracadutismo":
 					risposta = gestione_paracadutismo(numGio)
 				if data["info"]["minigioco"] == "BattagliaNavale":
-					risposta = gestione_battaglia_navale(numGio)
+					risposta = gestione_battaglia_navale(numGio, data)
 
 			conn.sendall(str.encode(risposta))
 		except:
