@@ -3,18 +3,20 @@ import os
 from random import randint
 import json
 
-def encode_pos(minigioco, giocatore):
-	stringa_json = {
-		"giocatore": {
-			"minigioco": minigioco,
-			"numero_giocatore": giocatore.numero_giocatore,
-			"coordinata_x": giocatore.x,
-			"coordinata_y": giocatore.y,
-			"rivolto_a_destra": giocatore.rivolto_destra,
-			"ancora_vivo": giocatore.ancora_vivo,
-			"pronto": giocatore.pronto
-		}
+def object_to_directory(minigioco, giocatore):
+	risultato = {
+		"minigioco": minigioco,
+		"numero_giocatore": giocatore.numero_giocatore,
+		"coordinata_x": giocatore.x,
+		"coordinata_y": giocatore.y,
+		"rivolto_a_destra": giocatore.rivolto_destra,
+		"ancora_vivo": giocatore.ancora_vivo,
+		"pronto": giocatore.pronto,
+		"punti": giocatore.punti
 	}
+	return risultato
+
+def encode_pos(stringa_json):
 	return json.dumps(stringa_json)
 
 def decode_pos(stringa_json):
@@ -42,8 +44,8 @@ class Giocatore:
 		self.index_animation = 0
 		self.numero_giocatore = 0
 		self.pronto = False
+		self.punti = 0
 		self.rettangolo_collisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
-		
 
 	def disegna(self, finestra):
 		if self.index_animation < 11:
@@ -121,9 +123,10 @@ class MiniGioco:
 
 		self.esecuzione_in_corso = True
 		self.tutti_pronti = False
+		self.minigioco = None
 
 	def aggiorna_dati_da_server(self):
-		dati_server = self.NET.send(encode_pos("Pong", self.local_player))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+		dati_server = self.NET.send(encode_pos({"giocatore": object_to_directory(self.minigioco, self.local_player)}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 		if dati_server:
 			self.local_player.numero_giocatore = int(dati_server[0])
 			dati_server = decode_pos(dati_server[1:])
@@ -139,6 +142,7 @@ class MiniGioco:
 				self.remote_players[index_remote_players].ancora_vivo = int(dati_server["giocatori"][index_remote_players]["ancora_vivo"])
 				self.remote_players[index_remote_players].numero_giocatore = int(dati_server["giocatori"][index_remote_players]["numero_giocatore"])
 				self.remote_players[index_remote_players].pronto = int(dati_server["giocatori"][index_remote_players]["pronto"])
+				self.remote_players[index_remote_players].punti = int(dati_server["giocatori"][index_remote_players]["punti"])
 			index_remote_players += 1
 
 	def pronto_check(self, keys):
@@ -152,11 +156,13 @@ class MiniGioco:
 			if var_appoggio >= len(self.remote_players) and self.local_player.pronto:
 				self.tutti_pronti = True
 
+
 class SpintoniSuPiattaforma(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Mappa1.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+		self.minigioco = "Spintoni"
 
 	def main(self):
 		while self.esecuzione_in_corso:
@@ -202,7 +208,6 @@ class SpintoniSuPiattaforma(MiniGioco):
 					remote_player.disegna(self.FINESTRA)
 
 			pygame.display.update()
-
 
 
 class GiocatorePong(Giocatore):
@@ -322,6 +327,8 @@ class Pong(MiniGioco):
 		self.punteggio_destra = 0
 		self.FONT = pygame.font.SysFont("comicsans", 50)
 
+		self.minigioco = "Pong"
+
 	def segna_risultato(self, finestra, schermo_larghezza):
 		txt_punteggio_sinistra = self.FONT.render(str(self.punteggio_sinistra), 1, (0, 0, 0))
 		txt_punteggio_destra = self.FONT.render(str(self.punteggio_destra), 1, (0, 0, 0))
@@ -357,8 +364,6 @@ class Pong(MiniGioco):
 			keys = pygame.key.get_pressed()
 
 			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
-
-			self.pronto_check(keys)
 
 			##############################################################################
 			#	Gestire il proprio giocatore
@@ -408,11 +413,11 @@ class GiocatoreGara(Giocatore):
 	def muovi(self, tasti):
 		#	ultimo_tasto = 1 -> freccia in su
 		#	ultimo_tasto = 0 -> freccia in giu
-		if not self.ultimo_tasto == 1 and tasti[pygame.K_UP]:
+		if not self.ultimo_tasto == 1 and tasti[pygame.K_UP] and not tasti[pygame.K_DOWN]:
 			self.x += 3
 			self.ultimo_tasto = 1
 
-		if not self.ultimo_tasto == 0 and tasti[pygame.K_DOWN]:
+		if not self.ultimo_tasto == 0 and tasti[pygame.K_DOWN] and not tasti[pygame.K_UP]:
 			self.x += 3
 			self.ultimo_tasto = 0
 
@@ -425,6 +430,8 @@ class Gara(MiniGioco):
 		self.local_player = GiocatoreGara(100, 200)
 		self.local_player.ancora_vivo = True
 		self.remote_players = [GiocatoreGara(0, 0), GiocatoreGara(0, 0), GiocatoreGara(0, 0)]
+
+		self.minigioco = "Gara"
 
 	def main(self):
 		while self.esecuzione_in_corso:
@@ -455,10 +462,6 @@ class Gara(MiniGioco):
 			#	Visualizzare e muovere solo i giocatori connessi e pronti
 			##############################################################################
 
-			for giocatore in self.remote_players:
-				if giocatore.ancora_vivo and self.tutti_pronti:
-					self.local_player.collisione(giocatore)
-
 			self.local_player.muovi(keys)
 			self.local_player.disegna(self.FINESTRA)
 
@@ -467,3 +470,73 @@ class Gara(MiniGioco):
 					remote_player.disegna(self.FINESTRA)
 
 			pygame.display.update()
+
+
+class JustDance(MiniGioco):
+	pass
+
+
+class BattagliaNavale(MiniGioco):
+	pass
+
+
+class GiocatoreParacadutismo(Giocatore):
+	def muovi(self):
+		self.y -= 10
+
+class Paracadutismo(MiniGioco):
+	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
+		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
+		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+
+		self.local_player = GiocatoreParacadutismo(300, 300)
+		self.local_player.ancora_vivo = True
+		self.remote_players = [GiocatoreParacadutismo(0, 0), GiocatoreParacadutismo(0, 0), GiocatoreParacadutismo(0, 0)]
+
+		self.ancora_in_volo = True
+		self.PUNTEGGIO_MASSIMO = 100
+
+		self.minigioco = "Paracadutismo"
+
+	def main(self):
+		while self.esecuzione_in_corso:
+			pygame.time.delay(20)
+			self.local_player.punti += 30
+
+			self.aggiorna_dati_da_server()
+
+			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+
+			##############################################################################
+			#   Listener per spegnere il gioco quando clicchi sulla
+			#   x rossa
+			##############################################################################
+
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					self.esecuzione_in_corso = False
+
+			##############################################################################
+			#
+			##############################################################################
+
+			keys = pygame.key.get_pressed()
+
+			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
+
+			if keys[pygame.K_SPACE]:
+				self.ancora_in_volo = False
+
+			if self.local_player.punti > self.PUNTEGGIO_MASSIMO:
+				self.local_player.ancora_vivo = False
+
+			if not self.ancora_in_volo: self.local_player.muovi()
+			self.local_player.disegna(self.FINESTRA)
+
+			for remote_player in self.remote_players:
+				if remote_player.ancora_vivo:
+					remote_player.disegna(self.FINESTRA)
+
+			pygame.display.update()
+

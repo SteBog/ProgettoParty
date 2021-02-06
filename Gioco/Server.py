@@ -5,6 +5,10 @@ from random import randint
 import time
 from _thread import *
 
+##############################################################################
+#	Creazione processo server
+##############################################################################
+
 INDIRIZZO_IP_SERVER = "87.250.73.23"
 PORTA_SERVER = 8100
 
@@ -22,6 +26,10 @@ sock.listen(4)
 print("Server online")
 print("Attendo connessione...")
 
+##############################################################################
+#	Funzioni per dialogo con gli host
+##############################################################################
+
 def crea_giocatore():
 	giocatore = {
 		"minigioco": 0,
@@ -30,7 +38,8 @@ def crea_giocatore():
 		"coordinata_y": 0,
 		"rivolto_a_destra": 0,
 		"ancora_vivo": 0,
-		"pronto": 0
+		"pronto": 0,
+		"punti": 0
 	}
 	return giocatore
 
@@ -40,14 +49,39 @@ def encode_pos(oggetto):
 def decode_pos(stringa_json):
 	return json.loads(stringa_json)
 
-giocatori = []
+##############################################################################
+#	Funzioni per gestione minigiochi e giocatori
+##############################################################################
 
+numGiocatore = 0
+giocatori = []
 
 for i in range(4):
 	giocatori.append(crea_giocatore())
 
-numGiocatore = 0
+def gestione_spintoni(numero_giocatore):
+	risposta = str(numero_giocatore)
+	risposta += encode_pos({"giocatori": giocatori})
+	return risposta
 
+def gestione_pong(numero_giocatore):
+	risposta = str(numero_giocatore)
+	risposta += encode_pos({"giocatori": giocatori})
+	return risposta
+
+def gestione_gara(numero_giocatore):
+	risposta = str(numero_giocatore)
+	risposta += encode_pos({"giocatori": giocatori})
+	return risposta
+
+def gestione_paracadutismo(numero_giocatore):
+	risposta = str(numero_giocatore)
+	risposta += encode_pos({"giocatori": giocatori})
+	return risposta
+
+##############################################################################
+#	Thread di gestione di singolo giocatore
+##############################################################################
 
 def t_client(conn, numGio):
 	conn.send(str.encode(encode_pos({"giocatori": giocatori})))
@@ -56,21 +90,21 @@ def t_client(conn, numGio):
 	while True:
 		try:
 			data = decode_pos(conn.recv(2048).decode())
-			giocatori[numGio] = data["giocatore"]
 
 			if not data:
 				print("Disconnesso")
 				break
 			else:
+				giocatori[numGio] = data["giocatore"]
+
 				if data["giocatore"]["minigioco"] == "Spintoni":
-					risposta = str(numGio)
-					risposta += encode_pos({"giocatori": giocatori})
+					risposta = gestione_spintoni(numGio)
 				if data["giocatore"]["minigioco"] == "Pong":
-					risposta = str(numGio)
-					risposta += encode_pos({"giocatori": giocatori})
+					risposta = gestione_pong(numGio)
 				if data["giocatore"]["minigioco"] == "Gara":
-					risposta = str(numGio)
-					risposta += encode_pos({"giocatori": giocatori})
+					risposta = gestione_gara(numGio)
+				if data["giocatore"]["minigioco"] == "Paracadutismo":
+					risposta = gestione_paracadutismo(numGio)
 
 			conn.sendall(str.encode(risposta))
 		except:

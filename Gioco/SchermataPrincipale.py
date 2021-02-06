@@ -24,7 +24,7 @@ class Schermata_Principale:
 		click = False
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
-			remotePos = self.NET.send('{"giocatore": {"minigioco": 0, "numero_giocatore": 0, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1}}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+			remotePos = self.NET.send('{"giocatore": {"minigioco": 0, "numero_giocatore": 0, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1, "pronto": 0, "punti": 0}}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 			if remotePos:
 				self.numero_giocatore = remotePos[0]
 
@@ -33,6 +33,7 @@ class Schermata_Principale:
 			pulsante_minigioco_1 = pygame.Rect(100, 100, 100, 30)
 			pulsante_minigioco_2 = pygame.Rect(300, 100, 100, 30)
 			pulsante_minigioco_3 = pygame.Rect(500, 100, 100, 30)
+			pulsante_minigioco_4 = pygame.Rect(700, 100, 100, 30)
 
 			if pulsante_minigioco_1.collidepoint((mouse_x, mouse_y)):
 				if click:
@@ -46,12 +47,17 @@ class Schermata_Principale:
 				if click:
 					minigioco = Gara(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
 					minigioco.main()
+			if pulsante_minigioco_4.collidepoint((mouse_x, mouse_y)):
+				if click:
+					minigioco = Paracadutismo(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+					minigioco.main()
 
 			click = False
 
 			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_1)
 			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_2)
 			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_3)
+			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_4)
 
 			##############################################################################
 			#   Listener per spegnere il gioco quando clicchi sulla
