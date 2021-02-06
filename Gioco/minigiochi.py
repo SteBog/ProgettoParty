@@ -3,9 +3,8 @@ import os
 from random import randint
 import json
 
-def object_to_directory(minigioco, giocatore):
+def player_to_dictionary(minigioco, giocatore):
 	risultato = {
-		"minigioco": minigioco,
 		"numero_giocatore": giocatore.numero_giocatore,
 		"coordinata_x": giocatore.x,
 		"coordinata_y": giocatore.y,
@@ -123,10 +122,10 @@ class MiniGioco:
 
 		self.esecuzione_in_corso = True
 		self.tutti_pronti = False
-		self.minigioco = None
+		self.minigioco = "Hello World"
 
 	def aggiorna_dati_da_server(self):
-		dati_server = self.NET.send(encode_pos({"giocatore": object_to_directory(self.minigioco, self.local_player)}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+		dati_server = self.NET.send(encode_pos({"giocatore": player_to_dictionary(self.minigioco, self.local_player), "info": {"minigioco": self.minigioco}}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 		if dati_server:
 			self.local_player.numero_giocatore = int(dati_server[0])
 			dati_server = decode_pos(dati_server[1:])
@@ -539,4 +538,3 @@ class Paracadutismo(MiniGioco):
 					remote_player.disegna(self.FINESTRA)
 
 			pygame.display.update()
-

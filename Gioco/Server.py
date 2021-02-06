@@ -32,7 +32,6 @@ print("Attendo connessione...")
 
 def crea_giocatore():
 	giocatore = {
-		"minigioco": 0,
 		"numero_giocatore": -1,
 		"coordinata_x": 0,
 		"coordinata_y": 0,
@@ -97,13 +96,13 @@ def t_client(conn, numGio):
 			else:
 				giocatori[numGio] = data["giocatore"]
 
-				if data["giocatore"]["minigioco"] == "Spintoni":
+				if data["info"]["minigioco"] == "Spintoni":
 					risposta = gestione_spintoni(numGio)
-				if data["giocatore"]["minigioco"] == "Pong":
+				if data["info"]["minigioco"] == "Pong":
 					risposta = gestione_pong(numGio)
-				if data["giocatore"]["minigioco"] == "Gara":
+				if data["info"]["minigioco"] == "Gara":
 					risposta = gestione_gara(numGio)
-				if data["giocatore"]["minigioco"] == "Paracadutismo":
+				if data["info"]["minigioco"] == "Paracadutismo":
 					risposta = gestione_paracadutismo(numGio)
 
 			conn.sendall(str.encode(risposta))

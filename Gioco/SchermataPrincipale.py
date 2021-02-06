@@ -24,7 +24,7 @@ class Schermata_Principale:
 		click = False
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
-			remotePos = self.NET.send('{"giocatore": {"minigioco": 0, "numero_giocatore": 0, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1, "pronto": 0, "punti": 0}}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+			remotePos = self.NET.send('{"giocatore": {"numero_giocatore": 0, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1, "pronto": 0, "punti": 0}, "info": {"minigioco": "Home"}}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 			if remotePos:
 				self.numero_giocatore = remotePos[0]
 
