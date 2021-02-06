@@ -78,6 +78,11 @@ def gestione_paracadutismo(numero_giocatore):
 	risposta += encode_pos({"giocatori": giocatori})
 	return risposta
 
+def gestione_battaglia_navale(numero_giocatore):
+	risposta = str(numero_giocatore)
+	risposta += encode_pos({"giocatori": giocatori})
+	return risposta
+
 ##############################################################################
 #	Thread di gestione di singolo giocatore
 ##############################################################################
@@ -104,6 +109,8 @@ def t_client(conn, numGio):
 					risposta = gestione_gara(numGio)
 				if data["info"]["minigioco"] == "Paracadutismo":
 					risposta = gestione_paracadutismo(numGio)
+				if data["info"]["minigioco"] == "BattagliaNavale":
+					risposta = gestione_battaglia_navale(numGio)
 
 			conn.sendall(str.encode(risposta))
 		except:

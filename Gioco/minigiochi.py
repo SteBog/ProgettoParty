@@ -3,7 +3,7 @@ import os
 from random import randint
 import json
 
-def player_to_dictionary(minigioco, giocatore):
+def player_to_dictionary(giocatore):
 	risultato = {
 		"numero_giocatore": giocatore.numero_giocatore,
 		"coordinata_x": giocatore.x,
@@ -122,10 +122,13 @@ class MiniGioco:
 
 		self.esecuzione_in_corso = True
 		self.tutti_pronti = False
-		self.minigioco = "Hello World"
+
+		self.info = {
+			"minigioco": "None"
+		}
 
 	def aggiorna_dati_da_server(self):
-		dati_server = self.NET.send(encode_pos({"giocatore": player_to_dictionary(self.minigioco, self.local_player), "info": {"minigioco": self.minigioco}}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+		dati_server = self.NET.send(encode_pos({"giocatore": player_to_dictionary(self.local_player), "info": self.info}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 		if dati_server:
 			self.local_player.numero_giocatore = int(dati_server[0])
 			dati_server = decode_pos(dati_server[1:])
@@ -161,7 +164,9 @@ class SpintoniSuPiattaforma(MiniGioco):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Mappa1.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-		self.minigioco = "Spintoni"
+		self.info = {
+			"minigioco": "Spintoni"
+		}
 
 	def main(self):
 		while self.esecuzione_in_corso:
@@ -326,7 +331,9 @@ class Pong(MiniGioco):
 		self.punteggio_destra = 0
 		self.FONT = pygame.font.SysFont("comicsans", 50)
 
-		self.minigioco = "Pong"
+		self.info = {
+			"minigioco": "Pong"
+		}
 
 	def segna_risultato(self, finestra, schermo_larghezza):
 		txt_punteggio_sinistra = self.FONT.render(str(self.punteggio_sinistra), 1, (0, 0, 0))
@@ -475,8 +482,107 @@ class JustDance(MiniGioco):
 	pass
 
 
+class GiocatoreBN(Giocatore):
+	def __init__(self, x, y):
+		super().__init__(x, y)
+		self.casella_squadra = 0	#	su quale casella del proprio campo si trova
+
+	def muovi(self, tasti):
+		if tasti[pygame.K_UP] and self.casella_squadra > 3:
+			self.casella_squadra -= 4
+			self.y -= 150
+			
+		if tasti[pygame.K_DOWN] and self.casella_squadra < 12:
+			self.casella_squadra += 4
+			self.y += 150
+
+		if tasti[pygame.K_LEFT] and self.casella_squadra % 4 != 0:
+			self.casella_squadra -= 1
+			self.x -= 150
+
+		if tasti[pygame.K_RIGHT] and self.casella_squadra % 4 != 3:
+			self.casella_squadra += 1
+			self.x += 150
+
+
 class BattagliaNavale(MiniGioco):
-	pass
+	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
+		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
+		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+
+		self.local_player = GiocatoreBN(218, 204)
+		self.local_player.ancora_vivo = True
+		self.remote_players = [GiocatoreBN(0, 0), GiocatoreBN(0, 0), GiocatoreBN(0, 0)]
+
+		self.info = {
+			"minigioco": "BattagliaNavale",
+			"turno": 0,
+			"scelta": -1
+		}
+		self.scelta = 0
+		self.disegna_celle()
+
+	def disegna_celle(self):
+		for i in range(4):
+			for j in range(4):
+				pygame.draw.rect(self.FINESTRA, (0, 0, 0), pygame.Rect(150 * i + 200, 150 * j + 200, 100, 100))
+		for i in range(4):
+			for j in range(4):
+				pygame.draw.rect(self.FINESTRA, (0, 0, 0), pygame.Rect(150 * i + 1170, 150 * j + 200, 100, 100))
+
+	def attacca(self, tasti):
+		if tasti[pygame.K_UP] and self.scelta > 3:
+			self.scelta -= 4
+			
+		if tasti[pygame.K_DOWN] and self.scelta < 12:
+			self.scelta += 4
+
+		if tasti[pygame.K_LEFT] and self.scelta % 4 != 0:
+			self.scelta -= 1
+
+		if tasti[pygame.K_RIGHT] and self.scelta % 4 != 3:
+			self.scelta += 1
+
+		pygame.draw.rect(self.FINESTRA, (255, 0, 0), pygame.Rect(150 * self.scelta % 4 + 1170, 150 * self.scelta // 4 + 200, 100, 100))
+
+
+	def main(self):
+		while self.esecuzione_in_corso:
+			pygame.time.delay(20)
+			
+			self.aggiorna_dati_da_server()
+
+			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+			self.disegna_celle()
+
+			##############################################################################
+			#   Listener per spegnere il gioco quando clicchi sulla
+			#   x rossa
+			##############################################################################
+
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					self.esecuzione_in_corso = False
+
+			##############################################################################
+			#
+			##############################################################################
+
+			keys = pygame.key.get_pressed()
+
+			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
+
+			self.local_player.muovi(keys)
+			self.attacca(keys)
+
+			self.local_player.disegna(self.FINESTRA)
+
+			for remote_player in self.remote_players:
+				if remote_player.ancora_vivo:
+					remote_player.disegna(self.FINESTRA)
+
+			pygame.display.update()
 
 
 class GiocatoreParacadutismo(Giocatore):
@@ -496,7 +602,9 @@ class Paracadutismo(MiniGioco):
 		self.ancora_in_volo = True
 		self.PUNTEGGIO_MASSIMO = 100
 
-		self.minigioco = "Paracadutismo"
+		self.info = {
+			"minigioco": "Paracadutismo"
+		}
 
 	def main(self):
 		while self.esecuzione_in_corso:

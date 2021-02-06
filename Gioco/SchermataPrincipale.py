@@ -34,6 +34,7 @@ class Schermata_Principale:
 			pulsante_minigioco_2 = pygame.Rect(300, 100, 100, 30)
 			pulsante_minigioco_3 = pygame.Rect(500, 100, 100, 30)
 			pulsante_minigioco_4 = pygame.Rect(700, 100, 100, 30)
+			pulsante_minigioco_5 = pygame.Rect(900, 100, 100, 30)
 
 			if pulsante_minigioco_1.collidepoint((mouse_x, mouse_y)):
 				if click:
@@ -51,6 +52,10 @@ class Schermata_Principale:
 				if click:
 					minigioco = Paracadutismo(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
 					minigioco.main()
+			if pulsante_minigioco_5.collidepoint((mouse_x, mouse_y)):
+				if click:
+					minigioco = BattagliaNavale(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+					minigioco.main()
 
 			click = False
 
@@ -58,6 +63,7 @@ class Schermata_Principale:
 			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_2)
 			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_3)
 			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_4)
+			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_5)
 
 			##############################################################################
 			#   Listener per spegnere il gioco quando clicchi sulla
