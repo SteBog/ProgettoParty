@@ -161,10 +161,19 @@ class MiniGioco:
 
 
 class SpintoniSuPiattaforma(MiniGioco):
-	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
+	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Mappa1.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+
+		if int(numero_giocatore) == 0: self.local_player = Giocatore(x=650, y=250)
+		elif int(numero_giocatore) == 1: self.local_player = Giocatore(x=1200,y=250)
+		elif int(numero_giocatore) == 2: self.local_player = Giocatore(x=650, y=750)
+		elif int(numero_giocatore) == 3: self.local_player = Giocatore(x=1200, y=750)
+
+		self.local_player.ancora_vivo = True
+		self.local_player.numero_giocatore = int(numero_giocatore)
+
 		self.info = {
 			"minigioco": "Spintoni"
 		}
@@ -319,12 +328,18 @@ class PallinaPong:
 			return 0
 
 class Pong(MiniGioco):
-	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
+	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
-		self.local_player = GiocatorePong(500, 500)
+		if int(numero_giocatore) == 0: self.local_player = GiocatorePong(x=650, y=250)
+		elif int(numero_giocatore) == 1: self.local_player = GiocatorePong(x=650, y=750)
+		elif int(numero_giocatore) == 2: self.local_player = GiocatorePong(x=1200,y=250)
+		elif int(numero_giocatore) == 3: self.local_player = GiocatorePong(x=1200, y=750)
+		
+		self.local_player.numero_giocatore = int(numero_giocatore)
+
 		self.remote_players = [GiocatorePong(0, 0), GiocatorePong(0, 0), GiocatorePong(0, 0)]
 
 		self.pallina = PallinaPong()
@@ -429,12 +444,16 @@ class GiocatoreGara(Giocatore):
 			self.ultimo_tasto = 0
 
 class Gara(MiniGioco):
-	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
+	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
-		self.local_player = GiocatoreGara(100, 200)
+		if int(numero_giocatore) == 0: self.local_player = GiocatoreGara(x=150, y=200)
+		elif int(numero_giocatore) == 1: self.local_player = GiocatoreGara(x=150, y=500)
+		elif int(numero_giocatore) == 2: self.local_player = GiocatoreGara(x=150,y=800)
+		elif int(numero_giocatore) == 3: self.local_player = GiocatoreGara(x=150, y=1100)
+
 		self.local_player.ancora_vivo = True
 		self.remote_players = [GiocatoreGara(0, 0), GiocatoreGara(0, 0), GiocatoreGara(0, 0)]
 
@@ -505,13 +524,17 @@ class GiocatoreBN(Giocatore):
 
 
 class BattagliaNavale(MiniGioco):
-	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
+	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
-		self.local_player = GiocatoreBN(218, 204)
+		if int(numero_giocatore) % 2 == 0: self.local_player = GiocatoreBN(x=218, y=204)
+		elif int(numero_giocatore) % 2 == 1: self.local_player = GiocatoreBN(x=218, y=654)
+
 		self.local_player.ancora_vivo = True
+		self.local_player.numero_giocatore = numero_giocatore
+
 		self.remote_players = [GiocatoreBN(0, 0), GiocatoreBN(0, 0), GiocatoreBN(0, 0)]
 
 		self.info = {
@@ -600,13 +623,19 @@ class GiocatoreParacadutismo(Giocatore):
 		self.y -= 10
 
 class Paracadutismo(MiniGioco):
-	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
+	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
-		self.local_player = GiocatoreParacadutismo(300, 300)
+		if int(numero_giocatore) == 0: self.local_player = GiocatoreParacadutismo(x=200, y=200)
+		elif int(numero_giocatore) == 1: self.local_player = GiocatoreParacadutismo(x=600, y=200)
+		elif int(numero_giocatore) == 2: self.local_player = GiocatoreParacadutismo(x=1000,y=200)
+		elif int(numero_giocatore) == 3: self.local_player = GiocatoreParacadutismo(x=1400, y=200)
+
 		self.local_player.ancora_vivo = True
+		self.local_player.numero_giocatore = numero_giocatore
+
 		self.remote_players = [GiocatoreParacadutismo(0, 0), GiocatoreParacadutismo(0, 0), GiocatoreParacadutismo(0, 0)]
 
 		self.ancora_in_volo = True

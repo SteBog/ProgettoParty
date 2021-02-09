@@ -38,23 +38,23 @@ class Schermata_Principale:
 
 			if pulsante_minigioco_1.collidepoint((mouse_x, mouse_y)):
 				if click:
-					minigioco = SpintoniSuPiattaforma(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+					minigioco = SpintoniSuPiattaforma(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
 					minigioco.main()
 			if pulsante_minigioco_2.collidepoint((mouse_x, mouse_y)):
 				if click:
-					minigioco = Pong(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+					minigioco = Pong(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
 					minigioco.main()
 			if pulsante_minigioco_3.collidepoint((mouse_x, mouse_y)):
 				if click:
-					minigioco = Gara(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+					minigioco = Gara(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
 					minigioco.main()
 			if pulsante_minigioco_4.collidepoint((mouse_x, mouse_y)):
 				if click:
-					minigioco = Paracadutismo(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+					minigioco = Paracadutismo(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
 					minigioco.main()
 			if pulsante_minigioco_5.collidepoint((mouse_x, mouse_y)):
 				if click:
-					minigioco = BattagliaNavale(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+					minigioco = BattagliaNavale(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
 					minigioco.main()
 
 			click = False
