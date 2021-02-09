@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
 	click = False
 	NET = Connessione()
-	
+
 	while True:
 		pygame.time.delay(20)
 		FINESTRA.blit(SFONDO_SCHERMATA_PRINCIPALE, (0, 0))

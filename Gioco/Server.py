@@ -60,22 +60,22 @@ for i in range(4):
 
 def gestione_spintoni(numero_giocatore):
 	risposta = str(numero_giocatore)
-	risposta += encode_pos({"giocatori": giocatori})
+	risposta += encode_pos({"giocatori": giocatori, "info": {"minigioco": "Spintoni"}})
 	return risposta
 
 def gestione_pong(numero_giocatore):
 	risposta = str(numero_giocatore)
-	risposta += encode_pos({"giocatori": giocatori})
+	risposta += encode_pos({"giocatori": giocatori, "info": {"minigioco": "Pong"}})
 	return risposta
 
 def gestione_gara(numero_giocatore):
 	risposta = str(numero_giocatore)
-	risposta += encode_pos({"giocatori": giocatori})
+	risposta += encode_pos({"giocatori": giocatori, "info": {"minigioco": "Gara"}})
 	return risposta
 
 def gestione_paracadutismo(numero_giocatore):
 	risposta = str(numero_giocatore)
-	risposta += encode_pos({"giocatori": giocatori})
+	risposta += encode_pos({"giocatori": giocatori, "info": {"minigioco": "Paracadutismo"}})
 	return risposta
 
 
@@ -90,6 +90,12 @@ turno = 0
 
 def gestione_battaglia_navale(numero_giocatore, dati):
 	if numero_giocatore < 2:
+		if dati["info"]["scelta"] != -1 and dati["info"]["turno"] == 0:
+			if numero_cella_giocatori[2] == dati["info"]["scelta"] or numero_cella_giocatori[3] == dati["info"]["scelta"]:
+				celle_squadra_due[dati["info"]["scelta"]] = 2
+			else:
+				celle_squadra_due[dati["info"]["scelta"]] = 1
+
 		info = {
 			"minigioco": "BattagliaNavale",
 			"celle_avversari": celle_squadra_due,

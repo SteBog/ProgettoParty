@@ -438,7 +438,9 @@ class Gara(MiniGioco):
 		self.local_player.ancora_vivo = True
 		self.remote_players = [GiocatoreGara(0, 0), GiocatoreGara(0, 0), GiocatoreGara(0, 0)]
 
-		self.minigioco = "Gara"
+		self.info = {
+			"minigioco": "Gara"
+		}
 
 	def main(self):
 		while self.esecuzione_in_corso:
@@ -553,7 +555,6 @@ class BattagliaNavale(MiniGioco):
 
 		pygame.draw.rect(self.FINESTRA, (255, 0, 0), pygame.Rect(150 * (self.scelta % 4) + 1170, 150 * (self.scelta // 4) + 200, 100, 100))
 
-
 	def main(self):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
@@ -583,12 +584,11 @@ class BattagliaNavale(MiniGioco):
 
 			if self.tutti_pronti:
 				self.attacca(keys)
-			else:
-				self.local_player.muovi(keys)
 				if (self.local_player.numero_giocatore < 2 and self.info["turno"] == 0) or (self.local_player.numero_giocatore >= 2 and self.info["turno"] == 1):
 					if keys[pygame.K_RETURN] and not self.info["celle_avversari"][self.scelta]:
 						self.info["scelta"] = self.scelta
-						print("Scelta")
+			else:
+				self.local_player.muovi(keys)
 
 			self.local_player.disegna(self.FINESTRA)
 
