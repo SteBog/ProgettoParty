@@ -481,10 +481,6 @@ class Gara(MiniGioco):
 			pygame.display.update()
 
 
-class JustDance(MiniGioco):
-	pass
-
-
 class GiocatoreBN(Giocatore):
 	def __init__(self, x, y):
 		super().__init__(x, y)

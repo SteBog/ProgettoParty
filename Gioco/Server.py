@@ -86,7 +86,14 @@ def gestione_paracadutismo(numero_giocatore):
 celle_squadra_uno = [0 for _ in range(16)]
 celle_squadra_due = [0 for _ in range(16)]
 numero_cella_giocatori = [-1, -1, -1, -1]
-turno = 0
+
+info = {
+	"minigioco": "BattagliaNavale",
+	"celle_avversari": None,
+	"casella_giocatore": 0,
+	"turno": 0,
+	"scelta": -1
+}
 
 def gestione_battaglia_navale(numero_giocatore, dati):
 	if numero_giocatore < 2:
@@ -95,14 +102,10 @@ def gestione_battaglia_navale(numero_giocatore, dati):
 				celle_squadra_due[dati["info"]["scelta"]] = 2
 			else:
 				celle_squadra_due[dati["info"]["scelta"]] = 1
+			info["turno"] = 1
 
-		info = {
-			"minigioco": "BattagliaNavale",
-			"celle_avversari": celle_squadra_due,
-			"casella_giocatore": 0,
-			"turno": turno,
-			"scelta": -1
-		}
+		info["celle_avversari"] = celle_squadra_due
+
 	risposta = str(numero_giocatore)
 	risposta += encode_pos({"giocatori": giocatori, "info": info})
 	return risposta
