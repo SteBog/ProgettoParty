@@ -1,0 +1,46 @@
+###########################################################
+Statistiche utente
+###########################################################
+
+SELECT Utenti.Email, FotoProfilo, Utenti.DataNascita, 
+(SELECT COUNT(Partita.Vincitore), Utenti.Username
+FROM Partita INNER JOIN Utenti ON Partita.Vincitore = Utenti.IDUtente
+WHERE IDUtente = #UsernameAttuale#) AS [Partite vinte], Accesso.Disconnessione
+FROM UTENTI INNER JOIN Accesso ON Utenti.IDUtente = Accesso.IDFUtente
+WHERE Utenti.Username = #UsernameAttuale#
+
+
+###########################################################
+Lista amici con ultimo accesso
+###########################################################
+
+SELECT Utenti.Username, Accesso.Disconnessione AS UltimoAccesso
+FROM Amicizia INNER JOIN (Utenti INNER JOIN Accesso On Utenti.IDUtente = Accesso.IDFAccesso) ON Amicizia.IDFUtenteRichiedente = IDUtente!!!!!!
+WHERE Utenti.Username = #UsernameAttuale#
+
+
+###########################################################
+Lista minigiochi con dettagli
+###########################################################
+
+SELECT Nome, Mappa, Descrizione
+From Minigioco
+
+
+###########################################################
+Conteggio partite vinte per un giocatore
+###########################################################
+
+SELECT COUNT(Partita.Vincitore), Utenti.Username
+FROM Partita INNER JOIN Utenti ON Partita.Vincitore = Utenti.IDUtente
+WHERE Utenti.Username = #UsernameAttuale#
+
+
+###########################################################
+Lista Gio0catori partite
+###########################################################
+
+SELECT Utenti.IDUtente, DataPartita
+FROM Utenti INNER JOIN (GiocatorePartita INNER JOIN Partita ON GiocatorePartita.IDFUtente = Partita.IDPartita) ON Utenti.IDUtente = GiocatorePartita.IDFUtente
+GROUP BY Partita.DataPartita
+
