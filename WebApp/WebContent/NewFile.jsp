@@ -8,10 +8,15 @@
 </head>
 <body>
 
-<form name="esempio" action="/ProvaServlet/ProvaServlet" method="post">
-	<a href="/ProvaServlet/ProvaServlet" target="_top">Servlet</a>
-	<input type="text" name="nome">		<!-- Parametro passato tramite testo -->
-	<input type="submit" name="nome">
+<form name="esempio" action="/WebApp/Servlet1" method="post">
+	<a href="/WebApp/Servlet1" target="_top">Servlet</a>
+	<br>
+	<input type="text" name="Username">		<!-- Parametro passato tramite testo -->
+	<br>
+	<input type="text" name="Password">		<!-- Parametro passato tramite testo -->
+	<br>
+	<br>
+	<input type="submit" name="invia">
 </form>
 </body>
 </html>

@@ -11,21 +11,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Servlet implementation class ProvaServlet
+ * Servlet implementation class Servlet1
  */
-@WebServlet("/ProvaServlet")	// Nome con cui viene richiamata
-public class ProvaServlet extends HttpServlet {
+@WebServlet("/Servlet1")
+public class Servlet1 extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public ProvaServlet() {
+    public Servlet1() {
         super();
         // TODO Auto-generated constructor stub
     }
-
-	/**
+    
+    /**
 	 * @see Servlet#init(ServletConfig)
 	 */
 	public void init(ServletConfig config) throws ServletException {
@@ -47,17 +47,21 @@ public class ProvaServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// Esempio
-		response.setContentType("text/html");
-		PrintWriter printw = response.getWriter();
-		printw.println("<html>");
-		printw.println("<body>");
-		printw.println("ciao");
-		printw.println("</body>");
-		printw.println("</html>");
+		String Username = request.getParameter("Username");
+		String Password = request.getParameter("Password");
 		
-		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		// Esempio
+				response.setContentType("text/html");
+				PrintWriter printw = response.getWriter();
+				printw.println("<html>");
+				printw.println("<body>");
+				printw.println("Username: " + Username + "<br>");
+				printw.println("Password: " + Password + "<br>");
+				printw.println("</body>");
+				printw.println("</html>");
+				
+				// TODO Auto-generated method stub
+				response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 
 	/**
@@ -69,4 +73,3 @@ public class ProvaServlet extends HttpServlet {
 	}
 
 }
-

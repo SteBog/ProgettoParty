@@ -3,3 +3,5 @@
 .metadata/
 Servers/
 .settings/
+.classpath
+.DS_Store
