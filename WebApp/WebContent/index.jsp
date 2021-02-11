@@ -6,7 +6,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js"></script>
-		<link href="opzioni.css" rel="stylesheet" type="text/css">
+		<link href="stili.css" rel="stylesheet" type="text/css">
 		<script src="script.js"></script>
 	</head>
 		<body>
