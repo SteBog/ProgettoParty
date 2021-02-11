@@ -1,3 +1,3 @@
 INDEX VERSION 1.131
-C:\Users\stebo\Documents\ProgettoParty\ProgettoParty\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\1872966237.index
-\WebApp\src
+/Users/stebog/RepositoryParty/ProgettoParty/.metadata/.plugins/org.eclipse.jst.jsp.core/jspsearch/730681221.index
+/WebApp/src
