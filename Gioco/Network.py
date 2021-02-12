@@ -13,11 +13,12 @@ class Connessione():
 			self.client.connect(self.addr)
 			return self.client.recv(2048).decode()
 		except:
-			pass
+			print("Impossibile connettersi al server")
 
 	def send(self, data):
 		try:
 			self.client.send(str.encode(data))
 			return self.client.recv(2048).decode()
 		except socket.error as e:
+			str(e)
 			return None
