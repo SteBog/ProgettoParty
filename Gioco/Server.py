@@ -1,8 +1,6 @@
 # coding=utf-8
 import socket
 import json
-from random import randint
-import time
 from _thread import *
 
 ##############################################################################
