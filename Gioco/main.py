@@ -1,5 +1,4 @@
 import pygame
-import socket
 import os
 from Network import Connessione
 from SchermataPrincipale import *

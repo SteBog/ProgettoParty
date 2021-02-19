@@ -1,7 +1,0 @@
-INDEX VERSION 1.4+C:\Users\HP_home\Desktop\Simo_ONLINE\Progetto_Party\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
-4060855333.index
-2575932659.index
-2964755012.index
-2264060067.index
-1612141890.index
-3165975125.index

@@ -1,7 +1,7 @@
 import pygame
 import os
-from random import randint
 import json
+import time
 
 def player_to_dictionary(giocatore):
 	risultato = {
@@ -128,7 +128,9 @@ class MiniGioco:
 		}
 
 	def aggiorna_dati_da_server(self):
+		ping = time.perf_counter_ns()
 		dati_server = self.NET.send(encode_pos({"giocatore": player_to_dictionary(self.local_player), "info": self.info}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+		ping = time.perf_counter_ns() - ping	#	latenza espressa in nano secondi
 		if dati_server:
 			self.local_player.numero_giocatore = int(dati_server[0])
 			dati_server = decode_pos(dati_server[1:])
@@ -530,8 +532,12 @@ class BattagliaNavale(MiniGioco):
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
-		if int(numero_giocatore) % 2 == 0: self.local_player = GiocatoreBN(x=218, y=204)
-		elif int(numero_giocatore) % 2 == 1: self.local_player = GiocatoreBN(x=218, y=654)
+		if int(numero_giocatore) % 2 == 0: 
+			self.local_player = GiocatoreBN(x=218, y=204)
+			self.local_player.casella_squadra = 0
+		elif int(numero_giocatore) % 2 == 1:
+			self.local_player = GiocatoreBN(x=218, y=654)
+			self.local_player.casella_squadra = 12
 
 		self.local_player.ancora_vivo = True
 		self.local_player.numero_giocatore = numero_giocatore
@@ -640,7 +646,7 @@ class Paracadutismo(MiniGioco):
 		self.remote_players = [GiocatoreParacadutismo(0, 0), GiocatoreParacadutismo(0, 0), GiocatoreParacadutismo(0, 0)]
 
 		self.ancora_in_volo = True
-		self.PUNTEGGIO_MASSIMO = 100
+		self.PUNTEGGIO_MASSIMO = 100000000
 
 		self.info = {
 			"minigioco": "Paracadutismo"

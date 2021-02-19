@@ -1,3 +1,0 @@
-INDEX VERSION 1.131
-C:\Users\HP_home\Desktop\Simo_ONLINE\Progetto_Party\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\3812927971.index
-\ProgettoParty\src

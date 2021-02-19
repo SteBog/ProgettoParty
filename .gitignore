@@ -5,3 +5,4 @@ Servers/
 .settings/
 .classpath
 .DS_Store
+WebApp/build/
