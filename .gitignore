@@ -6,3 +6,4 @@ Servers/
 .classpath
 .DS_Store
 WebApp/build/
+/WebApp/build/
