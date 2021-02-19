@@ -208,7 +208,7 @@ class SpintoniSuPiattaforma(MiniGioco):
 			##############################################################################
 
 			for giocatore in self.remote_players:
-				if giocatore.ancora_vivo and self.tutti_pronti:
+				if giocatore.ancora_vivo:
 					self.local_player.collisione(giocatore)
 
 			if self.local_player.ancora_vivo:
@@ -339,6 +339,7 @@ class Pong(MiniGioco):
 		elif int(numero_giocatore) == 3: self.local_player = GiocatorePong(x=1200, y=750)
 		
 		self.local_player.numero_giocatore = int(numero_giocatore)
+		self.local_player.ancora_vivo = True
 
 		self.remote_players = [GiocatorePong(0, 0), GiocatorePong(0, 0), GiocatorePong(0, 0)]
 

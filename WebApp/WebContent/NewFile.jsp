@@ -11,9 +11,9 @@
 <form name="esempio" action="/WebApp/Servlet1" method="post">
 	<a href="/WebApp/Servlet1" target="_top">Servlet</a>
 	<br>
-	<input type="text" name="Username">		<!-- Parametro passato tramite testo -->
+	<input type="text" name="username">		<!-- Parametro passato tramite testo -->
 	<br>
-	<input type="text" name="Password">		<!-- Parametro passato tramite testo -->
+	<input type="text" name="password">		<!-- Parametro passato tramite testo -->
 	<br>
 	<br>
 	<input type="submit" name="invia">

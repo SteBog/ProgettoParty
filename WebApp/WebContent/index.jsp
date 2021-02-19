@@ -10,7 +10,7 @@
 		<script src="script.js"></script>
 	</head>
 		<body>
-			<form action="#" method="post">
+			<form action="/WebApp/Servlet1" method="post">
 				<div class="container" id="div_login">
 					<span class="titolo_progetto">Progetto Party</span>
 					<input type="text" name="username" id="username_login" placeholder="Nome Utente">
@@ -19,7 +19,7 @@
 					<span class="scritta_basso" onclick="prossimo_div_login();">Non hai un account? Registrati!</span>
 				</div>
 			</form>
-			<form action="#" method="post">
+			<form action="/WebApp/Servlet1" method="post">
 				<div class="container" id="div_registrazione_first" style="display: none;">
 					<span class="titolo_progetto">Progetto Party</span>
 					<input type="text" name="email" id="email_registrazione" placeholder="Email">

@@ -1,9 +1,13 @@
-
+import JavaBeans.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -47,29 +51,55 @@ public class Servlet1 extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String Username = request.getParameter("Username");
-		String Password = request.getParameter("Password");
-		
-		// Esempio
-				response.setContentType("text/html");
-				PrintWriter printw = response.getWriter();
-				printw.println("<html>");
-				printw.println("<body>");
-				printw.println("Username: " + Username + "<br>");
-				printw.println("Password: " + Password + "<br>");
-				printw.println("</body>");
-				printw.println("</html>");
-				
-				// TODO Auto-generated method stub
-				response.getWriter().append("Served at: ").append(request.getContextPath());
+		ServletContext sc = request.getSession().getServletContext();
+		request.removeAttribute("Utenti");
+		DBManagement listUtenti = new DBManagement();
+		ArrayList<UtentiBean> utenti = new ArrayList<UtentiBean>();
+		try
+		{
+			utenti = listUtenti.selectUtenti();
+			request.setAttribute("COMPANIES", utenti);
+			RequestDispatcher rd = sc.getRequestDispatcher("/NewFile.jsp");
+			rd.forward(request, response);
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			RequestDispatcher rd = sc.getRequestDispatcher("/error.jsp");
+			rd.forward(request, response);
+		}
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String Username = request.getParameter("username");
+		String Password = request.getParameter("password");
+		
+		// Esempio
+		response.setContentType("text/html");
+		PrintWriter out = response.getWriter();
+
+		ServletContext sc = request.getSession().getServletContext();
+		request.removeAttribute("Utenti");
+		DBManagement listUtenti = new DBManagement();
+		ArrayList<UtentiBean> utenti = new ArrayList<UtentiBean>();
+		try
+		{
+			utenti = listUtenti.selectUtenti();
+			request.setAttribute("Utenti", utenti);
+			RequestDispatcher rd = sc.getRequestDispatcher("/NewFile.jsp");
+			rd.forward(request, response);
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			RequestDispatcher rd = sc.getRequestDispatcher("/index.jsp");
+			rd.forward(request, response);
+		}
 		// TODO Auto-generated method stub
-		doGet(request, response);
+		response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 
 }
