@@ -10,7 +10,7 @@ class Schermata_Principale:
 		self.NET = connessione
 
 		self.FINESTRA = finestra
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Campo_Final_Spikes.jpg")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Campo_Final_Spikes.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		self.SCREEN_HEIGHT = schermo_altezza
