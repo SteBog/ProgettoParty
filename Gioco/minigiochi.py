@@ -112,11 +112,7 @@ class MiniGioco:
 		self.NET = connessione
 		self.count_high_ping = 0
 		self.immagine_latenza_elevata = pygame.image.load(PERCORSO + "/Gioco/Immagini/high_latency.png")
-<<<<<<< HEAD
 		self.immagine_latenza_elevata = pygame.transform.scale(self.immagine_latenza_elevata, (128, 128))
-=======
-		self.immagine_latenza_elevata = pygame.transform.scale(self.immagine_latenza_elevata, (70, 65))
->>>>>>> 2bc370ca3ef49168417baaa22f9e4f46989cc577
 
 		self.FINESTRA = finestra
 
