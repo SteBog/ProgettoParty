@@ -3,13 +3,10 @@ package JavaBeans;
 import java.util.Date;
 public class UtentiBean {
     
-    private String Nome;
-    private String Cognome;
     private String Email;
     private String Password;
     private String Username;
     private String FotoProfilo;
-    private String Nazionalita;
     private Date DataNascita = new Date();
     
 
@@ -17,20 +14,6 @@ public class UtentiBean {
     public UtentiBean() { }
 
     
-    public String getNome() {
-        return this.Nome;
-    }
-    public void setNome(String nome) {
-        this.Nome = nome;
-    }
-    
-    public String getCognome() {
-        return this.Cognome;
-    }
-    public void setCognome(String cognome) {
-        this.Cognome = cognome;
-    }
-
 	public String getEmail() {
 		return this.Email;
 	}
@@ -61,14 +44,6 @@ public class UtentiBean {
 
 	public void setFotoProfilo(String fotoProfilo) {
 		this.FotoProfilo = fotoProfilo;
-	}
-
-	public String getNazionalita() {
-		return this.Nazionalita;
-	}
-
-	public void setNazionalita(String nazionalita) {
-		this.Nazionalita = nazionalita;
 	}
 
 	public Date getDataNascita() {
