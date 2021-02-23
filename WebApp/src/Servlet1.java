@@ -52,22 +52,7 @@ public class Servlet1 extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		ServletContext sc = request.getSession().getServletContext();
-		request.removeAttribute("Utenti");
-		DBManagement listUtenti = new DBManagement();
-		ArrayList<UtentiBean> utenti = new ArrayList<UtentiBean>();
-		try
-		{
-			utenti = listUtenti.selectUtenti();
-			request.setAttribute("COMPANIES", utenti);
-			RequestDispatcher rd = sc.getRequestDispatcher("/NewFile.jsp");
-			rd.forward(request, response);
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-			RequestDispatcher rd = sc.getRequestDispatcher("/error.jsp");
-			rd.forward(request, response);
-		}
+		
 	}
 
 	/**
@@ -87,10 +72,18 @@ public class Servlet1 extends HttpServlet {
 		ArrayList<UtentiBean> utenti = new ArrayList<UtentiBean>();
 		try
 		{
-			utenti = listUtenti.selectUtenti();
-			request.setAttribute("Utenti", utenti);
-			RequestDispatcher rd = sc.getRequestDispatcher("/NewFile.jsp");
-			rd.forward(request, response);
+			utenti = listUtenti.selectUtenti(Username, Password);
+			if(utenti.isEmpty()) {
+				RequestDispatcher rd = sc.getRequestDispatcher("/NewFile.jsp");
+				rd.forward(request, response);
+			}
+			else
+			{
+				request.setAttribute("Utenti", utenti);
+				RequestDispatcher rd = sc.getRequestDispatcher("/amici.html");
+				rd.forward(request, response);
+			}
+			
 		}
 		catch (SQLException e)
 		{

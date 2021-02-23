@@ -13,7 +13,7 @@ public class DBManagement {
 	
 	//Parametri di accesso al database
 	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";
-	private static final String DB_CONNECTION = "jdbc:mysql://localhost:3306/Party";
+	private static final String DB_CONNECTION = "jdbc:mysql://87.250.73.23:3306/Party";
 	private static final String DB_USER = "adminer";
 	private static final String DB_PASSWORD = "CBC349aa";
 	
@@ -45,29 +45,27 @@ public class DBManagement {
 		return dbConnection;
 	}
 	
-	public ArrayList<UtentiBean> selectUtenti() throws SQLException
+	public ArrayList<UtentiBean> selectUtenti(String Username,String Password) throws SQLException
 	{
 		Statement stmt = null;
 		Connection conn = null;
 		
+		String select = "SELECT * FROM Utenti WHERE Username='" + Username + "' AND Password ='"  + Password + "';";
 		try
 		{
 			conn = getDBConnection();
 			stmt = conn.createStatement();
-			String select = "SELECT * FROM Utenti";
+			
 			ResultSet utentiList = stmt.executeQuery(select);
 			
 			ArrayList<UtentiBean> utentiArray = new ArrayList<UtentiBean>();
 			while (utentiList.next())
 			{
 				UtentiBean Utenti = new UtentiBean();
-				Utenti.setUsername(utentiList.getString("Nome"));
-				Utenti.setUsername(utentiList.getString("Cognome"));
 				Utenti.setUsername(utentiList.getString("Email"));
 				Utenti.setUsername(utentiList.getString("Password"));
 				Utenti.setUsername(utentiList.getString("Username"));
 				Utenti.setUsername(utentiList.getString("FotoProfilo"));
-				Utenti.setUsername(utentiList.getString("Nazionalita"));
 				Utenti.setPassword(utentiList.getString("DataNascita"));
 				// PER TUTTI I CAMPI
 				
@@ -78,7 +76,9 @@ public class DBManagement {
 		catch(SQLException sqle)
 		{
 			System.out.println("SELECT ERROR");
+			System.out.println(select);
 			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+			
 		}
 		catch(Exception err)
 		{
