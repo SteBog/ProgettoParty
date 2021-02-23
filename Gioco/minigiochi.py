@@ -710,3 +710,5 @@ class Paracadutismo(MiniGioco):
 					remote_player.disegna(self.FINESTRA)
 
 			pygame.display.update()
+
+#Prova
