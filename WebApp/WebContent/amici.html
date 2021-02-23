@@ -8,21 +8,67 @@
 		<style>
 			
 			.div_amici{
-				border-radius: 15px;
-				background: #e0e0e0;
-				box-shadow:  10px 10px 15px #9d9d9d,
-				-10px -10px 15px #ffffff;
-				margin: 200px;
+				border-radius: 5px;
+				background: #ecf0f3;
+				box-shadow:  5px 5px 5px #87898b,
+                -5px -5px 5px #ffffff;
 				height: 50px;
-				width: 400px
+				width: 400px;
+				margin-right:20px;
+				margin:20px;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
 			}
 
 			.immagine_profilo{
-				width: 20px;
-				height: 20px;
+				width: 30px;
+				height: 30px;
 				border-radius: 50%;
 				background-image: url("default.png");
 				background-size: 100%;
+				margin-left:15px;
+			}
+			
+			.NomeProfilo{
+				margin-left:10px;
+			}
+			
+			.Navbar{
+				background-image: linear-gradient(to bottom left, #80d0c7, #13547a);
+				list-style-type:none;
+				width:200px;
+				height:100vh;
+				margin-right: 30px;
+				border: 0;
+				margin: 0;
+				padding: 0;
+				color: #ffffff;
+				position:relative;
+				
+			}
+			
+			.profilo{
+				position: absolute;
+				bottom: 0px;
+				margin-bottom:10px;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+			}
+			
+			.TitoloNav{
+				font-size: 40px;
+				text-decoration: none;
+				text-align:center;
+				margin-bottom:20px;
+			}
+			
+			.TestoNav{
+				font-size: 15px;
+				text-decoration: none;
+				margin-left:20px;
+				margin-bottom:10px;
 			}
 			
 			html, body
@@ -32,20 +78,37 @@
 			border: 0;
 			margin: 0;
 			padding: 0;
-			background-color: #e0e0e0;
+			background-color: #ecf0f3;
 			background-repeat:no-repeat;
 			background-size: 100%;
 			display: flex;
 			}
 			
 			
+			
 		</style>
 	</head>
 	<body>
-		<div class="div_amici">
-			<span class="NomeProfilo">Nome Profilo</span>
-			<div class="immagine_profilo">
+		<ul class="Navbar">
+			<li class="TitoloNav">Titolo</li>
+			<li class="TestoNav">Scarica il gioco</li>
+			<li class="TestoNav">I tuoi amici</li>
+			<li class="profilo">
+				<div class="immagine_profilo">
+				</div>
+				<span class="NomeProfilo">Nome Profilo</span>
 			</div>
-		</div>
+		</ul>
+			<div class="div_amici">
+				<div class="immagine_profilo">
+				</div>
+				<span class="NomeProfilo">Nome Profilo</span>
+			</div>
+			
+			<div class="div_amici">
+				<div class="immagine_profilo">
+				</div>
+				<span class="NomeProfilo">Nome Profilo</span>
+			</div>
 	</body>
 </html>
