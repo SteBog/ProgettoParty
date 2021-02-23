@@ -112,7 +112,11 @@ class MiniGioco:
 		self.NET = connessione
 		self.count_high_ping = 0
 		self.immagine_latenza_elevata = pygame.image.load(PERCORSO + "/Gioco/Immagini/high_latency.png")
+<<<<<<< HEAD
 		self.immagine_latenza_elevata = pygame.transform.scale(self.immagine_latenza_elevata, (128, 128))
+=======
+		self.immagine_latenza_elevata = pygame.transform.scale(self.immagine_latenza_elevata, (70, 65))
+>>>>>>> 2bc370ca3ef49168417baaa22f9e4f46989cc577
 
 		self.FINESTRA = finestra
 
@@ -179,7 +183,7 @@ class MiniGioco:
 class SpintoniSuPiattaforma(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Mappa1.jpg")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Mappa1.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		if int(numero_giocatore) == 0: self.local_player = Giocatore(x=650, y=250)
@@ -345,7 +349,7 @@ class PallinaPong:
 class Pong(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		if int(numero_giocatore) == 0: self.local_player = GiocatorePong(x=650, y=250)
@@ -462,7 +466,7 @@ class GiocatoreGara(Giocatore):
 class Gara(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		if int(numero_giocatore) == 0: self.local_player = GiocatoreGara(x=150, y=200)
@@ -542,7 +546,7 @@ class GiocatoreBN(Giocatore):
 class BattagliaNavale(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		if int(numero_giocatore) % 2 == 0: 
@@ -645,7 +649,7 @@ class GiocatoreParacadutismo(Giocatore):
 class Paracadutismo(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		if int(numero_giocatore) == 0: self.local_player = GiocatoreParacadutismo(x=200, y=200)
