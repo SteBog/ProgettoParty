@@ -110,6 +110,9 @@ class Giocatore:
 class MiniGioco:
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
 		self.NET = connessione
+		self.count_high_ping = 0
+		self.immagine_latenza_elevata = pygame.image.load(PERCORSO + "/Gioco/Immagini/high_latency.gif")
+		self.immagine_latenza_elevata = pygame.transform.scale(self.immagine_latenza_elevata, (70, 65))
 
 		self.FINESTRA = finestra
 
@@ -131,6 +134,7 @@ class MiniGioco:
 		ping = time.perf_counter_ns()
 		dati_server = self.NET.send(encode_pos({"giocatore": player_to_dictionary(self.local_player), "info": self.info}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 		ping = time.perf_counter_ns() - ping	#	latenza espressa in nano secondi
+		self.high_latency_warning(ping)
 		if dati_server:
 			self.local_player.numero_giocatore = int(dati_server[0])
 			dati_server = decode_pos(dati_server[1:])
@@ -149,6 +153,16 @@ class MiniGioco:
 				self.remote_players[index_remote_players].punti = int(dati_server["giocatori"][index_remote_players]["punti"])
 				self.info = dati_server["info"]
 			index_remote_players += 1
+
+	def high_latency_warning(self, ping):
+		print(ping // 1000000)
+		if ping // 1000000 > 60:
+			self.count_high_ping += 1
+		else:
+			self.count_high_ping = 0
+
+		if self.count_high_ping > 10:
+			self.FINESTRA.blit(self.immagine_latenza_elevata, (1800, 100))
 
 	def pronto_check(self, keys):
 		if not self.local_player.pronto and keys[pygame.K_SPACE]:
@@ -184,9 +198,8 @@ class SpintoniSuPiattaforma(MiniGioco):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 
-			self.aggiorna_dati_da_server()
-
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+			self.aggiorna_dati_da_server()
 
 			##############################################################################
 			#   Listener per spegnere il gioco quando clicchi sulla
