@@ -111,8 +111,10 @@ class MiniGioco:
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
 		self.NET = connessione
 		self.count_high_ping = 0
-		self.immagine_latenza_elevata = pygame.image.load(PERCORSO + "/Gioco/Immagini/high_latency.gif")
-		self.immagine_latenza_elevata = pygame.transform.scale(self.immagine_latenza_elevata, (70, 65))
+		self.IMMAGINE_LATENZA_ELEVATA = pygame.image.load(PERCORSO + "/Gioco/Immagini/high_latency.png")
+		self.IMMAGINE_LATENZA_ELEVATA = pygame.transform.scale(self.IMMAGINE_LATENZA_ELEVATA, (128, 128))
+		self.FONT = pygame.font.SysFont("comicsans", 50)
+		self.LABEL_LATENZA_ELEVATA = self.FONT.render("Latenza elevata", 1, (255, 0, 0))
 
 		self.FINESTRA = finestra
 
@@ -155,14 +157,14 @@ class MiniGioco:
 			index_remote_players += 1
 
 	def high_latency_warning(self, ping):
-		print(ping // 1000000)
-		if ping // 1000000 > 60:
+		if ping // 1000000 > 10:
 			self.count_high_ping += 1
 		else:
 			self.count_high_ping = 0
 
-		if self.count_high_ping > 10:
-			self.FINESTRA.blit(self.immagine_latenza_elevata, (1800, 100))
+		if self.count_high_ping > 60:
+			self.FINESTRA.blit(self.IMMAGINE_LATENZA_ELEVATA, (1700, 100))
+			self.FINESTRA.blit(self.LABEL_LATENZA_ELEVATA, (1630, 250))
 
 	def pronto_check(self, keys):
 		if not self.local_player.pronto and keys[pygame.K_SPACE]:
@@ -179,7 +181,7 @@ class MiniGioco:
 class SpintoniSuPiattaforma(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Mappa1.jpg")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Mappa1.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		if int(numero_giocatore) == 0: self.local_player = Giocatore(x=650, y=250)
@@ -345,7 +347,7 @@ class PallinaPong:
 class Pong(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		if int(numero_giocatore) == 0: self.local_player = GiocatorePong(x=650, y=250)
@@ -361,23 +363,20 @@ class Pong(MiniGioco):
 		self.pallina = PallinaPong()
 		self.punteggio_sinistra = 0
 		self.punteggio_destra = 0
-		self.FONT = pygame.font.SysFont("comicsans", 50)
+		self.txt_punteggio_sinistra = self.FONT.render(str(self.punteggio_sinistra), 1, (0, 0, 0))
+		self.txt_punteggio_destra = self.FONT.render(str(self.punteggio_destra), 1, (0, 0, 0))
 
 		self.info = {
 			"minigioco": "Pong"
 		}
 
 	def segna_risultato(self, finestra, schermo_larghezza):
-		txt_punteggio_sinistra = self.FONT.render(str(self.punteggio_sinistra), 1, (0, 0, 0))
-		txt_punteggio_destra = self.FONT.render(str(self.punteggio_destra), 1, (0, 0, 0))
-		finestra.blit(txt_punteggio_sinistra, ((schermo_larghezza - txt_punteggio_sinistra.get_width()) // 2 - 20, 30))
-		finestra.blit(txt_punteggio_destra, ((schermo_larghezza - txt_punteggio_sinistra.get_width()) // 2 + 20, 30))
+		finestra.blit(self.txt_punteggio_sinistra, ((schermo_larghezza - self.txt_punteggio_sinistra.get_width()) // 2 - 20, 30))
+		finestra.blit(self.txt_punteggio_destra, ((schermo_larghezza - self.txt_punteggio_sinistra.get_width()) // 2 + 20, 30))
 
 	def main(self):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
-
-			self.aggiorna_dati_da_server()
 
 			if int(self.local_player.numero_giocatore) < 2:
 				self.local_player.meta_campo = "sx"
@@ -385,6 +384,8 @@ class Pong(MiniGioco):
 				self.local_player.meta_campo = "dx"
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+
+			self.aggiorna_dati_da_server()
 
 			##############################################################################
 			#   Listener per spegnere il gioco quando clicchi sulla
@@ -427,12 +428,16 @@ class Pong(MiniGioco):
 				self.pallina.y = 530
 				self.pallina.direzione_orizzontale = -1
 				self.pallina.direzione_verticale = 0
+				self.txt_punteggio_sinistra = self.FONT.render(str(self.punteggio_sinistra), 1, (0, 0, 0))
+				self.txt_punteggio_destra = self.FONT.render(str(self.punteggio_destra), 1, (0, 0, 0))
 			elif e_gol == -1:
 				self.punteggio_destra += 1
 				self.pallina.x = 950
 				self.pallina.y = 530
 				self.pallina.direzione_orizzontale = 1
 				self.pallina.direzione_verticale = 0
+				self.txt_punteggio_sinistra = self.FONT.render(str(self.punteggio_sinistra), 1, (0, 0, 0))
+				self.txt_punteggio_destra = self.FONT.render(str(self.punteggio_destra), 1, (0, 0, 0))
 
 			for remote_player in self.remote_players:
 				if remote_player.ancora_vivo:
@@ -462,7 +467,7 @@ class GiocatoreGara(Giocatore):
 class Gara(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		if int(numero_giocatore) == 0: self.local_player = GiocatoreGara(x=150, y=200)
@@ -481,9 +486,9 @@ class Gara(MiniGioco):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 
-			self.aggiorna_dati_da_server()
-
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+
+			self.aggiorna_dati_da_server()
 
 			##############################################################################
 			#   Listener per spegnere il gioco quando clicchi sulla
@@ -542,7 +547,7 @@ class GiocatoreBN(Giocatore):
 class BattagliaNavale(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		if int(numero_giocatore) % 2 == 0: 
@@ -598,9 +603,9 @@ class BattagliaNavale(MiniGioco):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 			
+			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 			self.aggiorna_dati_da_server()
 
-			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 			self.disegna_celle()
 
 			##############################################################################
@@ -645,7 +650,7 @@ class GiocatoreParacadutismo(Giocatore):
 class Paracadutismo(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Sfondo Beta Pygame.png")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		if int(numero_giocatore) == 0: self.local_player = GiocatoreParacadutismo(x=200, y=200)
@@ -670,9 +675,9 @@ class Paracadutismo(MiniGioco):
 			pygame.time.delay(20)
 			self.local_player.punti += 30
 
-			self.aggiorna_dati_da_server()
-
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+
+			self.aggiorna_dati_da_server()
 
 			##############################################################################
 			#   Listener per spegnere il gioco quando clicchi sulla
