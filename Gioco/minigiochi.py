@@ -111,8 +111,8 @@ class MiniGioco:
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
 		self.NET = connessione
 		self.count_high_ping = 0
-		self.immagine_latenza_elevata = pygame.image.load(PERCORSO + "/Gioco/Immagini/high_latency.gif")
-		self.immagine_latenza_elevata = pygame.transform.scale(self.immagine_latenza_elevata, (70, 65))
+		self.immagine_latenza_elevata = pygame.image.load(PERCORSO + "/Gioco/Immagini/high_latency.png")
+		self.immagine_latenza_elevata = pygame.transform.scale(self.immagine_latenza_elevata, (128, 128))
 
 		self.FINESTRA = finestra
 
@@ -162,7 +162,7 @@ class MiniGioco:
 			self.count_high_ping = 0
 
 		if self.count_high_ping > 10:
-			self.FINESTRA.blit(self.immagine_latenza_elevata, (1800, 100))
+			self.FINESTRA.blit(self.immagine_latenza_elevata, (1700, 100))
 
 	def pronto_check(self, keys):
 		if not self.local_player.pronto and keys[pygame.K_SPACE]:
