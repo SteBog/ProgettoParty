@@ -157,7 +157,7 @@ class MiniGioco:
 			index_remote_players += 1
 
 	def high_latency_warning(self, ping):
-		if ping // 1000000 > 10:
+		if ping // 1000000 > 60:
 			self.count_high_ping += 1
 		else:
 			self.count_high_ping = 0
