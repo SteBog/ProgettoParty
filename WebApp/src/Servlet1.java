@@ -74,11 +74,15 @@ public class Servlet1 extends HttpServlet {
 		{
 			utenti = listUtenti.selectUtenti(Username, Password);
 			if(utenti.isEmpty()) {
-				RequestDispatcher rd = sc.getRequestDispatcher("/NewFile.jsp");
+				request.getSession().setAttribute("Error", "true");
+
+				RequestDispatcher rd = sc.getRequestDispatcher("/index.jsp");
 				rd.forward(request, response);
 			}
 			else
 			{
+				request.getSession().setAttribute("Error", "false");
+				
 				request.setAttribute("Utenti", utenti);
 				RequestDispatcher rd = sc.getRequestDispatcher("/amici.html");
 				rd.forward(request, response);

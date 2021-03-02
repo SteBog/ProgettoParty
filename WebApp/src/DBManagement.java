@@ -98,6 +98,51 @@ public class DBManagement {
 		}
 	}
 	
+	public int selectStatUtenti(String Username) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String select = "SELECT COUNT(Partita.Vincitore) AS Vittorie FROM Partita INNER JOIN Utenti ON Partita.Vincitore = Utenti.IDUtente WHERE Utenti.Username = '" + Username + "'";
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			int Vittorie = 0;
+			
+			ResultSet Vittorielist = stmt.executeQuery(select);
+			
+			while (Vittorielist.next())
+			{
+				Vittorie = Vittorielist.getInt("Vittorie");
+				// PER TUTTI I CAMPI
+			}
+			return Vittorie;
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("SELECT ERROR");
+			System.out.println(select);
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+			
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
 
 	
 	
