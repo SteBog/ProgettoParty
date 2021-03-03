@@ -347,7 +347,7 @@ class PallinaPong:
 class Pong(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Mappa_Pong.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		if int(numero_giocatore) == 0: self.local_player = GiocatorePong(x=650, y=250)
@@ -650,8 +650,9 @@ class GiocatoreParacadutismo(Giocatore):
 class Paracadutismo(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
-		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+		self.y_sfondo = 0
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Nuvole/Nuvole.jpg")
+		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, self.y_sfondo))
 
 		if int(numero_giocatore) == 0: self.local_player = GiocatoreParacadutismo(x=200, y=200)
 		elif int(numero_giocatore) == 1: self.local_player = GiocatoreParacadutismo(x=600, y=200)
@@ -675,7 +676,11 @@ class Paracadutismo(MiniGioco):
 			pygame.time.delay(20)
 			self.local_player.punti += 30
 
-			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, self.y_sfondo))
+			if self.y_sfondo > -1000:
+				self.y_sfondo -= 10
+			else:
+				self.y_sfondo = 0
 
 			self.aggiorna_dati_da_server()
 
