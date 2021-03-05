@@ -1,5 +1,7 @@
-<%@
-page import =  java.util.ArrayList,java.util.Date,JavaBeans.*;
+<%!
+import java.util.ArrayList;
+import java.util.Date;
+import JavaBeans.*;
 %><!DOCTYPE html>
 <html>
 	<head>
@@ -107,10 +109,13 @@ page import =  java.util.ArrayList,java.util.Date,JavaBeans.*;
 				<span class="NomeProfilo">Nome Profilo</span>
 			</div>
 	<%
-		for(UtentiBean utenti:utentiList)
+		DBManagement listUtenti = new DBManagement();
+		ArrayList<UtentiBean> utenti = new ArrayList<UtentiBean>();
+		utenti = listUtenti.selectAmici("pippo");
+		for(UtentiBean utente:utenti)
 		{
-			String Username = utenti.getUsername();
-			Date Disconnessione = utenti.getDisconnessione();
+			String Username = utente.getUsername();
+			Date Disconnessione = utente.getDisconnessione();
 	%>
 		<div class="div_amici">
 				<div class="immagine_profilo">
