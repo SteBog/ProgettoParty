@@ -19,6 +19,14 @@ class Schermata_Principale:
 		self.esecuzione_in_corso = True
 		self.numero_giocatore = None
 
+		self.local_player = Giocatore(380, 550)
+
+		#	Posizione 1: 10, 925
+		#	Posizione 2: 90, 600
+		#	Posizione 3: 240, 275
+		#	Posizione 4: 380, 550
+
+
 
 	def main(self):
 		click = False
@@ -84,5 +92,8 @@ class Schermata_Principale:
 			keys = pygame.key.get_pressed()
 
 			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
+
+
+			self.local_player.disegna(self.FINESTRA)
 
 			pygame.display.update()
