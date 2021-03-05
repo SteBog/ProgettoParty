@@ -15,8 +15,10 @@ Lista amici con ultimo accesso
 ###########################################################
 
 SELECT Utenti.Username, Accesso.Disconnessione AS UltimoAccesso
-FROM Amicizia INNER JOIN (Utenti INNER JOIN Accesso On Utenti.IDUtente = Accesso.IDFAccesso) ON Amicizia.IDFUtenteRichiedente = IDUtente!!!!!!
-WHERE Utenti.Username = #UsernameAttuale#
+FROM (((Amicizia AS A1 INNER JOIN Utenti ON A1.IDFUtenteRichiedente = Utenti.IDUtente)
+	INNER JOIN Amicizia ON Amicizia.IDFUtenteRicevente = Utenti.IDUtente) 
+	INNER JOIN Accesso ON Utenti.IDUtente = Accesso.IDFUtente) 
+	WHERE Utenti.Username = #UsernameAttuale#
 
 
 ###########################################################
@@ -37,7 +39,7 @@ WHERE Utenti.Username = #UsernameAttuale#
 
 
 ###########################################################
-Lista Gio0catori partite
+Lista Giocatori partite
 ###########################################################
 
 SELECT Utenti.IDUtente, DataPartita

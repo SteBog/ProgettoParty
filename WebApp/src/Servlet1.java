@@ -1,7 +1,6 @@
 import JavaBeans.*;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -64,7 +63,6 @@ public class Servlet1 extends HttpServlet {
 		
 		// Esempio
 		response.setContentType("text/html");
-		PrintWriter out = response.getWriter();
 
 		ServletContext sc = request.getSession().getServletContext();
 		request.removeAttribute("Utenti");
@@ -74,13 +72,17 @@ public class Servlet1 extends HttpServlet {
 		{
 			utenti = listUtenti.selectUtenti(Username, Password);
 			if(utenti.isEmpty()) {
-				RequestDispatcher rd = sc.getRequestDispatcher("/NewFile.jsp");
+				request.getSession().setAttribute("Error", "true");
+
+				RequestDispatcher rd = sc.getRequestDispatcher("/index.jsp");
 				rd.forward(request, response);
 			}
 			else
 			{
-				request.setAttribute("Utenti", utenti);
-				RequestDispatcher rd = sc.getRequestDispatcher("/amici.html");
+				request.getSession().setAttribute("Error", "false");
+				
+				request.getSession().setAttribute("Utente", Username);
+				RequestDispatcher rd = sc.getRequestDispatcher("/amici.jsp");
 				rd.forward(request, response);
 			}
 			

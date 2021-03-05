@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="stili.css" rel="stylesheet" type="text/css">
+	</head>
+		<body>
+			<form action="/WebApp/Servlet1" method="post">
+				<div class="container" id="div_login">
+					<span class="titolo_progetto">Progetto Party</span>
+					<input type="text" name="username" class="errore" placeholder="Nome Utente">
+					<input type="password" name="password" class="errore" placeholder="Password">
+					<span class="scritta_errore">Errore! Utente o password sbagliato.</span>
+					<input type="submit" class="pulsante_form" value="Accedi">
+					<span class="scritta_basso" onclick="prossimo_div_login();">Non hai un account? Registrati!</span>
+				</div>
+			</form>
+			<form action="/WebApp/Servlet1" method="post">
+				<div class="container" id="div_registrazione_first" style="display: none;">
+					<span class="titolo_progetto">Progetto Party</span>
+					<input type="text" name="email" class="errore" placeholder="Email">
+					<input type="password" name="password" class="errore" placeholder="Password">
+					<input type="button" onclick="prossimo_div_registrazione();" class="pulsante_form" value="Avanti">
+					<span class="scritta_basso" onclick="precedente_div_login();">Torna alla schermata di login</span>
+				</div>
+				<div class="container" id="div_registrazione_second" style="display: none;">
+					<span class="titolo_progetto">Progetto Party</span>
+					<div id="div_foto_profilo">
+						<div id="foto_profilo"></div>
+						<span>Seleziona una foto profilo</span>
+					</div>
+					<input type="text" name="username" class="errore" placeholder="Nome Utente">
+					<input type="submit" class="errore" value="Registrati">
+					<span class="scritta_basso" onclick="precedente_div_registrazione();">Torna alla schermata precedente</span>
+				</div>
+			</form>
+		</body>
+</html>

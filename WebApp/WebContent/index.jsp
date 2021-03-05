@@ -16,6 +16,15 @@
 					<input type="text" name="username" id="username_login" placeholder="Nome Utente">
 					<input type="password" name="password" id="password_login" placeholder="Password">
 					<input type="submit" class="pulsante_form" value="Accedi">
+					<span>
+						<%
+							if(request.getSession().getAttribute("Error") == "true"){							
+						%>
+								Login fallito
+						<%
+							}
+						%>
+					</span>
 					<span class="scritta_basso" onclick="prossimo_div_login();">Non hai un account? Registrati!</span>
 				</div>
 			</form>

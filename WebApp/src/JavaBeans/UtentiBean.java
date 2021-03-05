@@ -8,6 +8,7 @@ public class UtentiBean {
     private String Username;
     private String FotoProfilo;
     private Date DataNascita = new Date();
+    private Date Disconnessione = new Date();
     
 
     // Costruttore senza argomenti
@@ -52,6 +53,16 @@ public class UtentiBean {
 
 	public void setDataNascita(Date dataNascita) {
 		DataNascita = dataNascita;
+	}
+
+
+	public Date getDisconnessione() {
+		return Disconnessione;
+	}
+
+
+	public void setDisconnessione(Date disconnessione) {
+		Disconnessione = disconnessione;
 	}
 	
 	
