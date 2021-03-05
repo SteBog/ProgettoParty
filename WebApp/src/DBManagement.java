@@ -62,11 +62,12 @@ public class DBManagement {
 			while (utentiList.next())
 			{
 				UtentiBean Utenti = new UtentiBean();
-				Utenti.setUsername(utentiList.getString("Email"));
-				Utenti.setUsername(utentiList.getString("Password"));
+				Utenti.setEmail(utentiList.getString("Email"));
+				Utenti.setPassword(utentiList.getString("Password"));
 				Utenti.setUsername(utentiList.getString("Username"));
-				Utenti.setUsername(utentiList.getString("FotoProfilo"));
-				Utenti.setPassword(utentiList.getString("DataNascita"));
+				Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
+				Utenti.setDataNascita(utentiList.getDate("DataNascita"));
+				Utenti.setDisconnessione(utentiList.getDate("Disconnessione"));
 				// PER TUTTI I CAMPI
 				
 				utentiArray.add(Utenti);
@@ -145,7 +146,64 @@ public class DBManagement {
 	}
 
 	
-	
+	public ArrayList<UtentiBean> selectAmici(String Username) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String select = 
+				"SELECT Utenti.Username, Accesso.Disconnessione AS UltimoAccesso" +
+				"FROM (((Amicizia AS A1 INNER JOIN Utenti ON A1.IDFUtenteRichiedente = Utenti.IDUtente)" +
+					"INNER JOIN Amicizia ON Amicizia.IDFUtenteRicevente = Utenti.IDUtente)" +
+					"INNER JOIN Accesso ON Utenti.IDUtente = Accesso.IDFUtente)" +
+					"WHERE Utenti.Username =" + Username;
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			ResultSet utentiList = stmt.executeQuery(select);
+			
+			ArrayList<UtentiBean> utentiArray = new ArrayList<UtentiBean>();
+			while (utentiList.next())
+			{
+				UtentiBean Utenti = new UtentiBean();
+				Utenti.setEmail(utentiList.getString("Email"));
+				Utenti.setPassword(utentiList.getString("Password"));
+				Utenti.setUsername(utentiList.getString("Username"));
+				Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
+				Utenti.setDataNascita(utentiList.getDate("DataNascita"));
+				Utenti.setDisconnessione(utentiList.getDate("Disconnessione"));
+				// PER TUTTI I CAMPI
+				
+				utentiArray.add(Utenti);
+			}
+			return utentiArray;
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("SELECT ERROR");
+			System.out.println(select);
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+			
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
 	
 	
 

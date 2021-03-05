@@ -84,7 +84,7 @@ public class Servlet1 extends HttpServlet {
 				request.getSession().setAttribute("Error", "false");
 				
 				request.setAttribute("Utenti", utenti);
-				RequestDispatcher rd = sc.getRequestDispatcher("/amici.html");
+				RequestDispatcher rd = sc.getRequestDispatcher("/amici.jps");
 				rd.forward(request, response);
 			}
 			

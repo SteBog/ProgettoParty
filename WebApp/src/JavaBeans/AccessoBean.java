@@ -2,6 +2,7 @@ package JavaBeans;
 import java.util.Date;
 public class AccessoBean{
     
+	//	ELIMINATO ////////////////////////////////////////////////////////////////////////////////////////
 	private UtentiBean idfUtente;    
     private Date Connessione = new Date();
     private Date Disconnessione = new Date();
