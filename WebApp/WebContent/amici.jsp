@@ -1,8 +1,6 @@
-<%!
-import java.util.ArrayList;
-import java.util.Date;
-import JavaBeans.*;
-%>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="JavaBeans.*" %>
 
 <%
 	DBManagement listUtenti = new DBManagement();
@@ -128,8 +126,6 @@ import JavaBeans.*;
 			<span class="NomeProfilo"><%=Username %></span>
 			<span><%=Disconnessione %></span>
 		</div>
-		<%
-		}
-	%>
+	<% } %>
 	</body>
 </html>
