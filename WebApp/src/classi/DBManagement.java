@@ -153,11 +153,9 @@ public class DBManagement {
 		Connection conn = null;
 		
 		String select = 
-				"SELECT Utenti.Username, Accesso.Disconnessione AS UltimoAccesso" +
-				"FROM (((Amicizia AS A1 INNER JOIN Utenti ON A1.IDFUtenteRichiedente = Utenti.IDUtente)" +
-					"INNER JOIN Amicizia ON Amicizia.IDFUtenteRicevente = Utenti.IDUtente)" +
-					"INNER JOIN Accesso ON Utenti.IDUtente = Accesso.IDFUtente)" +
-					"WHERE Utenti.Username =" + Username;
+				"SELECT Utenti.Username, Utenti.Disconnessione AS UltimoAccesso FROM " + 
+				"((Amicizia AS A1 INNER JOIN Utenti ON A1.IDFUtenteRichiedente = Utenti.IDUtente) " + 
+				"INNER JOIN Amicizia AS A2 ON A2.IDFUtenteRicevente = Utenti.IDUtente) WHERE Utenti.Username = '" + Username + "'";
 		try
 		{
 			conn = getDBConnection();
