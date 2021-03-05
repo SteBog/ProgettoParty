@@ -152,10 +152,8 @@ public class DBManagement {
 		Statement stmt = null;
 		Connection conn = null;
 		
-		String select = 
-				"SELECT Utenti.Username, Utenti.Disconnessione AS UltimoAccesso FROM " + 
-				"((Amicizia AS A1 INNER JOIN Utenti ON A1.IDFUtenteRichiedente = Utenti.IDUtente) " + 
-				"INNER JOIN Amicizia AS A2 ON A2.IDFUtenteRicevente = Utenti.IDUtente) WHERE Utenti.Username = '" + Username + "'";
+		String select = "SELECT U2.Username, U2.Disconnessione AS UltimoAccesso FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
+		System.out.println(select);
 		try
 		{
 			conn = getDBConnection();
@@ -167,12 +165,12 @@ public class DBManagement {
 			while (utentiList.next())
 			{
 				UtentiBean Utenti = new UtentiBean();
-				Utenti.setEmail(utentiList.getString("Email"));
-				Utenti.setPassword(utentiList.getString("Password"));
+				//Utenti.setEmail(utentiList.getString("Email"));
+				//Utenti.setPassword(utentiList.getString("Password"));
 				Utenti.setUsername(utentiList.getString("Username"));
-				Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
-				Utenti.setDataNascita(utentiList.getDate("DataNascita"));
-				Utenti.setDisconnessione(utentiList.getDate("Disconnessione"));
+				//Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
+				//Utenti.setDataNascita(utentiList.getDate("DataNascita"));
+				Utenti.setDisconnessione(utentiList.getDate("UltimoAccesso"));
 				// PER TUTTI I CAMPI
 				
 				utentiArray.add(Utenti);

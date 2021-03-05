@@ -125,8 +125,8 @@
 		<div class="div_amici">
 				<div class="immagine_profilo">
 				</div>
-			<span class="NomeProfilo"><%=Username %></span>
-			<span><%=Disconnessione %></span>
+			<span class="NomeProfilo">Nome: <%=Username %></span>
+			<span>Ultimo accesso:<%=Disconnessione %></span>
 		</div>
 	<% } %>
 	</body>
