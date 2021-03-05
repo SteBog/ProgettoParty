@@ -1,7 +1,6 @@
 import JavaBeans.*;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -64,7 +63,6 @@ public class Servlet1 extends HttpServlet {
 		
 		// Esempio
 		response.setContentType("text/html");
-		PrintWriter out = response.getWriter();
 
 		ServletContext sc = request.getSession().getServletContext();
 		request.removeAttribute("Utenti");
@@ -83,7 +81,7 @@ public class Servlet1 extends HttpServlet {
 			{
 				request.getSession().setAttribute("Error", "false");
 				
-				request.setAttribute("Utenti", utenti);
+				request.getSession().setAttribute("Utente", Username);
 				RequestDispatcher rd = sc.getRequestDispatcher("/amici.jps");
 				rd.forward(request, response);
 			}

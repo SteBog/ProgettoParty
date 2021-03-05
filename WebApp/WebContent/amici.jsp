@@ -2,7 +2,15 @@
 import java.util.ArrayList;
 import java.util.Date;
 import JavaBeans.*;
-%><!DOCTYPE html>
+%>
+
+<%
+	DBManagement listUtenti = new DBManagement();
+	ArrayList<UtentiBean> utenti = new ArrayList<UtentiBean>();
+	// Utente da session
+	utenti = listUtenti.selectAmici(request.getSession().getAttribute("Utente").toString());
+%>
+<!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="UTF-8">
@@ -109,9 +117,6 @@ import JavaBeans.*;
 				<span class="NomeProfilo">Nome Profilo</span>
 			</div>
 	<%
-		DBManagement listUtenti = new DBManagement();
-		ArrayList<UtentiBean> utenti = new ArrayList<UtentiBean>();
-		utenti = listUtenti.selectAmici("pippo");
 		for(UtentiBean utente:utenti)
 		{
 			String Username = utente.getUsername();
