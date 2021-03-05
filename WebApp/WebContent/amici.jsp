@@ -109,13 +109,8 @@
 			<li class="profilo">
 				<div class="immagine_profilo">
 				</div>
-				<span class="NomeProfilo">Nome Profilo</span>
+				<span class="NomeProfilo"><%= request.getSession().getAttribute("Utente").toString() %></span>
 		</ul>
-			<div class="div_amici">
-				<div class="immagine_profilo">
-				</div>
-				<span class="NomeProfilo">Nome Profilo</span>
-			</div>
 	<%
 		for(UtentiBean utente:utenti)
 		{
