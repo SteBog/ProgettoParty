@@ -16,11 +16,12 @@ function pl(input)
 
 function animazione_caricamento()
 {
-    gsap.from("#titolo_generale", {y: 150, scale: 0.9, opacity: 0.6, duration: 2})
-    gsap.from("#testo_generale", {y: 150, scale: 0.9, opacity: 0.6, duration: 2})
+    gsap.from("#titolo_generale", {y: 150, scale: 0.9, opacity: 0.6, duration: 1})
+    gsap.from("#testo_generale", {y: 150, scale: 0.9, opacity: 0.6, duration: 1})
     gsap.from("#img1_generale", {y: 15, duration: 1, repeat: -1, yoyo: true, ease: "sine.inOut"})
     gsap.from("#img2_generale", {y: 15, duration: 1, delay: 0.3, repeat: -1, yoyo: true, ease: "sine.inOut"})
     gsap.from("#img3_generale", {y: 15, duration: 1, delay: 0.6, repeat: -1, yoyo: true, ease: "sine.inOut"})
+    gsap.from("#section_gameplay_spintoni", {y: 150, opacity: 0, duration: 1})
 }
 
 var tlGameplay = new TimelineMax()
@@ -35,18 +36,21 @@ var animazione_gameplay = new ScrollMagic.Scene({
     triggerHook: 0,
     duration: "100%"
 })
-.setPin("#section_gameplay_spintoni .container")
+.setPin("#section_gameplay_spintoni")
 .setTween(tlGameplay)
-//.addIndicators({name: "debug"})
+.addIndicators({name: "gameplay"})
 .addTo(controller)
 
 var tlPersonaggio = new TimelineMax()
-.to("#section_personaggio", {backgroundColor: "#68E8D1", duration: 1})
-.from("#img_avatar", {opacity: 0, duration: 1}, 1)
-.to("#section_personaggio", {backgroundColor: "#D7E303", duration: 0.1}, 2)
-.to("#img_avatar", {backgroundImage: "url('../../Gioco/Immagini/w_p2/Wraith_02_Moving Forward_000.png')", duration: 0.1}, 2)
-.to("#section_personaggio", {backgroundColor: "#e944ec", duration: 0.1}, 3)
-.to("#img_avatar", {backgroundImage: "url('../../Gioco/Immagini/w_p3/Wraith_03_Moving Forward_000.png')", duration: 0.1}, 3)
+.from("#img_avatar_1", {opacity: 0, y: 20, duration: 1}, 0)
+.from("#scritta_personaggio", {opacity: 0, y: 20, duration: 1}, 0)
+.to("#section_personaggio", {backgroundColor: "rgb(68, 230, 203)", duration: 1}, 0)
+.to("#img_avatar_1", {display: "none", duration: 0}, 2)
+.to("#img_avatar_2", {display: "block", duration: 0}, 2)
+.to("#section_personaggio", {backgroundColor: "rgb(242, 131, 53)", duration: 0}, 2)
+.to("#img_avatar_2", {display: "none", duration: 0}, 4)
+.to("#img_avatar_3", {display: "block", duration: 0}, 4)
+.to("#section_personaggio", {backgroundColor: "rgb(143, 81, 167)", duration: 0}, 4)
 
 var animazione_personaggio = new ScrollMagic.Scene({
     triggerElement: "#section_personaggio",
@@ -55,5 +59,5 @@ var animazione_personaggio = new ScrollMagic.Scene({
 })
 .setPin("#section_personaggio")
 .setTween(tlPersonaggio)
-.addIndicators({name: "debug"})
+.addIndicators({name: "personaggio"})
 .addTo(controller)
