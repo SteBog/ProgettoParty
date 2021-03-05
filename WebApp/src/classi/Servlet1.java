@@ -1,3 +1,4 @@
+package classi;
 import JavaBeans.*;
 
 import java.io.IOException;
