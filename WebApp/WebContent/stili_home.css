@@ -1,150 +1,23 @@
 html, body
 {
-    width: 100%;
     margin: 0;
     padding: 0;
     border: 0;
+    width: 100%;
 }
-
-#section_generale
+nav
+{
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 50px;
+    background-color: black;
+}
+#section_introduzione
 {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    top: 50px;
     width: 100%;
-    height: 700px;
-}
-#section_generale #titolo_generale, #section_generale #testo_generale
-{
-    position: absolute;
-    color: rgb(0, 110, 255);
-    font-family: 'Montserrat', sans-serif;
-}
-
-#section_generale #titolo_generale
-{
-    top: 100px;
-    font-size: 62px;
-    width: auto;
-}
-#section_generale #testo_generale
-{
-    top: 200px;
-    text-align: center;
-    font-size: 28px;
-    width: 400px;
-}
-#section_generale img
-{
-    height: 150px;
-    position: absolute;
-}
-#section_generale #img1_generale
-{
-    top: 100px;
-    left: 200px;
-}
-#section_generale #img2_generale
-{
-    top: 150px;
-    right: 200px;
-}
-#section_generale #img3_generale
-{
-    top: 400px;
-    left: 400px;
-}
-
-#section_gameplay_spintoni
-{
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    background-color: #3E5AD5;
-}
-#section_gameplay_spintoni #sfondo_spintoni
-{
-    width: 100%;
-    height: auto;
-}
-#section_gameplay_spintoni #img_player1
-{
-    position: absolute;
-    top: 30%;
-    left: 40%;
-    height: 10vh;
-}
-#section_gameplay_spintoni #img_player2
-{
-    position: absolute;
-    top: 35%;
-    left: 55%;
-    height: 10vh;
-}
-#section_gameplay_spintoni .container
-{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#section_gameplay_spintoni #testo_spintoni
-{
-    position: absolute;
-    top: 50;
-    transform: translateY(-50%);
-    left: 150px;
-    color: white;
-    font-size: 32px;
-    width: 200px;
-    font-family: 'Montserrat', sans-serif;
-}
-
-#section_personaggio
-{
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    background-color: #3E5AD5;
-}
-#section_personaggio .container
-{
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-#section_personaggio #img_avatar_1, #section_personaggio #img_avatar_2, #section_personaggio #img_avatar_3
-{
-    width: 96px;
-    height: 139px;
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-#section_personaggio #img_avatar_1
-{
-    background-image: url("../../Gioco/Immagini/w_p1/Wraith_01_Moving Forward_000.png");
-}
-#section_personaggio #img_avatar_2
-{
-    background-image: url("../../Gioco/Immagini/w_p2/Wraith_02_Moving\ Forward_000.png");
-    display: none;
-}
-#section_personaggio #img_avatar_3
-{
-    background-image: url("../../Gioco/Immagini/w_p3/Wraith_03_Moving\ Forward_000.png");
-    display: none;
-}
-
-#section_personaggio #scritta_personaggio
-{
-    width: 500px;
-    font-size: 54px;
-    text-align: center;
-    margin: 50px;
-    font-family: 'Montserrat', sans-serif;
+    height: calc(100vh - 50px);
+    background-color: green;
 }
