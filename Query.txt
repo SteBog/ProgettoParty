@@ -1,14 +1,35 @@
 ###########################################################
-Statistiche utente
+Statistiche utente (Vittorie)
 ###########################################################
 
-SELECT Utenti.Email, FotoProfilo, Utenti.DataNascita, 
-(SELECT COUNT(Partita.Vincitore), Utenti.Username
-FROM Partita INNER JOIN Utenti ON Partita.Vincitore = Utenti.IDUtente
-WHERE IDUtente = #UsernameAttuale#) AS [Partite vinte], Accesso.Disconnessione
-FROM UTENTI INNER JOIN Accesso ON Utenti.IDUtente = Accesso.IDFUtente
-WHERE Utenti.Username = #UsernameAttuale#
+SELECT COUNT(Partita.Vincitore) AS Vittorie
+FROM (Partita INNER JOIN Utenti ON Partita.Vincitore = Utenti.IDUtente)
+WHERE Utenti.IDUtente = 1
 
+###########################################################
+Statistiche utente (Vittorie minigioco)
+###########################################################
+
+SELECT COUNT(ClassificatoRound.Posizione) AS VittorieMinigiochi, Minigioco.Nome AS Minigioco
+FROM ((((ClassificatoRound INNER JOIN Round ON ClassificatoRound.IDFRound = Round.IDRound)
+INNER JOIN Minigioco ON Round.IDFMinigioco = Minigioco.IDMinigioco)
+INNER JOIN GiocatorePartita ON ClassificatoRound.IDFGiocatore = GiocatorePartita.IDFUtente)
+INNER JOIN Utenti ON GiocatorePartita.IDFUtente = Utenti.IDUtente)
+WHERE Utenti.Username = "pippo" AND ClassificatoRound.Posizione = 1
+GROUP BY Minigioco.Nome
+
+###########################################################
+Statistiche utente (Vittorie tot (   !!!   Non funzionante   !!!   ))
+###########################################################
+
+SELECT COUNT(ClassificatoRound.Posizione) AS VittorieMinigiochi, Minigioco.Nome, COUNT(Partita.Vincitore) AS Vittorie
+FROM (((((ClassificatoRound INNER JOIN Round ON ClassificatoRound.IDFRound = Round.IDRound)
+INNER JOIN Minigioco ON Round.IDFMinigioco = Minigioco.IDMinigioco)
+INNER JOIN GiocatorePartita ON ClassificatoRound.IDFGiocatore = GiocatorePartita.IDFUtente)
+INNER JOIN Utenti ON GiocatorePartita.IDFUtente = Utenti.IDUtente)
+INNER JOIN Partita ON Round.IDRound = Partita.IDPartita AND Partita.IDPartita = GiocatorePartita.IDFPartita)
+WHERE Utenti.Username = "pippo" AND ClassificatoRound.Posizione = 1
+GROUP BY Minigioco.Nome
 
 ###########################################################
 Lista amici con ultimo accesso

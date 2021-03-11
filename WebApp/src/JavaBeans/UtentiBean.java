@@ -7,6 +7,7 @@ public class UtentiBean {
     private String Password;
     private String Username;
     private String FotoProfilo;
+    private int Vittorie;
     private Date DataNascita = new Date();
     private Date Disconnessione = new Date();
     
@@ -63,6 +64,16 @@ public class UtentiBean {
 
 	public void setDisconnessione(Date disconnessione) {
 		Disconnessione = disconnessione;
+	}
+
+
+	public int getVittorie() {
+		return Vittorie;
+	}
+
+
+	public void setVittorie(int vittorie) {
+		Vittorie = vittorie;
 	}
 	
 	

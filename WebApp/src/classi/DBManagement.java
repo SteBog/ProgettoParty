@@ -203,6 +203,111 @@ public class DBManagement {
 	}
 	
 	
+	public ArrayList<qVittorieMinigiochiBean> selectVittorieMinigiochi(String Username) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String select = "SELECT COUNT(ClassificatoRound.Posizione) AS VittorieMinigiochi, Minigioco.Nome AS Minigioco " + 
+				"FROM ((((ClassificatoRound INNER JOIN Round ON ClassificatoRound.IDFRound = Round.IDRound) " + 
+				"INNER JOIN Minigioco ON Round.IDFMinigioco = Minigioco.IDMinigioco) " + 
+				"INNER JOIN GiocatorePartita ON ClassificatoRound.IDFGiocatore = GiocatorePartita.IDFUtente) " + 
+				"INNER JOIN Utenti ON GiocatorePartita.IDFUtente = Utenti.IDUtente) " + 
+				"WHERE Utenti.Username = '" + Username + "' AND ClassificatoRound.Posizione = 1 " + 
+				"GROUP BY Minigioco.Nome";
+		
+		System.out.println(select);
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			ResultSet vittorieMinigiochiList = stmt.executeQuery(select);
+			
+			ArrayList<qVittorieMinigiochiBean> vittorieArray = new ArrayList<qVittorieMinigiochiBean>();
+			while (vittorieMinigiochiList.next())
+			{
+				qVittorieMinigiochiBean Vittorie = new qVittorieMinigiochiBean();
+				Vittorie.setVittorieMinigiochi(vittorieMinigiochiList.getInt("VittorieMinigiochi"));
+				Vittorie.setMinigioco(vittorieMinigiochiList.getString("Minigioco"));
+				// PER TUTTI I CAMPI
+				
+				vittorieArray.add(Vittorie);
+			}
+			return vittorieArray;
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("SELECT ERROR");
+			System.out.println(select);
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+			
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
+	
+	public int selectVittorie(String Username) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String select = "SELECT COUNT(Partita.Vincitore) AS Vittorie " + 
+				"FROM (Partita INNER JOIN Utenti ON Partita.Vincitore = Utenti.IDUtente) " + 
+				"WHERE Utenti.Username = '" + Username + "';";
+		
+		System.out.println(select);
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			ResultSet vittorieList = stmt.executeQuery(select);
+			int Vittorie = 0;
+			if(vittorieList.next())
+			{
+				Vittorie = vittorieList.getInt("Vittorie");
+			}
+			return Vittorie;
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("SELECT ERROR");
+			System.out.println(select);
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+			
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
 
 
 }
