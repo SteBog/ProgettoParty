@@ -27,8 +27,10 @@ class Giocatore:
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
+
 		self.HEIGHT = 278 // 3
 		self.WIDTH = 193 // 3
+
 		self.immagini = []
 		for i in range(0, 12):
 			if i < 10:
@@ -37,6 +39,7 @@ class Giocatore:
 				percorso_frame = PERCORSO + "/Gioco/Immagini/w_p1/Wraith_01_Moving Forward_0" + str(i) + ".png"
 			self.immagini.append(pygame.image.load(percorso_frame))
 			self.immagini[i] = pygame.transform.scale(self.immagini[i], (self.WIDTH, self.HEIGHT))
+			
 		self.rivolto_destra = True
 		self.velocita = 10
 		self.ancora_vivo = False
@@ -177,7 +180,6 @@ class MiniGioco:
 			if var_appoggio >= len(self.remote_players) and self.local_player.pronto:
 				self.tutti_pronti = True
 
-
 class SpintoniSuPiattaforma(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
@@ -196,11 +198,23 @@ class SpintoniSuPiattaforma(MiniGioco):
 			"minigioco": "Spintoni"
 		}
 
+	def disegno_hud(self):
+		local_x = 100 + (self.local_player.numero_giocatore % 2) * 1656
+		local_y = 100 + (self.local_player.numero_giocatore // 2) * 787
+
+		self.FINESTRA.blit(self.local_player.immagini[0], (local_x, local_y))
+
+		for giocatore in self.remote_players:
+			remote_x = 100 + (giocatore.numero_giocatore % 2) * 1656
+			remote_y = 100 + (giocatore.numero_giocatore // 2) * 787
+			self.FINESTRA.blit(giocatore.immagini[0], (remote_x, remote_y))
+
 	def main(self):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+			self.disegno_hud()
 			self.aggiorna_dati_da_server()
 
 			##############################################################################
@@ -370,9 +384,17 @@ class Pong(MiniGioco):
 			"minigioco": "Pong"
 		}
 
-	def segna_risultato(self, finestra, schermo_larghezza):
-		finestra.blit(self.txt_punteggio_sinistra, ((schermo_larghezza - self.txt_punteggio_sinistra.get_width()) // 2 - 20, 30))
-		finestra.blit(self.txt_punteggio_destra, ((schermo_larghezza - self.txt_punteggio_sinistra.get_width()) // 2 + 20, 30))
+	def disegno_hud(self):
+
+		local_x = 100 + (self.local_player.numero_giocatore // 2) * 1556 + (self.local_player.numero_giocatore % 2) * 100
+		self.FINESTRA.blit(self.local_player.immagini[0], (local_x, 100))
+
+		for giocatore in self.remote_players:
+			remote_x = 100 + (giocatore.numero_giocatore // 2) * 1556 + (giocatore.numero_giocatore % 2) * 100
+			self.FINESTRA.blit(giocatore.immagini[0], (remote_x, 100))
+
+		self.FINESTRA.blit(self.txt_punteggio_sinistra, ((self.SCREEN_WIDTH - self.txt_punteggio_sinistra.get_width()) // 2 - 20, 30))
+		self.FINESTRA.blit(self.txt_punteggio_destra, ((self.SCREEN_WIDTH - self.txt_punteggio_sinistra.get_width()) // 2 + 20, 30))
 
 	def main(self):
 		while self.esecuzione_in_corso:
@@ -443,7 +465,7 @@ class Pong(MiniGioco):
 				if remote_player.ancora_vivo:
 					remote_player.disegna(self.FINESTRA)
 
-			self.segna_risultato(self.FINESTRA, self.SCREEN_WIDTH)
+			self.disegno_hud()
 
 			pygame.display.update()
 
