@@ -123,7 +123,7 @@
 		<div class="div_amici">
 				<div class="immagine_profilo">
 				</div>
-			<span>Minigioco:<%=VittorieMinigiochi %></span>
+			<span>Minigioco:<%=Minigiochi %></span>
 			<span>Vittorie: <%=VittorieMinigiochi %></span>
 		</div>
 	<% } %>
