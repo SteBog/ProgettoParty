@@ -28,8 +28,8 @@ class Giocatore:
 		self.x = x
 		self.y = y
 
-		self.HEIGHT = 278 // 3
-		self.WIDTH = 193 // 3
+		self.HEIGHT = 92
+		self.WIDTH = 64
 
 		self.immagini = []
 		for i in range(0, 12):
@@ -169,16 +169,19 @@ class MiniGioco:
 			self.FINESTRA.blit(self.IMMAGINE_LATENZA_ELEVATA, (1700, 100))
 			self.FINESTRA.blit(self.LABEL_LATENZA_ELEVATA, (1630, 250))
 
-	def pronto_check(self, keys):
-		if not self.local_player.pronto and keys[pygame.K_SPACE]:
-			self.local_player.pronto = True
+	def tutti_pronti(self):
+		pronti = True
+		if not self.local_player.pronto: pronti = False
+		for giocatore in self.remote_players:
+			if not giocatore.pronto: pronti = False
+		return pronti
 
-		if not self.tutti_pronti:
-			var_appoggio = 0
-			while self.remote_players[var_appoggio].pronto:
-				var_appoggio += 1
-			if var_appoggio >= len(self.remote_players) and self.local_player.pronto:
-				self.tutti_pronti = True
+	def ancora_vivi(self):
+		num_ancora_vivi = 4
+		if not self.local_player.ancora_vivo: num_ancora_vivi - 1
+		for giocatore in self.remote_players:
+			if not giocatore.ancora_vivo: num_ancora_vivi - 1
+		return num_ancora_vivi
 
 class SpintoniSuPiattaforma(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
@@ -214,7 +217,7 @@ class SpintoniSuPiattaforma(MiniGioco):
 			pygame.time.delay(20)
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-			self.disegno_hud()
+			#self.disegno_hud()
 			self.aggiorna_dati_da_server()
 
 			##############################################################################
@@ -233,24 +236,45 @@ class SpintoniSuPiattaforma(MiniGioco):
 			keys = pygame.key.get_pressed()
 
 			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
+			if keys[pygame.K_SPACE] and not self.local_player.pronto: 
+				self.local_player.pronto = True
+				print("Pronto")
 			
 			##############################################################################
-			#	Visualizzare e muovere solo i giocatori ancora vivi
+			#	Controllare collisioni
 			##############################################################################
 
 			for giocatore in self.remote_players:
 				if giocatore.ancora_vivo:
 					self.local_player.collisione(giocatore)
 
+			##############################################################################
+			#	Muovere e disegnare il local player
+			##############################################################################
+
 			if self.local_player.ancora_vivo:
-				self.local_player.muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+				if self.tutti_pronti: 
+					self.local_player.muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
 				self.local_player.disegna(self.FINESTRA)
-				if (self.local_player.x - 960)**2 + (self.local_player.y - 540)**2 > 425**2:	#	verificare che il giocatore sia all'interno del cerchio (piattaforma)
+
+				#	verificare che il giocatore sia all'interno del cerchio (piattaforma)
+				if (self.local_player.x - 960)**2 + (self.local_player.y - 540)**2 > 425**2:
 					self.local_player.ancora_vivo = False
+
+			##############################################################################
+			#	Disegnare i remote players
+			##############################################################################
 
 			for remote_player in self.remote_players:
 				if remote_player.ancora_vivo:
 					remote_player.disegna(self.FINESTRA)
+
+			##############################################################################
+			#
+			##############################################################################
+
+			if self.tutti_pronti and self.ancora_vivi() < 2:
+				self.esecuzione_in_corso = False
 
 			pygame.display.update()
 
