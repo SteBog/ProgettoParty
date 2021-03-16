@@ -18,15 +18,32 @@ class Schermata_Principale:
 
 		self.esecuzione_in_corso = True
 		self.numero_giocatore = None
+		self.posizione_local = 0
 
-		self.local_player = Giocatore(380, 550)
+		self.local_player = Giocatore(240, 275)
 
-		#	Posizione 1: 10, 925
+		#	Giocatore w: 64, h: 92 
+		#	Posizione 1: 10, 925 (418)
 		#	Posizione 2: 90, 600
 		#	Posizione 3: 240, 275
 		#	Posizione 4: 380, 550
+		#	Posizione 5: 616, 746
+		#	Posizione 6: 850, 602
+		#	Posizione 7: 724, 458
+		#	Posizione 8: 561, 314
+		#	Posizione 9: 814, 170
+		#	Posizione10: 1030, 350
+		#	Posizione11: 1030, 656
+		#	Posizione12: 1264, 818
+		#	Posizione13: 1498, 404
 
-
+		self.index_posizione = 0
+		self.spostare = False
+	def spostamento_1_2(self):
+		if self.local_player.y > 418:
+			self.local_player.y -= 10
+		else:
+			self.spostare = False
 
 	def main(self):
 		click = False
@@ -92,7 +109,10 @@ class Schermata_Principale:
 			keys = pygame.key.get_pressed()
 
 			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
-
+			if keys[pygame.K_SPACE]:
+				self.spostare = True
+			
+			if self.spostare: self.spostamento_1_2()
 
 			self.local_player.disegna(self.FINESTRA)
 
