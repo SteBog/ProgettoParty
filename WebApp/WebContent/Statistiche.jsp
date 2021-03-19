@@ -104,9 +104,10 @@
 	<body>
 		<ul class="Navbar">
 			<li class="TitoloNav">Progetto Party</li>
-			<li class="TestoNav">Homepage</li>
-			<li class="TestoNav">I tuoi amici</li>
-			<li class="TestoNav">Come giocare</li>
+			<li class="TestoNav"><a href=#>Homepage</a></li>
+			<li class="TestoNav"><a href="Amici.jsp">I tuoi amici</a></li>
+			<li class="TestoNav"><a href="Statistiche.jsp">Statistiche</a></li>
+			<li class="TestoNav"><a href=#>Come giocare</a></li>
 			<li class="profilo">
 				<div class="immagine_profilo">
 				</div>
