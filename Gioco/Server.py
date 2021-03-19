@@ -7,10 +7,8 @@ from _thread import *
 #	Creazione processo server
 ##############################################################################
 
-INDIRIZZO_IP_SERVER = "87.250.73.23"
+INDIRIZZO_IP_SERVER = "127.0.0.1"
 PORTA_SERVER = 8100
-
-SECONDI_SPAWN_MONETA = 2
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -28,17 +26,22 @@ print("Attendo connessione...")
 #	Funzioni per dialogo con gli host
 ##############################################################################
 
-def crea_giocatore():
-	giocatore = {
-		"numero_giocatore": -1,
-		"coordinata_x": 0,
-		"coordinata_y": 0,
-		"rivolto_a_destra": 0,
-		"ancora_vivo": 0,
-		"pronto": 0,
-		"punti": 0
-	}
-	return giocatore
+numGiocatore = 0
+vincitore = None
+
+giocatore = {
+	"numero_giocatore": -1,
+	"coordinata_x": 0,
+	"coordinata_y": 0,
+	"rivolto_a_destra": False,
+	"ancora_vivo": False,
+	"pronto": False,
+	"punti": 0
+}
+
+giocatori = []
+
+for _ in range(4): giocatori.append(giocatore)
 
 def encode_pos(oggetto):
 	return json.dumps(oggetto)
@@ -46,75 +49,64 @@ def encode_pos(oggetto):
 def decode_pos(stringa_json):
 	return json.loads(stringa_json)
 
-##############################################################################
-#	Funzioni per gestione minigiochi e giocatori
-##############################################################################
-
-numGiocatore = 0
-giocatori = []
-
-for i in range(4):
-	giocatori.append(crea_giocatore())
-
-def gestione_spintoni(numero_giocatore):
-	risposta = str(numero_giocatore)
-	risposta += encode_pos({"giocatori": giocatori, "info": {"minigioco": "Spintoni"}})
-	return risposta
-
-def gestione_pong(numero_giocatore):
-	risposta = str(numero_giocatore)
-	risposta += encode_pos({"giocatori": giocatori, "info": {"minigioco": "Pong"}})
-	return risposta
-
-def gestione_gara(numero_giocatore):
-	risposta = str(numero_giocatore)
-	risposta += encode_pos({"giocatori": giocatori, "info": {"minigioco": "Gara"}})
-	return risposta
-
-def gestione_paracadutismo(numero_giocatore):
-	risposta = str(numero_giocatore)
-	risposta += encode_pos({"giocatori": giocatori, "info": {"minigioco": "Paracadutismo"}})
-	return risposta
-
+def gioco_finito():
+	for player in giocatori:
+		if player["ancora_vivo"]:
+			return False
+	return True
 
 ##############################################################################
-#	Battaglia Navale
+#	Funzioni gestione singolo minigioco
 ##############################################################################
 
-celle_squadra_uno = [0 for _ in range(16)]
-celle_squadra_due = [0 for _ in range(16)]
-numero_cella_giocatori = [-1, -1, -1, -1]
+def spintoni(par_data, par_info):
+	global vincitore
 
-info = {
-	"minigioco": "BattagliaNavale",
-	"celle_avversari": None,
-	"casella_giocatore": 0,
-	"turno": 0,
-	"scelta": -1
-}
+	if par_data["info"]["vincitore"]: vincitore = par_data["info"]["vincitore"]
+	par_info["vincitore"] = vincitore
 
-def gestione_battaglia_navale(numero_giocatore, dati):
-	if numero_giocatore < 2:
-		if dati["info"]["scelta"] != -1 and dati["info"]["turno"] == 0:
-			if numero_cella_giocatori[2] == dati["info"]["scelta"] or numero_cella_giocatori[3] == dati["info"]["scelta"]:
-				celle_squadra_due[dati["info"]["scelta"]] = 2
-			else:
-				celle_squadra_due[dati["info"]["scelta"]] = 1
-			info["turno"] = 1
+	return par_info
 
-		info["celle_avversari"] = celle_squadra_due
+def pong():
+	global vincitore
 
-	risposta = str(numero_giocatore)
-	risposta += encode_pos({"giocatori": giocatori, "info": info})
-	return risposta
+def paracadutismo(par_info):
+	if gioco_finito():
+		massimo = -1
+		winner = None
+		for player in giocatori:
+			print(player["punti"])
+			if player["punti"] > massimo:
+				massimo = player["punti"]
+				winner = player["numero_giocatore"]
+
+		par_info["vincitore"] = winner
+	return par_info
+	
+
+def gara(par_data, par_info):
+	global vincitore
+
+	if par_data["info"]["vincitore"]: vincitore = par_data["info"]["vincitore"]
+	par_info["vincitore"] = vincitore
+
+	return par_info
+
+def battaglia_navale():
+	global vincitore
 
 ##############################################################################
 #	Thread di gestione di singolo giocatore
 ##############################################################################
 
 def t_client(conn, numGio):
-	conn.send(str.encode(encode_pos({"giocatori": giocatori})))
-	risposta = str(numGio)
+	global numGiocatore
+	info = {
+		"numero_giocatore": numGio,
+		"vincitore": None
+	}
+	conn.send(str.encode(encode_pos({"giocatori": giocatori, "info": info})))
+	risposta = ""
 
 	while True:
 		try:
@@ -125,30 +117,28 @@ def t_client(conn, numGio):
 				break
 			else:
 				giocatori[numGio] = data["giocatore"]
+				giocatori[numGio]["numero_giocatore"] = numGio
 
-				if data["info"]["minigioco"] == "Spintoni":
-					risposta = gestione_spintoni(numGio)
-				if data["info"]["minigioco"] == "Pong":
-					risposta = gestione_pong(numGio)
-				if data["info"]["minigioco"] == "Gara":
-					risposta = gestione_gara(numGio)
-				if data["info"]["minigioco"] == "Paracadutismo":
-					risposta = gestione_paracadutismo(numGio)
-				if data["info"]["minigioco"] == "BattagliaNavale":
-					risposta = gestione_battaglia_navale(numGio, data)
+				if data["info"]["minigioco"] == "Spintoni": info = spintoni(data, info)
+				if data["info"]["minigioco"] == "Gara": info = gara(data, info)
+				if data["info"]["minigioco"] == "Paracadutismo": info = paracadutismo(info)
+
+				risposta = encode_pos({"giocatori": giocatori, "info": info})
 
 			conn.sendall(str.encode(risposta))
 		except:
 			break
 	
 	print("Connessione terminata")
-	conn.close()
-	global numGiocatore
+	giocatori[numGio] = giocatore
 	numGiocatore -= 1
+	conn.close()
+
+
 
 while True:
 	conn, addr = sock.accept()
-	print("Connesso a: ", addr)
+	print("\nConnesso a: ", addr)
 	print("Giocatore numero: ", numGiocatore)
 
 	start_new_thread(t_client, (conn, numGiocatore))
