@@ -20,7 +20,7 @@ class Schermata_Principale:
 		self.numero_giocatore = None
 		self.posizione_local = 0
 
-		self.local_player = Giocatore(240, 275)
+		self.local_player = Giocatore()
 
 		#	Giocatore w: 64, h: 92 
 		#	Posizione 1: 10, 925 (418)
@@ -49,9 +49,10 @@ class Schermata_Principale:
 		click = False
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
-			remotePos = self.NET.send('{"giocatore": {"numero_giocatore": 0, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1, "pronto": 0, "punti": 0}, "info": {"minigioco": "Home"}}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+			remotePos = self.NET.send('{"giocatore": {"numero_giocatore": 0, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1, "pronto": 0, "punti": 0}, "info": {"minigioco": "Home", "vincitore": null}}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 			if remotePos:
-				self.numero_giocatore = remotePos[0]
+				remotePos = decode_pos(remotePos)
+				self.numero_giocatore = remotePos["info"]["numero_giocatore"]
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 			mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -64,7 +65,8 @@ class Schermata_Principale:
 			if pulsante_minigioco_1.collidepoint((mouse_x, mouse_y)):
 				if click:
 					minigioco = SpintoniSuPiattaforma(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
-					minigioco.main()
+					vincitore = minigioco.main()
+					print(vincitore)
 			if pulsante_minigioco_2.collidepoint((mouse_x, mouse_y)):
 				if click:
 					minigioco = Pong(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)

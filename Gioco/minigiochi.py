@@ -1,19 +1,9 @@
 import pygame
-import os
-import json
 import time
+import json
+import os
 
-def player_to_dictionary(giocatore):
-	risultato = {
-		"numero_giocatore": giocatore.numero_giocatore,
-		"coordinata_x": giocatore.x,
-		"coordinata_y": giocatore.y,
-		"rivolto_a_destra": giocatore.rivolto_destra,
-		"ancora_vivo": giocatore.ancora_vivo,
-		"pronto": giocatore.pronto,
-		"punti": giocatore.punti
-	}
-	return risultato
+from pygame import key
 
 def encode_pos(stringa_json):
 	return json.dumps(stringa_json)
@@ -23,10 +13,13 @@ def decode_pos(stringa_json):
 
 PERCORSO = os.path.realpath(__file__)[:-20]
 
+
 class Giocatore:
-	def __init__(self, x, y):
-		self.x = x
-		self.y = y
+	def __init__(self):
+		self.numero_giocatore = -1
+
+		self.x = 0
+		self.y = 0
 
 		self.HEIGHT = 92
 		self.WIDTH = 64
@@ -39,15 +32,14 @@ class Giocatore:
 				percorso_frame = PERCORSO + "/Gioco/Immagini/w_p1/Wraith_01_Moving Forward_0" + str(i) + ".png"
 			self.immagini.append(pygame.image.load(percorso_frame))
 			self.immagini[i] = pygame.transform.scale(self.immagini[i], (self.WIDTH, self.HEIGHT))
-			
-		self.rivolto_destra = True
-		self.velocita = 10
-		self.ancora_vivo = False
-		self.index_animation = 0
-		self.numero_giocatore = 0
-		self.pronto = False
-		self.punti = 0
 		self.rettangolo_collisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
+
+		self.rivolto_destra = False
+		self.velocita = 10
+		self.ancora_vivo = True
+		self.pronto = False
+		self.index_animation = 0
+		self.punti = 0
 
 	def disegna(self, finestra):
 		if self.index_animation < 11:
@@ -111,53 +103,59 @@ class Giocatore:
 					self.x += 70
 
 class MiniGioco:
-	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza):
-		self.NET = connessione
-		self.count_high_ping = 0
-		self.IMMAGINE_LATENZA_ELEVATA = pygame.image.load(PERCORSO + "/Gioco/Immagini/high_latency.png")
-		self.IMMAGINE_LATENZA_ELEVATA = pygame.transform.scale(self.IMMAGINE_LATENZA_ELEVATA, (128, 128))
-		self.FONT = pygame.font.SysFont("comicsans", 50)
-		self.LABEL_LATENZA_ELEVATA = self.FONT.render("Latenza elevata", 1, (255, 0, 0))
-
+	def __init__(self, finestra, connessione, altezza_schermo, larghezza_schermo, numero_giocatore):
 		self.FINESTRA = finestra
+		self.NET = connessione
+		self.SCREEN_HEIGHT = altezza_schermo
+		self.SCREEN_WIDTH = larghezza_schermo
 
-		self.local_player = Giocatore(x=1000, y=300)
-		self.local_player.ancora_vivo = True
-		self.remote_players = [Giocatore(x=0, y=0), Giocatore(x=0, y=0), Giocatore(x=0, y=0)]
-
-		self.SCREEN_HEIGHT = schermo_altezza
-		self.SCREEN_WIDTH = schermo_larghezza
+		self.giocatori = [Giocatore(), Giocatore(), Giocatore(), Giocatore()]
+		self.numero_giocatore = int(numero_giocatore)
 
 		self.esecuzione_in_corso = True
-		self.tutti_pronti = False
 
 		self.info = {
-			"minigioco": "None"
+			"minigioco": None,
+			"vincitore": None
 		}
 
-	def aggiorna_dati_da_server(self):
+	def player_to_dictionary(self, giocatore):
+		risultato = {
+			"numero_giocatore": giocatore.numero_giocatore,
+			"coordinata_x": giocatore.x,
+			"coordinata_y": giocatore.y,
+			"rivolto_a_destra": giocatore.rivolto_destra,
+			"ancora_vivo": giocatore.ancora_vivo,
+			"pronto": giocatore.pronto,
+			"punti": giocatore.punti
+		}
+		return risultato
+
+	def scarica_dati_da_server(self):
 		ping = time.perf_counter_ns()
-		dati_server = self.NET.send(encode_pos({"giocatore": player_to_dictionary(self.local_player), "info": self.info}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+		dati_server = self.NET.send(encode_pos({"giocatore": self.player_to_dictionary(self.giocatori[int(self.numero_giocatore)]), "info": self.info}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 		ping = time.perf_counter_ns() - ping	#	latenza espressa in nano secondi
-		self.high_latency_warning(ping)
+
 		if dati_server:
-			self.local_player.numero_giocatore = int(dati_server[0])
-			dati_server = decode_pos(dati_server[1:])
+			dati_server = decode_pos(dati_server)
 		else:
 			dati_server = None
 
-		index_remote_players = 0
-		while index_remote_players < 3:
-			if index_remote_players != self.local_player.numero_giocatore:
-				self.remote_players[index_remote_players].x = int(dati_server["giocatori"][index_remote_players]["coordinata_x"])
-				self.remote_players[index_remote_players].y = int(dati_server["giocatori"][index_remote_players]["coordinata_y"])
-				self.remote_players[index_remote_players].rivolto_destra = int(dati_server["giocatori"][index_remote_players]["rivolto_a_destra"])
-				self.remote_players[index_remote_players].ancora_vivo = int(dati_server["giocatori"][index_remote_players]["ancora_vivo"])
-				self.remote_players[index_remote_players].numero_giocatore = int(dati_server["giocatori"][index_remote_players]["numero_giocatore"])
-				self.remote_players[index_remote_players].pronto = int(dati_server["giocatori"][index_remote_players]["pronto"])
-				self.remote_players[index_remote_players].punti = int(dati_server["giocatori"][index_remote_players]["punti"])
-				self.info = dati_server["info"]
-			index_remote_players += 1
+		return dati_server
+
+	def aggiorna_giocatori(self):
+		dati = self.scarica_dati_da_server()
+		self.numero_giocatore = dati["info"]["numero_giocatore"]
+		self.info["vincitore"] = dati["info"]["vincitore"]
+		for i, giocatori in enumerate(dati["giocatori"]):
+			self.giocatori[i].numero_giocatore = int(giocatori["numero_giocatore"])
+			if giocatori["numero_giocatore"] != dati["info"]["numero_giocatore"]:
+				self.giocatori[i].x = giocatori["coordinata_x"]
+				self.giocatori[i].y = giocatori["coordinata_y"]
+				self.giocatori[i].rivolto_destra = giocatori["rivolto_a_destra"]
+				self.giocatori[i].ancora_vivo = giocatori["ancora_vivo"]
+				self.giocatori[i].pronto = giocatori["pronto"]
+				self.giocatori[i].punti = giocatori["punti"]
 
 	def high_latency_warning(self, ping):
 		if ping // 1000000 > 60:
@@ -171,117 +169,101 @@ class MiniGioco:
 
 	def tutti_pronti(self):
 		pronti = True
-		if not self.local_player.pronto: pronti = False
-		for giocatore in self.remote_players:
+		for giocatore in self.giocatori:
 			if not giocatore.pronto: pronti = False
 		return pronti
 
-	def ancora_vivi(self):
-		num_ancora_vivi = 4
-		if not self.local_player.ancora_vivo: num_ancora_vivi - 1
-		for giocatore in self.remote_players:
-			if not giocatore.ancora_vivo: num_ancora_vivi - 1
-		return num_ancora_vivi
+	def num_ancora_vivi(self):
+		numero = 0
+		for giocatore in self.giocatori:
+			if giocatore.ancora_vivo: numero += 1
+		return numero
 
 class SpintoniSuPiattaforma(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
-		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
+		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore)
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Mappa1.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
-		if int(numero_giocatore) == 0: self.local_player = Giocatore(x=650, y=250)
-		elif int(numero_giocatore) == 1: self.local_player = Giocatore(x=1200,y=250)
-		elif int(numero_giocatore) == 2: self.local_player = Giocatore(x=650, y=750)
-		elif int(numero_giocatore) == 3: self.local_player = Giocatore(x=1200, y=750)
+		self.giocatori[self.numero_giocatore].x = 650 + (self.numero_giocatore % 2) * 550
+		self.giocatori[self.numero_giocatore].y = 250 + (self.numero_giocatore // 2) * 500
 
-		self.local_player.ancora_vivo = True
-		self.local_player.numero_giocatore = int(numero_giocatore)
+		for giocatore in self.giocatori:
+			giocatore.rettangolo_collisione = pygame.Rect(giocatore.x, giocatore.y, giocatore.WIDTH, giocatore.HEIGHT)
+
+		self.giocatori[self.numero_giocatore].ancora_vivo = True
 
 		self.info = {
-			"minigioco": "Spintoni"
+			"minigioco": "Spintoni",
+			"vincitore": None
 		}
-
-	def disegno_hud(self):
-		local_x = 100 + (self.local_player.numero_giocatore % 2) * 1656
-		local_y = 100 + (self.local_player.numero_giocatore // 2) * 787
-
-		self.FINESTRA.blit(self.local_player.immagini[0], (local_x, local_y))
-
-		for giocatore in self.remote_players:
-			remote_x = 100 + (giocatore.numero_giocatore % 2) * 1656
-			remote_y = 100 + (giocatore.numero_giocatore // 2) * 787
-			self.FINESTRA.blit(giocatore.immagini[0], (remote_x, remote_y))
 
 	def main(self):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
-
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-			#self.disegno_hud()
-			self.aggiorna_dati_da_server()
+			self.aggiorna_giocatori()
 
 			##############################################################################
-			#   Listener per spegnere il gioco quando clicchi sulla
-			#   x rossa
+			#   Listener per spegnere il gioco 
 			##############################################################################
 
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					self.esecuzione_in_corso = False
 
-			##############################################################################
-			#
-			##############################################################################
-
 			keys = pygame.key.get_pressed()
 
 			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
-			if keys[pygame.K_SPACE] and not self.local_player.pronto: 
-				self.local_player.pronto = True
-				print("Pronto")
-			
+			if keys[pygame.K_SPACE] and not self.giocatori[self.numero_giocatore].pronto: 
+				self.giocatori[self.numero_giocatore].pronto = True
+
+			##############################################################################
+			#	Muovere il giocatore locale
+			##############################################################################
+
+			if self.giocatori[self.numero_giocatore].ancora_vivo and self.tutti_pronti():
+				self.giocatori[self.numero_giocatore].muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+
+			#	verificare che il giocatore sia all'interno del cerchio (piattaforma)
+			if (self.giocatori[self.numero_giocatore].x - 960)**2 + (self.giocatori[self.numero_giocatore].y - 540)**2 > 425**2:
+				self.giocatori[self.numero_giocatore].ancora_vivo = False
+
 			##############################################################################
 			#	Controllare collisioni
 			##############################################################################
 
-			for giocatore in self.remote_players:
-				if giocatore.ancora_vivo:
-					self.local_player.collisione(giocatore)
+			for giocatore in self.giocatori:
+				if giocatore.numero_giocatore != self.numero_giocatore:
+					self.giocatori[self.numero_giocatore].collisione(giocatore)
 
 			##############################################################################
-			#	Muovere e disegnare il local player
+			#	Disegnare i giocatori sul campo
 			##############################################################################
 
-			if self.local_player.ancora_vivo:
-				if self.tutti_pronti: 
-					self.local_player.muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
-				self.local_player.disegna(self.FINESTRA)
-
-				#	verificare che il giocatore sia all'interno del cerchio (piattaforma)
-				if (self.local_player.x - 960)**2 + (self.local_player.y - 540)**2 > 425**2:
-					self.local_player.ancora_vivo = False
+			for giocatore in self.giocatori:
+				if giocatore.numero_giocatore != -1 and giocatore.ancora_vivo:
+					giocatore.disegna(self.FINESTRA)
 
 			##############################################################################
-			#	Disegnare i remote players
+			#	Uscire dal minigioco e restituire il vincitore
 			##############################################################################
 
-			for remote_player in self.remote_players:
-				if remote_player.ancora_vivo:
-					remote_player.disegna(self.FINESTRA)
-
-			##############################################################################
-			#
-			##############################################################################
-
-			if self.tutti_pronti and self.ancora_vivi() < 2:
+			if self.info["vincitore"]:
 				self.esecuzione_in_corso = False
+				return self.numero_giocatore
+
+			if self.tutti_pronti() and self.num_ancora_vivi() < 2:
+				self.info = {
+					"minigioco": "Spintoni",
+					"vincitore": self.numero_giocatore
+				}
 
 			pygame.display.update()
 
-
 class GiocatorePong(Giocatore):
-	def __init__(self, x, y):
-		super().__init__(x, y)
+	def __init__(self):
+		super().__init__()
 		self.meta_campo = None
 	
 	def muovi(self, tasti, screen_height, screen_width):
@@ -313,191 +295,12 @@ class GiocatorePong(Giocatore):
 			self.x += self.velocita
 			self.rivolto_destra = True
 
-class PallinaPong:
-	def __init__(self):
-		self.x = 950
-		self.y = 530
-		self.WIDTH = 20
-		self.HEIGHT = 20
-		self.velocita = 10
-		self.IMMAGINE = pygame.image.load(PERCORSO + "/Gioco/Immagini/Palla.png")
-		self.IMMAGINE = pygame.transform.scale(self.IMMAGINE, (self.WIDTH, self.HEIGHT))
-		self.direzione_orizzontale = False
-		self.direzione_verticale = False
-		self.rettangolo_collisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
-
-	def disegna(self, finestra):
-		self.rettangolo_collisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
-		finestra.blit(self.IMMAGINE, (self.x, self.y))
-
-	def muovi(self):
-		if self.direzione_orizzontale == 1:
-			self.x += self.velocita
-		else:
-			self.x -= self.velocita
-
-		if self.direzione_verticale == 1:
-			self.y -= self.velocita
-		elif self.direzione_verticale == -1:
-			self.y += self.velocita
-
-	def collisione(self, avversario):
-		#	Direzione orizzontale = 1  -> verso destra
-		#	Direzione orizzontale = -1 -> verso sinistra
-
-		#	Direzione verticale = 1  -> verso l'alto
-		#	Direzione verticale = 0  -> dritto
-		#	Direzione verticale = -1 -> verso il basso
-		
-		if self.rettangolo_collisione.colliderect(avversario.rettangolo_collisione):
-			if int(avversario.numero_giocatore) < 2:
-				self.direzione_orizzontale = 1
-			else:
-				self.direzione_orizzontale = -1
-
-			if self.y >= avversario.y - self.HEIGHT and self.y <= avversario.y + 20:
-				self.direzione_verticale = 1
-			elif self.y <= avversario.y + avversario.HEIGHT and self.y >= avversario.y + avversario.HEIGHT - 20:
-				self.direzione_verticale = -1
-			else:
-				self.direzione_verticale = 0
-
-			self.velocita += 2
-
-	def controlla_bordi(self, schermo_larghezza, schermo_altezza):
-		"""
-		1  = gol giocatori a sinistra
-		-1 = gol giocatori a destra
-		0  = no gol
-		"""
-		if self.y <= 0:
-			self.direzione_verticale = -1
-		elif self.y >= schermo_altezza - self.HEIGHT:
-			self.direzione_verticale = 1
-		
-		if self.x > schermo_larghezza:
-			return 1
-		elif self.x < -self.WIDTH:
-			return -1
-		else:
-			return 0
-
-class Pong(MiniGioco):
-	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
-		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Mappa_Pong.jpg")
-		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-
-		if int(numero_giocatore) == 0: self.local_player = GiocatorePong(x=650, y=250)
-		elif int(numero_giocatore) == 1: self.local_player = GiocatorePong(x=650, y=750)
-		elif int(numero_giocatore) == 2: self.local_player = GiocatorePong(x=1200,y=250)
-		elif int(numero_giocatore) == 3: self.local_player = GiocatorePong(x=1200, y=750)
-		
-		self.local_player.numero_giocatore = int(numero_giocatore)
-		self.local_player.ancora_vivo = True
-
-		self.remote_players = [GiocatorePong(0, 0), GiocatorePong(0, 0), GiocatorePong(0, 0)]
-
-		self.pallina = PallinaPong()
-		self.punteggio_sinistra = 0
-		self.punteggio_destra = 0
-		self.txt_punteggio_sinistra = self.FONT.render(str(self.punteggio_sinistra), 1, (0, 0, 0))
-		self.txt_punteggio_destra = self.FONT.render(str(self.punteggio_destra), 1, (0, 0, 0))
-
-		self.info = {
-			"minigioco": "Pong"
-		}
-
-	def disegno_hud(self):
-
-		local_x = 100 + (self.local_player.numero_giocatore // 2) * 1556 + (self.local_player.numero_giocatore % 2) * 100
-		self.FINESTRA.blit(self.local_player.immagini[0], (local_x, 100))
-
-		for giocatore in self.remote_players:
-			remote_x = 100 + (giocatore.numero_giocatore // 2) * 1556 + (giocatore.numero_giocatore % 2) * 100
-			self.FINESTRA.blit(giocatore.immagini[0], (remote_x, 100))
-
-		self.FINESTRA.blit(self.txt_punteggio_sinistra, ((self.SCREEN_WIDTH - self.txt_punteggio_sinistra.get_width()) // 2 - 20, 30))
-		self.FINESTRA.blit(self.txt_punteggio_destra, ((self.SCREEN_WIDTH - self.txt_punteggio_sinistra.get_width()) // 2 + 20, 30))
-
-	def main(self):
-		while self.esecuzione_in_corso:
-			pygame.time.delay(20)
-
-			if int(self.local_player.numero_giocatore) < 2:
-				self.local_player.meta_campo = "sx"
-			else:
-				self.local_player.meta_campo = "dx"
-
-			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-
-			self.aggiorna_dati_da_server()
-
-			##############################################################################
-			#   Listener per spegnere il gioco quando clicchi sulla
-			#   x rossa
-			##############################################################################
-
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT:
-					self.esecuzione_in_corso = False
-
-			##############################################################################
-			#	Listener tasti e spegnimento gioco con Escape
-			##############################################################################
-
-			keys = pygame.key.get_pressed()
-
-			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
-
-			##############################################################################
-			#	Gestire il proprio giocatore
-			##############################################################################
-
-			self.local_player.muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
-			self.local_player.disegna(self.FINESTRA)
-
-			##############################################################################
-			#	Gestione pallina, rimbalzo e collisione con giocatori
-			##############################################################################
-
-			self.pallina.collisione(self.local_player)
-			for remote_player in self.remote_players:
-				self.pallina.collisione(remote_player)
-
-			self.pallina.muovi()
-			self.pallina.disegna(self.FINESTRA)
-			e_gol = self.pallina.controlla_bordi(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
-			if e_gol == 1:
-				self.punteggio_sinistra += 1
-				self.pallina.x = 950
-				self.pallina.y = 530
-				self.pallina.direzione_orizzontale = -1
-				self.pallina.direzione_verticale = 0
-				self.txt_punteggio_sinistra = self.FONT.render(str(self.punteggio_sinistra), 1, (0, 0, 0))
-				self.txt_punteggio_destra = self.FONT.render(str(self.punteggio_destra), 1, (0, 0, 0))
-			elif e_gol == -1:
-				self.punteggio_destra += 1
-				self.pallina.x = 950
-				self.pallina.y = 530
-				self.pallina.direzione_orizzontale = 1
-				self.pallina.direzione_verticale = 0
-				self.txt_punteggio_sinistra = self.FONT.render(str(self.punteggio_sinistra), 1, (0, 0, 0))
-				self.txt_punteggio_destra = self.FONT.render(str(self.punteggio_destra), 1, (0, 0, 0))
-
-			for remote_player in self.remote_players:
-				if remote_player.ancora_vivo:
-					remote_player.disegna(self.FINESTRA)
-
-			self.disegno_hud()
-
-			pygame.display.update()
-
 
 class GiocatoreGara(Giocatore):
-	def __init__(self, x, y):
-		super().__init__(x, y)
+	def __init__(self):
+		super().__init__()
 		self.ultimo_tasto = None
+		self.rivolto_destra = True
 
 	def muovi(self, tasti):
 		#	ultimo_tasto = 1 -> freccia in su
@@ -512,252 +315,174 @@ class GiocatoreGara(Giocatore):
 
 class Gara(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
-		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
+		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore)
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
-		if int(numero_giocatore) == 0: self.local_player = GiocatoreGara(x=150, y=200)
-		elif int(numero_giocatore) == 1: self.local_player = GiocatoreGara(x=150, y=500)
-		elif int(numero_giocatore) == 2: self.local_player = GiocatoreGara(x=150,y=800)
-		elif int(numero_giocatore) == 3: self.local_player = GiocatoreGara(x=150, y=1100)
+		self.giocatori = [GiocatoreGara(), GiocatoreGara(), GiocatoreGara(), GiocatoreGara()]
+		self.giocatori[self.numero_giocatore].x = 150
+		self.giocatori[self.numero_giocatore].y = 200 + 200 * (self.numero_giocatore % 4)
 
-		self.local_player.ancora_vivo = True
-		self.remote_players = [GiocatoreGara(0, 0), GiocatoreGara(0, 0), GiocatoreGara(0, 0)]
+		self.TRAGUARDO = 1300
 
 		self.info = {
-			"minigioco": "Gara"
+			"minigioco": "Gara",
+			"vincitore": None
 		}
+
+	def tutti_ancora_in_gara(self):
+		for giocatore in self.giocatori:
+			if giocatore.x >= self.TRAGUARDO:
+				return False
+		return True
 
 	def main(self):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
-
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-
-			self.aggiorna_dati_da_server()
+			self.aggiorna_giocatori()
 
 			##############################################################################
-			#   Listener per spegnere il gioco quando clicchi sulla
-			#   x rossa
+			#   Listener per spegnere il gioco 
 			##############################################################################
 
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					self.esecuzione_in_corso = False
 
-			##############################################################################
-			#
-			##############################################################################
-
 			keys = pygame.key.get_pressed()
 
 			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
+			if keys[pygame.K_SPACE] and not self.giocatori[self.numero_giocatore].pronto: 
+				self.giocatori[self.numero_giocatore].pronto = True
 
 			##############################################################################
-			#	Visualizzare e muovere solo i giocatori connessi e pronti
+			#	Muovere il giocatore locale
 			##############################################################################
 
-			self.local_player.muovi(keys)
-			self.local_player.disegna(self.FINESTRA)
+			if self.tutti_pronti():
+				self.giocatori[self.numero_giocatore].muovi(keys)
 
-			for remote_player in self.remote_players:
-				if remote_player.ancora_vivo:
-					remote_player.disegna(self.FINESTRA)
+			##############################################################################
+			#	Disegnare i giocatori sul campo
+			##############################################################################
+
+			for giocatore in self.giocatori:
+				if giocatore.numero_giocatore != -1:
+					giocatore.disegna(self.FINESTRA)
+
+			##############################################################################
+			#	Uscire dal minigioco e restituire il vincitore
+			##############################################################################
+
+			if self.info["vincitore"]:
+				self.esecuzione_in_corso = False
+				return self.numero_giocatore
+
+			if self.tutti_pronti() and not self.tutti_ancora_in_gara():
+				self.info = {
+					"minigioco": "Gara",
+					"vincitore": self.numero_giocatore
+				}
 
 			pygame.display.update()
 
-
-class GiocatoreBN(Giocatore):
-	def __init__(self, x, y):
-		super().__init__(x, y)
-		self.casella_squadra = 0	#	su quale casella del proprio campo si trova
-
-	def muovi(self, tasti):
-		if tasti[pygame.K_UP] and self.casella_squadra > 3:
-			self.casella_squadra -= 4
-			self.y -= 150
-			
-		if tasti[pygame.K_DOWN] and self.casella_squadra < 12:
-			self.casella_squadra += 4
-			self.y += 150
-
-		if tasti[pygame.K_LEFT] and self.casella_squadra % 4 != 0:
-			self.casella_squadra -= 1
-			self.x -= 150
-
-		if tasti[pygame.K_RIGHT] and self.casella_squadra % 4 != 3:
-			self.casella_squadra += 1
-			self.x += 150
-
-
-class BattagliaNavale(MiniGioco):
-	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
-		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
-		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-
-		if int(numero_giocatore) % 2 == 0: 
-			self.local_player = GiocatoreBN(x=218, y=204)
-			self.local_player.casella_squadra = 0
-		elif int(numero_giocatore) % 2 == 1:
-			self.local_player = GiocatoreBN(x=218, y=654)
-			self.local_player.casella_squadra = 12
-
-		self.local_player.ancora_vivo = True
-		self.local_player.numero_giocatore = numero_giocatore
-
-		self.remote_players = [GiocatoreBN(0, 0), GiocatoreBN(0, 0), GiocatoreBN(0, 0)]
-
-		self.info = {
-			"minigioco": "BattagliaNavale",
-			"celle_avversari": [0 for _ in range(16)],
-			"casella_giocatore": self.local_player.casella_squadra,
-			"turno": 0,
-			"scelta": -1
-		}
-		self.scelta = 0
-		self.disegna_celle()
-
-	def disegna_celle(self):
-		for i in range(4):
-			for j in range(4):
-				pygame.draw.rect(self.FINESTRA, (0, 0, 0), pygame.Rect(150 * i + 200, 150 * j + 200, 100, 100))
-		for i in range(16):
-			if self.info["celle_avversari"][i] == 0:
-				pygame.draw.rect(self.FINESTRA, (0, 0, 0), pygame.Rect(150 * (i % 4) + 1170, 150 * (i // 4) + 200, 100, 100))
-			if self.info["celle_avversari"][i] == 1:
-				pygame.draw.rect(self.FINESTRA, (0, 0, 255), pygame.Rect(150 * (i % 4) + 1170, 150 * (i // 4) + 200, 100, 100))
-			if self.info["celle_avversari"][i] == 2:
-				pygame.draw.rect(self.FINESTRA, (255, 0, 0), pygame.Rect(150 * (i % 4) + 1170, 150 * (i // 4) + 200, 100, 100))
-
-	def attacca(self, tasti):
-		if tasti[pygame.K_UP] and self.scelta > 3:
-			self.scelta -= 4
-			
-		if tasti[pygame.K_DOWN] and self.scelta < 12:
-			self.scelta += 4
-
-		if tasti[pygame.K_LEFT] and self.scelta % 4 != 0:
-			self.scelta -= 1
-
-		if tasti[pygame.K_RIGHT] and self.scelta % 4 != 3:
-			self.scelta += 1
-
-		pygame.draw.rect(self.FINESTRA, (255, 0, 0), pygame.Rect(150 * (self.scelta % 4) + 1170, 150 * (self.scelta // 4) + 200, 100, 100))
-
-	def main(self):
-		while self.esecuzione_in_corso:
-			pygame.time.delay(20)
-			
-			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-			self.aggiorna_dati_da_server()
-
-			self.disegna_celle()
-
-			##############################################################################
-			#   Listener per spegnere il gioco quando clicchi sulla
-			#   x rossa
-			##############################################################################
-
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT:
-					self.esecuzione_in_corso = False
-
-			##############################################################################
-			#
-			##############################################################################
-
-			keys = pygame.key.get_pressed()
-
-			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
-			if keys[pygame.K_SPACE]: self.tutti_pronti = True
-
-			if self.tutti_pronti:
-				self.attacca(keys)
-				if (self.local_player.numero_giocatore < 2 and self.info["turno"] == 0) or (self.local_player.numero_giocatore >= 2 and self.info["turno"] == 1):
-					if keys[pygame.K_RETURN] and not self.info["celle_avversari"][self.scelta]:
-						self.info["scelta"] = self.scelta
-			else:
-				self.local_player.muovi(keys)
-
-			self.local_player.disegna(self.FINESTRA)
-
-			for remote_player in self.remote_players:
-				if remote_player.ancora_vivo:
-					remote_player.disegna(self.FINESTRA)
-
-			pygame.display.update()
-
-
-class GiocatoreParacadutismo(Giocatore):
-	def muovi(self):
-		self.y -= 10
 
 class Paracadutismo(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
-		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza)
+		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore)
 		self.y_sfondo = 0
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Nuvole/Nuvole.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, self.y_sfondo))
 
-		if int(numero_giocatore) == 0: self.local_player = GiocatoreParacadutismo(x=200, y=200)
-		elif int(numero_giocatore) == 1: self.local_player = GiocatoreParacadutismo(x=600, y=200)
-		elif int(numero_giocatore) == 2: self.local_player = GiocatoreParacadutismo(x=1000,y=200)
-		elif int(numero_giocatore) == 3: self.local_player = GiocatoreParacadutismo(x=1400, y=200)
+		self.giocatori = [Giocatore(), Giocatore(), Giocatore(), Giocatore()]
+		self.giocatori[self.numero_giocatore].x = 200 + 400 * (self.numero_giocatore % 4)
+		self.giocatori[self.numero_giocatore].y = 200
+		self.giocatori[self.numero_giocatore].ancora_vivo = True
 
-		self.local_player.ancora_vivo = True
-		self.local_player.numero_giocatore = numero_giocatore
-
-		self.remote_players = [GiocatoreParacadutismo(0, 0), GiocatoreParacadutismo(0, 0), GiocatoreParacadutismo(0, 0)]
-
-		self.ancora_in_volo = True
-		self.PUNTEGGIO_MASSIMO = 100000000
+		self.PUNTEGGIO_MASSIMO = 5000
+		self.distanza = 0
 
 		self.info = {
-			"minigioco": "Paracadutismo"
+			"minigioco": "Paracadutismo",
+			"vincitore": None
 		}
+
+	def disegna_parte_bassa(self):
+		pass
 
 	def main(self):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
-			self.local_player.punti += 30
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, self.y_sfondo))
-			if self.y_sfondo > -1000:
-				self.y_sfondo -= 10
-			else:
-				self.y_sfondo = 0
+			if self.tutti_pronti() and self.distanza < self.PUNTEGGIO_MASSIMO:
+				self.distanza += 10
+				if self.y_sfondo > -1000:
+					self.y_sfondo -= 10
+				else:
+					self.y_sfondo = 0
 
-			self.aggiorna_dati_da_server()
+				if self.giocatori[self.numero_giocatore].ancora_vivo: 
+					self.giocatori[self.numero_giocatore].punti = self.distanza
+
+			self.aggiorna_giocatori()
 
 			##############################################################################
-			#   Listener per spegnere il gioco quando clicchi sulla
-			#   x rossa
+			#   Listener per spegnere il gioco 
 			##############################################################################
 
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					self.esecuzione_in_corso = False
 
-			##############################################################################
-			#
-			##############################################################################
-
 			keys = pygame.key.get_pressed()
 
 			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
+			if keys[pygame.K_SPACE] and not self.giocatori[self.numero_giocatore].pronto: 
+				self.giocatori[self.numero_giocatore].pronto = True
+			if keys[pygame.K_RETURN]: 
+				self.giocatori[self.numero_giocatore].ancora_vivo = False
 
-			if keys[pygame.K_SPACE]:
-				self.ancora_in_volo = False
+			##############################################################################
+			#	Muovere il giocatore locale
+			##############################################################################
 
-			if self.local_player.punti > self.PUNTEGGIO_MASSIMO:
-				self.local_player.ancora_vivo = False
+			if not self.giocatori[self.numero_giocatore].ancora_vivo:
+				self.giocatori[self.numero_giocatore].y -= 10
 
-			if not self.ancora_in_volo: self.local_player.muovi()
-			self.local_player.disegna(self.FINESTRA)
+			if self.giocatori[self.numero_giocatore].punti > self.PUNTEGGIO_MASSIMO:
+				self.giocatori[self.numero_giocatore].ancora_vivo = False
+				self.giocatori[self.numero_giocatore].punti = -1
 
-			for remote_player in self.remote_players:
-				if remote_player.ancora_vivo:
-					remote_player.disegna(self.FINESTRA)
+			##############################################################################
+			#	Disegnare i giocatori sul campo
+			##############################################################################
+
+			for giocatore in self.giocatori:
+				if giocatore.numero_giocatore != -1:
+					giocatore.disegna(self.FINESTRA)
+
+			##############################################################################
+			#	Uscire dal minigioco e restituire il vincitore
+			##############################################################################
+
+			if self.info["vincitore"] is not None:
+				self.esecuzione_in_corso = False
+				return self.numero_giocatore
 
 			pygame.display.update()
+
+
+class PallinaPong:
+	pass
+
+class Pong(MiniGioco):
+	def __init__(self, finestra, connessione, altezza_schermo, larghezza_schermo, numero_giocatore):
+		super.__init__(finestra, connessione, altezza_schermo, larghezza_schermo, numero_giocatore)
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Mappa_Pong.jpg")
+		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+
+		self.giocatori = [GiocatorePong(), GiocatorePong(), GiocatorePong(), GiocatorePong()]
+		self.giocatori[self.numero_giocatore].x = 650 + (self.numero_giocatore % 2) * 550
+		self.giocatori[self.numero_giocatore].y = 250 + (self.numero_giocatore // 2) * 500
