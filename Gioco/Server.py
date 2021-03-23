@@ -72,6 +72,12 @@ pallina = {"x": 1920 // 2, "y": 1080 // 2, "direzione_orizzontale": -1, "direzio
 risultato = [0, 0]
 
 def pong(par_data, par_info):
+
+	tutti_pronti = True
+
+	for giocatore in giocatori:
+		if not giocatore["pronto"]: tutti_pronti = False
+
 	##############################################################################
 	#	Collisione con giocatore
 	##############################################################################
@@ -107,15 +113,16 @@ def pong(par_data, par_info):
 	if pallina["y"] < 0: pallina["direzione_verticale"] = -1
 	if pallina["y"] > 1060: pallina["direzione_verticale"] = 1
 
-	if pallina["direzione_verticale"] == 1: 
-		pallina["y"] += 20
-	elif pallina["direzione_verticale"] == -1: 
-		pallina["y"] -= 20
+	if tutti_pronti:
+		if pallina["direzione_verticale"] == 1: 
+			pallina["y"] += 10
+		elif pallina["direzione_verticale"] == -1: 
+			pallina["y"] -= 10
 
-	if pallina["direzione_orizzontale"] == 1: 
-		pallina["x"] -= 20
-	elif pallina["direzione_orizzontale"] == -1: 
-		pallina["x"] += 20
+		if pallina["direzione_orizzontale"] == 1: 
+			pallina["x"] -= 10
+		elif pallina["direzione_orizzontale"] == -1: 
+			pallina["x"] += 10
 
 
 	if pallina["x"] < -20: 

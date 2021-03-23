@@ -525,7 +525,7 @@ class Pong(MiniGioco):
 			#	Muovere il giocatore locale
 			##############################################################################
 
-			if self.giocatori[self.numero_giocatore].ancora_vivo:
+			if self.giocatori[self.numero_giocatore].ancora_vivo and self.tutti_pronti():
 				self.giocatori[self.numero_giocatore].muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
 
 			##############################################################################
