@@ -10,7 +10,7 @@ if __name__ == "__main__":
 	SCREEN_WIDTH, SCREEN_HEIGHT = pygame.display.get_surface().get_size()
 
 	PERCORSO = os.path.realpath(__file__)[:-14]
-	SFONDO_SCHERMATA_PRINCIPALE = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
+	SFONDO_SCHERMATA_PRINCIPALE = pygame.image.load(PERCORSO + "/Gioco/Immagini/Home.jpg")
 	FINESTRA.blit(SFONDO_SCHERMATA_PRINCIPALE, (0, 0))
 
 	click = False

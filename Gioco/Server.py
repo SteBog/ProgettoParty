@@ -168,15 +168,12 @@ def gara(par_data, par_info):
 
 	return par_info
 
-def battaglia_navale():
-	global vincitore
-
 ##############################################################################
 #	Thread di gestione di singolo giocatore
 ##############################################################################
 
 def t_client(conn, numGio):
-	global numGiocatore
+	global numGiocatore, vincitore
 	info = {
 		"numero_giocatore": numGio,
 		"vincitore": None
@@ -199,6 +196,7 @@ def t_client(conn, numGio):
 				if data["info"]["minigioco"] == "Gara": info = gara(data, info)
 				if data["info"]["minigioco"] == "Paracadutismo": info = paracadutismo(info)
 				if data["info"]["minigioco"] == "Pong": info = pong(data, info)
+				if data["info"]["minigioco"] == "Home": vincitore = None
 
 				risposta = encode_pos({"giocatori": giocatori, "info": info})
 
