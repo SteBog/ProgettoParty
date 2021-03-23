@@ -259,40 +259,6 @@ class SpintoniSuPiattaforma(MiniGioco):
 
 			pygame.display.update()
 
-class GiocatorePong(Giocatore):
-	def __init__(self):
-		super().__init__()
-		self.meta_campo = None
-	
-	def muovi(self, tasti, screen_height, screen_width):
-		if self.meta_campo == "sx":
-			x_minimo = 0
-			x_massimo = 0.5
-		else:
-			x_minimo = 0.5
-			x_massimo = 1
-
-		#   Evitare che la velocità in diagonale sia (10^2 + 10^2)^1/2 ma renderla 10 (come in orizzontale e verticale)
-		if (tasti[pygame.K_UP] or tasti[pygame.K_DOWN]) and (tasti[pygame.K_LEFT] or tasti[pygame.K_RIGHT]):
-			self.velocita = 7
-		else:
-			self.velocita = 10
-
-		#   A seconda del tasto premuto muovere il giocatore
-		if tasti[pygame.K_UP] and self.y >= 0:
-			self.y -= self.velocita
-
-		if tasti[pygame.K_DOWN] and self.y <= screen_height - self.HEIGHT:
-			self.y += self.velocita
-
-		if tasti[pygame.K_LEFT] and self.x >= screen_width * x_minimo:
-			self.x -= self.velocita
-			self.rivolto_destra = False
-
-		if tasti[pygame.K_RIGHT] and self.x <= screen_width * x_massimo - self.WIDTH:
-			self.x += self.velocita
-			self.rivolto_destra = True
-
 
 class GiocatoreGara(Giocatore):
 	def __init__(self):
@@ -409,7 +375,6 @@ class Paracadutismo(MiniGioco):
 
 	def disegna_parte_bassa(self):
 		self.FINESTRA.blit(self.IMMAGINE_PARTE_BASSA, (0, self.PUNTEGGIO_MASSIMO - self.distanza))
-		print(self.PUNTEGGIO_MASSIMO - self.distanza)
 
 	def main(self):
 		while self.esecuzione_in_corso:
@@ -477,14 +442,116 @@ class Paracadutismo(MiniGioco):
 
 
 class PallinaPong:
-	pass
+	def __init__(self):
+		self.x = 1920 // 2
+		self.y = 1080 // 2
+
+		self.HEIGHT = 20
+		self.WIDTH = 20
+
+		self.IMMAGINE = pygame.image.load(PERCORSO + "/Gioco/Immagini/Palla.png")
+		self.IMMAGINE = pygame.transform.scale(self.IMMAGINE, (self.WIDTH, self.HEIGHT))
+
+	def disegna(self, finestra, x, y):
+		finestra.blit(self.IMMAGINE, (x, y))
 
 class Pong(MiniGioco):
 	def __init__(self, finestra, connessione, altezza_schermo, larghezza_schermo, numero_giocatore):
-		super.__init__(finestra, connessione, altezza_schermo, larghezza_schermo, numero_giocatore)
+		super().__init__(finestra, connessione, altezza_schermo, larghezza_schermo, numero_giocatore)
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Mappa_Pong.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
-		self.giocatori = [GiocatorePong(), GiocatorePong(), GiocatorePong(), GiocatorePong()]
+		self.giocatori = [Giocatore(), Giocatore(), Giocatore(), Giocatore()]
+		self.pallina = PallinaPong()
 		self.giocatori[self.numero_giocatore].x = 650 + (self.numero_giocatore % 2) * 550
 		self.giocatori[self.numero_giocatore].y = 250 + (self.numero_giocatore // 2) * 500
+
+		for giocatore in self.giocatori:
+			giocatore.rettangolo_collisione = pygame.Rect(giocatore.x, giocatore.y, giocatore.WIDTH, giocatore.HEIGHT)
+
+		self.giocatori[self.numero_giocatore].ancora_vivo = True
+
+		self.info = {
+			"minigioco": "Pong",
+			"x": 1920 // 2,
+			"y": 1080 // 2,
+			"vincitore": None
+		}
+
+	def aggiorna_giocatori(self):
+		dati = self.scarica_dati_da_server()
+		self.numero_giocatore = dati["info"]["numero_giocatore"]
+		self.info["vincitore"] = dati["info"]["vincitore"]
+
+		try:
+			self.info["x"] = dati["info"]["x"]
+			self.info["y"] = dati["info"]["y"]
+		except:
+			self.info["x"] = 0
+			self.info["y"] = 0
+
+		for i, giocatori in enumerate(dati["giocatori"]):
+			self.giocatori[i].numero_giocatore = int(giocatori["numero_giocatore"])
+			if giocatori["numero_giocatore"] != dati["info"]["numero_giocatore"]:
+				self.giocatori[i].x = giocatori["coordinata_x"]
+				self.giocatori[i].y = giocatori["coordinata_y"]
+				self.giocatori[i].rivolto_destra = giocatori["rivolto_a_destra"]
+				self.giocatori[i].ancora_vivo = giocatori["ancora_vivo"]
+				self.giocatori[i].pronto = giocatori["pronto"]
+				self.giocatori[i].punti = giocatori["punti"]
+
+	def main(self):
+		while self.esecuzione_in_corso:
+			pygame.time.delay(20)
+
+			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+			self.aggiorna_giocatori()
+
+			##############################################################################
+			#   Listener per spegnere il gioco 
+			##############################################################################
+
+			for event in pygame.event.get():
+				if event.type == pygame.QUIT:
+					self.esecuzione_in_corso = False
+
+			keys = pygame.key.get_pressed()
+
+			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
+			if keys[pygame.K_SPACE] and not self.giocatori[self.numero_giocatore].pronto: 
+				self.giocatori[self.numero_giocatore].pronto = True
+
+			##############################################################################
+			#	Muovere il giocatore locale
+			##############################################################################
+
+			if self.giocatori[self.numero_giocatore].ancora_vivo:
+				self.giocatori[self.numero_giocatore].muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+
+			##############################################################################
+			#	Controllare collisioni
+			##############################################################################
+
+			for giocatore in self.giocatori:
+				if giocatore.numero_giocatore != self.numero_giocatore:
+					self.giocatori[self.numero_giocatore].collisione(giocatore)
+
+			##############################################################################
+			#	Disegnare i giocatori sul campo
+			##############################################################################
+
+			for giocatore in self.giocatori:
+				if giocatore.numero_giocatore != -1 and giocatore.ancora_vivo:
+					giocatore.disegna(self.FINESTRA)
+
+			self.pallina.disegna(self.FINESTRA, self.info["x"], self.info["y"])
+
+			##############################################################################
+			#	Uscire dal minigioco e restituire il vincitore
+			##############################################################################
+
+			if self.info["vincitore"]:
+				self.esecuzione_in_corso = False
+				return self.numero_giocatore
+
+			pygame.display.update()

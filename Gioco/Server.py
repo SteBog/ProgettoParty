@@ -67,8 +67,77 @@ def spintoni(par_data, par_info):
 
 	return par_info
 
-def pong():
-	global vincitore
+
+pallina = {"x": 1920 // 2, "y": 1080 // 2, "direzione_orizzontale": -1, "direzione_verticale": 0}
+risultato = [0, 0]
+
+def pong(par_data, par_info):
+	##############################################################################
+	#	Collisione con giocatore
+	##############################################################################
+
+	collisione_alto = pallina["y"] > par_data["giocatore"]["coordinata_y"] - 20 and pallina["y"] < par_data["giocatore"]["coordinata_y"] + 20
+	collisione_basso = pallina["y"] > par_data["giocatore"]["coordinata_y"] + 92 - 20 and pallina["y"] < par_data["giocatore"]["coordinata_y"] + 92 + 20
+	collisione_centro_verticale = pallina["y"] > par_data["giocatore"]["coordinata_y"] + 20 and pallina["y"] < par_data["giocatore"]["coordinata_y"] + 92 - 20
+
+	collisione_sinistra = pallina["x"] > par_data["giocatore"]["coordinata_x"] - 20 and pallina["x"] < par_data["giocatore"]["coordinata_x"] + 20
+	collisione_destra = pallina["x"] > par_data["giocatore"]["coordinata_x"] + 64 - 20 and pallina["x"] < par_data["giocatore"]["coordinata_x"] + 64 + 20
+
+	if (collisione_alto or collisione_basso or collisione_centro_verticale) and (collisione_sinistra or collisione_destra):
+		if collisione_alto: 
+			pallina["direzione_verticale"] = -1
+			pallina["y"] -= 100
+		if collisione_basso: 
+			pallina["direzione_verticale"] = 1
+			pallina["y"] += 100
+		if collisione_centro_verticale: 
+			pallina["direzione_verticale"] = 0
+
+		if collisione_sinistra: 
+			pallina["direzione_orizzontale"] = 1
+			pallina["x"] -= 100
+		if collisione_destra: 
+			pallina["direzione_orizzontale"] = -1
+			pallina["x"] += 100
+
+	##############################################################################
+	#	Contatto con bordo del campo
+	##############################################################################
+
+	if pallina["y"] < 0: pallina["direzione_verticale"] = -1
+	if pallina["y"] > 1060: pallina["direzione_verticale"] = 1
+
+	if pallina["direzione_verticale"] == 1: 
+		pallina["y"] += 20
+	elif pallina["direzione_verticale"] == -1: 
+		pallina["y"] -= 20
+
+	if pallina["direzione_orizzontale"] == 1: 
+		pallina["x"] -= 20
+	elif pallina["direzione_orizzontale"] == -1: 
+		pallina["x"] += 20
+
+
+	if pallina["x"] < -20: 
+		risultato[1] += 1
+		pallina["x"] = 1920 // 2
+		pallina["y"] = 1080 // 2
+
+	if pallina["x"] > 1920: 
+		risultato[0] += 1
+		pallina["x"] = 1920 // 2
+		pallina["y"] = 1080 // 2
+
+
+
+	if risultato[0] > 4: par_info["vincitore"] = [0, 2]
+	elif risultato[1] > 4: par_info["vincitore"] = [1, 3]
+	else: par_info["vincitore"] = None
+
+	par_info["x"] = pallina["x"]
+	par_info["y"] = pallina["y"]
+
+	return par_info
 
 def paracadutismo(par_info):
 	if gioco_finito():
@@ -122,6 +191,7 @@ def t_client(conn, numGio):
 				if data["info"]["minigioco"] == "Spintoni": info = spintoni(data, info)
 				if data["info"]["minigioco"] == "Gara": info = gara(data, info)
 				if data["info"]["minigioco"] == "Paracadutismo": info = paracadutismo(info)
+				if data["info"]["minigioco"] == "Pong": info = pong(data, info)
 
 				risposta = encode_pos({"giocatori": giocatori, "info": info})
 
