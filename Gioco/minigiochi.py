@@ -3,8 +3,6 @@ import time
 import json
 import os
 
-from pygame import key
-
 def encode_pos(stringa_json):
 	return json.dumps(stringa_json)
 
@@ -393,6 +391,7 @@ class Paracadutismo(MiniGioco):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore)
 		self.y_sfondo = 0
 		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Nuvole/Nuvole.jpg")
+		self.IMMAGINE_PARTE_BASSA = pygame.image.load(PERCORSO + "/Gioco/Immagini/Nuvole/Base_Nuvole.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, self.y_sfondo))
 
 		self.giocatori = [Giocatore(), Giocatore(), Giocatore(), Giocatore()]
@@ -409,13 +408,16 @@ class Paracadutismo(MiniGioco):
 		}
 
 	def disegna_parte_bassa(self):
-		pass
+		self.FINESTRA.blit(self.IMMAGINE_PARTE_BASSA, (0, self.PUNTEGGIO_MASSIMO - self.distanza))
+		print(self.PUNTEGGIO_MASSIMO - self.distanza)
 
 	def main(self):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, self.y_sfondo))
+			self.disegna_parte_bassa()
+
 			if self.tutti_pronti() and self.distanza < self.PUNTEGGIO_MASSIMO:
 				self.distanza += 10
 				if self.y_sfondo > -1000:
