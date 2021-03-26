@@ -328,7 +328,6 @@ public class DBManagement {
 			while (risultato.next())
 			{
 				UtentiBean utente = new UtentiBean();
-				utente.setID(risultato.getInt("IDUtente"));
 				utente.setEmail(risultato.getString("Email"));
 				utente.setUsername(risultato.getNString("Username"));
 				utente.setFotoProfilo(risultato.getString("FotoProfilo"));
@@ -363,18 +362,23 @@ public class DBManagement {
 		
 		return null;
 	}
-	public void aggiorna_utente (UtentiBean utente) throws SQLException
+	public void aggiorna_utente (UtentiBean utente, String username) throws SQLException
 	{
 		Statement stmt = null;
 		Connection conn = null;
+		
+		if (username == null || username == "")
+		{
+			username = utente.getUsername();
+		}
 		
 		try
 		{
 			conn = getDBConnection();
 			stmt = conn.createStatement();
 			
-			String query = "UPDATE Utenti SET Utenti.Email = '" + utente.getEmail() + "' , Utenti.Username = '" + utente.getUsername() + "', Utenti.FotoProfilo = '" + utente.getFotoProfilo() + "', Utenti.DataNascita = '" + utente.getDataNascita() + "'"
-					+ " WHERE Utenti.IDUtente = " + utente.getID();
+			String query = "UPDATE Utenti SET Utenti.Email = '" + utente.getEmail() + "' , Utenti.Username = '" + username + "', " + 
+			"Utenti.FotoProfilo = '" + utente.getFotoProfilo() + "', Utenti.DataNascita = '" + utente.getDataNascita() + "' WHERE Utenti.Username = '" + utente.getUsername() + "'";
 		
 			stmt.executeUpdate(query);
 		}
