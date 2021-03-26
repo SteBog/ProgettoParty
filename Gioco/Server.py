@@ -137,8 +137,8 @@ def pong(par_data, par_info):
 
 
 
-	if risultato[0] > 4: par_info["vincitore"] = [0, 2]
-	elif risultato[1] > 4: par_info["vincitore"] = [1, 3]
+	if risultato[0] > 4: par_info["vincitore"] = (0, 2)
+	elif risultato[1] > 4: par_info["vincitore"] = (1, 3)
 	else: par_info["vincitore"] = None
 
 	par_info["x"] = pallina["x"]
@@ -151,7 +151,6 @@ def paracadutismo(par_info):
 		massimo = -1
 		winner = None
 		for player in giocatori:
-			print(player["punti"])
 			if player["punti"] > massimo:
 				massimo = player["punti"]
 				winner = player["numero_giocatore"]

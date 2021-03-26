@@ -249,7 +249,7 @@ class SpintoniSuPiattaforma(MiniGioco):
 
 			if self.info["vincitore"]:
 				self.esecuzione_in_corso = False
-				return self.numero_giocatore
+				return (self.numero_giocatore)
 
 			if self.tutti_pronti() and self.num_ancora_vivi() < 2:
 				self.info = {
@@ -341,7 +341,7 @@ class Gara(MiniGioco):
 
 			if self.info["vincitore"]:
 				self.esecuzione_in_corso = False
-				return self.numero_giocatore
+				return (self.numero_giocatore)
 
 			if self.tutti_pronti() and not self.tutti_ancora_in_gara():
 				self.info = {
@@ -436,7 +436,7 @@ class Paracadutismo(MiniGioco):
 
 			if self.info["vincitore"] is not None:
 				self.esecuzione_in_corso = False
-				return self.numero_giocatore
+				return (self.numero_giocatore)
 
 			pygame.display.update()
 
@@ -552,6 +552,6 @@ class Pong(MiniGioco):
 
 			if self.info["vincitore"]:
 				self.esecuzione_in_corso = False
-				return self.numero_giocatore
+				return self.info["vincitore"]
 
 			pygame.display.update()

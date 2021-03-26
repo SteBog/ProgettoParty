@@ -18,9 +18,13 @@ class Schermata_Principale:
 
 		self.esecuzione_in_corso = True
 		self.numero_giocatore = None
-		self.posizione_local = 0
 
-		self.local_player = Giocatore()
+		self.posizione_local = 0
+		self.numero_minigioco = 0
+		self.posizioni = [(10, 925), (90, 600), (240, 275), (380, 550), (616, 746), (850, 602), (724, 458), (561, 314), (814, 170), (1030, 350), (1030, 656), (1264, 818), (1498, 404)]
+
+		self.giocatori = [Giocatore(), Giocatore(), Giocatore(), Giocatore()]
+		self.numero_giocatore = -1
 
 		#	Giocatore w: 64, h: 92 
 		#	Posizione 1: 10, 925 (418)
@@ -37,53 +41,56 @@ class Schermata_Principale:
 		#	Posizione12: 1264, 818
 		#	Posizione13: 1498, 404
 
-		self.index_posizione = 0
-		self.spostare = False
-	def spostamento_1_2(self):
-		if self.local_player.y > 418:
-			self.local_player.y -= 10
+	def scarica_dati_da_server(self):
+		ping = time.perf_counter_ns()
+		dati_server = self.NET.send('{"giocatore": {"numero_giocatore": -1, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1, "pronto": 0, "punti": 0}, "info": {"minigioco": "Home", "vincitore": null}}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+		ping = time.perf_counter_ns() - ping	#	latenza espressa in nano secondi
+
+		if dati_server:
+			dati_server = decode_pos(dati_server)
 		else:
-			self.spostare = False
+			dati_server = None
+
+		return dati_server
+
+	def aggiorna_giocatori(self):
+		dati = self.scarica_dati_da_server()
+		self.numero_giocatore = dati["info"]["numero_giocatore"]
+		self.info["vincitore"] = dati["info"]["vincitore"]
+		for i, giocatori in enumerate(dati["giocatori"]):
+			self.giocatori[i].numero_giocatore = int(giocatori["numero_giocatore"])
+			if giocatori["numero_giocatore"] != dati["info"]["numero_giocatore"]:
+				self.giocatori[i].x = giocatori["coordinata_x"]
+				self.giocatori[i].y = giocatori["coordinata_y"]
+				self.giocatori[i].rivolto_destra = giocatori["rivolto_a_destra"]
+				self.giocatori[i].ancora_vivo = giocatori["ancora_vivo"]
+				self.giocatori[i].pronto = giocatori["pronto"]
+				self.giocatori[i].punti = giocatori["punti"]
 
 	def main(self):
-		click = False
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
-			remotePos = self.NET.send('{"giocatore": {"numero_giocatore": 0, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1, "pronto": 0, "punti": 0}, "info": {"minigioco": "Home", "vincitore": null}}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
-			if remotePos:
-				remotePos = decode_pos(remotePos)
-				self.numero_giocatore = remotePos["info"]["numero_giocatore"]
+			self.aggiorna_giocatori()
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-			mouse_x, mouse_y = pygame.mouse.get_pos()
-			pulsante_minigioco_1 = pygame.Rect(100, 100, 100, 30)
-			pulsante_minigioco_2 = pygame.Rect(300, 100, 100, 30)
-			pulsante_minigioco_3 = pygame.Rect(500, 100, 100, 30)
-			pulsante_minigioco_4 = pygame.Rect(700, 100, 100, 30)
 
-			if pulsante_minigioco_1.collidepoint((mouse_x, mouse_y)):
-				if click:
-					minigioco = SpintoniSuPiattaforma(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
-					vincitore = minigioco.main()
-			if pulsante_minigioco_2.collidepoint((mouse_x, mouse_y)):
-				if click:
-					minigioco = Pong(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
-					minigioco.main()
-			if pulsante_minigioco_3.collidepoint((mouse_x, mouse_y)):
-				if click:
-					minigioco = Gara(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
-					minigioco.main()
-			if pulsante_minigioco_4.collidepoint((mouse_x, mouse_y)):
-				if click:
-					minigioco = Paracadutismo(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
-					minigioco.main()
+			self.giocatori[self.numero_giocatore].x = self.posizioni[self.numero_minigioco][0]
+			self.giocatori[self.numero_giocatore].y = self.posizioni[self.numero_minigioco][1]
 
-			click = False
+			if self.numero_minigioco % 4 == 0:
+				minigioco = SpintoniSuPiattaforma(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
+			if self.numero_minigioco % 4 == 1:
+				minigioco = Pong(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
+			if self.numero_minigioco % 4 == 2:
+				minigioco = Gara(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
+			if self.numero_minigioco % 4 == 3:
+				minigioco = Paracadutismo(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
 
-			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_1)
-			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_2)
-			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_3)
-			pygame.draw.rect(self.FINESTRA, (0, 0, 0), pulsante_minigioco_4)
+			vincitori = minigioco.main()
+
+			for vincitore in vincitori:
+				if vincitore == self.numero_giocatore:
+					self.numero_minigioco += 1
 
 			##############################################################################
 			#   Listener per spegnere il gioco quando clicchi sulla
@@ -93,9 +100,6 @@ class Schermata_Principale:
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					pygame.quit()
-				if event.type == pygame.MOUSEBUTTONDOWN:
-					if event.button == 1:
-						click = True
 
 			##############################################################################
 			#
@@ -104,11 +108,9 @@ class Schermata_Principale:
 			keys = pygame.key.get_pressed()
 
 			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
-			if keys[pygame.K_SPACE]:
-				self.spostare = True
-			
-			if self.spostare: self.spostamento_1_2()
 
-			self.local_player.disegna(self.FINESTRA)
+			for giocatore in self.giocatori:
+				if giocatore.ancora_vivo:
+					giocatore.disegna(self.FINESTRA)
 
 			pygame.display.update()

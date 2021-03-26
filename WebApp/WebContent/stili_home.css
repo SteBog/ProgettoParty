@@ -7,19 +7,106 @@ html, body
 }
 nav
 {
+    list-style-type:none;
     position: fixed;
     top: 0;
     width: 100%;
     height: 50px;
     background-color: black;
+	z-index : 3;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-family: 'RocknRoll One', sans-serif;
 }
+	.div-nav{
+		display: flex;
+		align-items: center;		
+	}
+	.TitoloNav{
+		font-size: 40px;
+		text-decoration: none;
+		margin-left:20px;
+		color: white;
+	}
+			
+	.TestoNav{
+		font-size: 15px;
+		text-decoration: none;
+		margin-left:20px;
+		color: white;
+		margin-top: 0px;
+	}
+	.profilo{
+		background-color: rebeccapurple;
+		justify-self:flex-end;
+		margin-right: 30px;
+	}
+		.immagine_profilo{
+			width: 30px;
+			height: 30px;
+			border-radius: 50%;
+			background-image: url("default.png");
+			background-size: 100%;
+			margin-left:15px;
+		}
+		.NomeProfilo{
+			margin-left:10px;
+		}
+
 #section_introduzione
 {
     position: relative;
     top: 50px;
     width: 100%;
-    height: 100vh;
-    background-color: green;
+	height: auto;
+}
+
+
+
+
+
+#personaggio_uno
+{
+	position: fixed;
+	z-index: 2;
+	height: 130px;
+	top: 100px;
+	left: 20%;
+}
+#personaggio_due
+{
+	position: fixed;
+	z-index: 2;
+	height: 130px;
+	top: 100px;
+	left: 40%;
+}
+#personaggio_tre
+{
+	position: fixed;
+	z-index: 2;
+	height: 130px;
+	top: 100px;
+	left: 60%;
+}
+#personaggio_quattro
+{
+	position: fixed;
+	z-index: 2;
+	height: 130px;
+	top: 100px;
+	left: 80%;
+}
+
+
+
+
+
+#sfondo_nuvole_due
+{
+	position: relative;
+	top: -10px;
 }
 #section_minigioco
 {
@@ -28,3 +115,4 @@ nav
     height: 100vh;
     background-color: rebeccapurple;
 }
+
