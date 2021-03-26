@@ -98,15 +98,33 @@ nav
 	top: 100px;
 	left: 80%;
 }
+h1, h2
+{
+	position: fixed;
+}
+#testo_uno
+{
+	left: 50%;
+	transform: translateX(-50%);
+	top: 400px;
+	z-index: 2;
+	font-size: 36px;
+}
+#testo_due
+{
+	left: 50%;
+	transform: translateX(-50%);
+	top: 400px;
+	z-index: 2;
+	font-size: 96px;
+}
 
 
 
 
-
-#sfondo_nuvole_due
+#sfondo_nuvole_due, #sfondo_nuvole_tre, #sfondo_nuvole_quattro
 {
 	position: relative;
-	top: -10px;
 }
 #section_minigioco
 {
