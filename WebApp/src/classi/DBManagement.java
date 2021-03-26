@@ -308,6 +308,98 @@ public class DBManagement {
 			}
 		}
 	}
+	
+	public ArrayList<UtentiBean> ottieni_dati_utente(String username) throws SQLException
+	{
+		Connection conn = null;
+		Statement stmt = null;
+		
+		String query = "SELECT Utenti.IDUtente, Utenti.Email, Utenti.Username, Utenti.FotoProfilo, Utenti.DataNascita "
+				+ "FROM Utenti WHERE Utenti.Username = '" + username + "'";
+		
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			ResultSet risultato = stmt.executeQuery(query);
+			ArrayList<UtentiBean> array_utenti = new ArrayList<UtentiBean>();
+			
+			while (risultato.next())
+			{
+				UtentiBean utente = new UtentiBean();
+				utente.setID(risultato.getInt("IDUtente"));
+				utente.setEmail(risultato.getString("Email"));
+				utente.setUsername(risultato.getNString("Username"));
+				utente.setFotoProfilo(risultato.getString("FotoProfilo"));
+				utente.setDataNascita(risultato.getDate("DataNascita"));
+				//	I dati una volta creata la tabella accesso
+				
+				array_utenti.add(utente);
+			}
+			
+			return array_utenti;
+		}
+		catch(SQLException e)
+		{
+			System.out.println(e);
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+		
+		return null;
+	}
+	public void aggiorna_utente (UtentiBean utente) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			String query = "UPDATE Utenti SET Utenti.Email = '" + utente.getEmail() + "' , Utenti.Username = '" + utente.getUsername() + "', Utenti.FotoProfilo = '" + utente.getFotoProfilo() + "', Utenti.DataNascita = '" + utente.getDataNascita() + "'"
+					+ " WHERE Utenti.IDUtente = " + utente.getID();
+		
+			stmt.executeUpdate(query);
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("UPDATE ERROR");
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
 
 
 }

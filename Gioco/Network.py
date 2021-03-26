@@ -3,8 +3,8 @@ import socket
 class Connessione():
 	def __init__(self):
 		self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		#self.server = "87.250.73.23"
-		self.server = "127.0.0.1"
+		self.server = "87.250.73.23"
+		#self.server = "127.0.0.1"
 		self.port = 8100
 		self.addr = (self.server, self.port)
 		self.pos = self.connect()

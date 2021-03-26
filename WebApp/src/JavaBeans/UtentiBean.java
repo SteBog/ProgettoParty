@@ -2,7 +2,8 @@ package JavaBeans;
 
 import java.util.Date;
 public class UtentiBean {
-    
+	
+	private int ID;
     private String Email;
     private String Password;
     private String Username;
@@ -15,6 +16,15 @@ public class UtentiBean {
     // Costruttore senza argomenti
     public UtentiBean() { }
 
+    
+    public int getID()
+    {
+    	return this.ID;
+    }
+    public void setID(int ID)
+    {
+    	this.ID = ID;
+    }
     
 	public String getEmail() {
 		return this.Email;

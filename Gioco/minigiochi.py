@@ -136,13 +136,15 @@ class MiniGioco:
 
 		if dati_server:
 			dati_server = decode_pos(dati_server)
-		else:
-			dati_server = None
 
 		return dati_server
 
 	def aggiorna_giocatori(self):
 		dati = self.scarica_dati_da_server()
+		if dati is None:
+			self.esecuzione_in_corso = False
+			return 0
+
 		self.numero_giocatore = dati["info"]["numero_giocatore"]
 		self.info["vincitore"] = dati["info"]["vincitore"]
 		for i, giocatori in enumerate(dati["giocatori"]):
@@ -200,7 +202,7 @@ class SpintoniSuPiattaforma(MiniGioco):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-			self.aggiorna_giocatori()
+			if self.aggiorna_giocatori() == 0: break
 
 			##############################################################################
 			#   Listener per spegnere il gioco 
@@ -304,7 +306,7 @@ class Gara(MiniGioco):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-			self.aggiorna_giocatori()
+			if self.aggiorna_giocatori() == 0: break
 
 			##############################################################################
 			#   Listener per spegnere il gioco 
@@ -393,7 +395,7 @@ class Paracadutismo(MiniGioco):
 				if self.giocatori[self.numero_giocatore].ancora_vivo: 
 					self.giocatori[self.numero_giocatore].punti = self.distanza
 
-			self.aggiorna_giocatori()
+			if self.aggiorna_giocatori() == 0: break
 
 			##############################################################################
 			#   Listener per spegnere il gioco 
@@ -505,7 +507,7 @@ class Pong(MiniGioco):
 			pygame.time.delay(20)
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
-			self.aggiorna_giocatori()
+			if self.aggiorna_giocatori() == 0: break
 
 			##############################################################################
 			#   Listener per spegnere il gioco 

@@ -2,12 +2,14 @@
 import socket
 import json
 from _thread import *
+import mysql.connector
 
 ##############################################################################
 #	Creazione processo server
 ##############################################################################
 
-INDIRIZZO_IP_SERVER = "127.0.0.1"
+#INDIRIZZO_IP_SERVER = "127.0.0.1"
+INDIRIZZO_IP_SERVER = "87.250.73.23"
 PORTA_SERVER = 8100
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
