@@ -1,9 +1,9 @@
 # coding=utf-8
-from Server import spintoni
 import socket
 import json
 from _thread import *
 import mysql.connector
+import datetime
 
 ##############################################################################
 #	Creazione processo server
@@ -26,6 +26,23 @@ print("Server online")
 print("Attendo connessione...")
 
 ##############################################################################
+#	Connessione database
+##############################################################################
+
+mydb = mysql.connector.connect(
+	host="localhost",
+	user="adminer",
+	password="CBC349aa",
+	database="Party"
+)
+
+mycursor = mydb.cursor()
+
+query_inserisci_partita = "INSERT INTO Partita() VALUES ()"
+
+query_inserisci_round = "INSERT INTO Round(Round.IDFMinigioco, Round.IDFPartita) VALUES (%i, %i)"
+
+##############################################################################
 #	Funzioni per dialogo con gli host
 ##############################################################################
 
@@ -43,8 +60,8 @@ numero_giocatori = 0
 partite = []
 giocatore = {
 	"numero_giocatore": -1,
-	"coordinata_x": 0,
-	"coordinata_y": 0,
+	"coordinata_x": 10,
+	"coordinata_y": 925,
 	"rivolto_a_destra": False,
 	"ancora_vivo": False,
 	"pronto": False,
@@ -52,12 +69,14 @@ giocatore = {
 }
 
 elenco_minigiochi = ["Spintoni", "Gara", "Pong", "Paracadutismo"]
-class Partita:
-	def __init__(self, connessione):
-		self.id_partita = 0
-		self.conn = connessione
 
-		self.numero_giocatore = 0
+class Partita:
+	def __init__(self):
+		mycursor.execute(query_inserisci_partita, None)
+		mydb.commit()
+
+		self.id_partita = mycursor.lastrowid
+
 		self.giocatori = [giocatore] * 4
 
 		self.minigioco_in_corso = None
@@ -65,11 +84,19 @@ class Partita:
 
 		self.info = {
 			"vincitore": None,
-			"numero_giocatore": self.numero_giocatore,
+			"numero_giocatore": None,
 			"minigioco": self.minigioco_in_corso,
 			"x": 1920 // 2,
 			"y": 1080 // 2
 		}
+	
+	def inserisci_round(self, idf_minigioco):
+		valori = (idf_minigioco, self.id_partita)
+
+		mycursor.execute(query_inserisci_round, valori)
+		mydb.commit()
+
+		return mycursor.lastrowid
 
 	def gioco_finito(self):
 		for player in self.giocatori:
@@ -77,78 +104,137 @@ class Partita:
 				return False
 		return True
 
-	def home(self):
-		data = decode_pos(conn.recv(2048).decode())
+	def tutti_pronti(self):
+		for player in self.giocatori:
+			if not player["pronto"]:
+				return False
+		return True
 
-		if not data:
-			print("Disconnesso")
-		else:
-			if self.giocatori[0]["numero_giocatore"] != -1 and self.giocatori[1]["numero_giocatore"] != -1 and \
-			self.giocatori[2]["numero_giocatore"] != -1 and self.giocatori[3]["numero_giocatore"] != -1:
-				self.minigioco_in_corso = 0
+	def home(self, conn, numero):
+		while True:
+			try:
+				data = decode_pos(conn.recv(2048).decode())
+				info_local = self.info
+				info_local["numero_giocatore"] = numero
 
-			risposta = encode_pos({"giocatori": self.giocatori, "info": self.info})
-			conn.sendall(str.encode(risposta))
+				if not data:
+					print("Disconnesso")
+				else:
+					self.giocatori[numero] = data["giocatore"]
+					self.giocatori[numero]["numero_giocatore"] = numero
 
-	def spintoni(self):
-		data = decode_pos(conn.recv(2048).decode())
+					if self.tutti_pronti():
+						self.minigioco_in_corso = 3
 
-		if not data:
-			print("Disconnesso")
-		else:
-			self.giocatori[self.numero_giocatore] = data["giocatore"]
-			self.giocatori[self.numero_giocatore]["numero_giocatore"] = self.numero_giocatore
+					self.info["minigioco"] = self.minigioco_in_corso
+					info_local["minigioco"] = self.minigioco_in_corso
 
-			risposta = encode_pos({"giocatori": self.giocatori, "info": self.info})
-			conn.sendall(str.encode(risposta))
+					risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
+					conn.sendall(str.encode(risposta))
 
-	def gara(self):
-		data = decode_pos(conn.recv(2048).decode())
+					if self.minigioco_in_corso == 0: self.spintoni(conn, numero)
+					elif self.minigioco_in_corso == 2: self.gara(conn, numero)
+			except:
+				break
 
-		if not data:
-			print("Disconnesso")
-		else:
-			self.giocatori[self.numero_giocatore] = data["giocatore"]
-			self.giocatori[self.numero_giocatore]["numero_giocatore"] = self.numero_giocatore
+	def spintoni(self, conn, numero):
+		while True:
+			try:
+				data = decode_pos(conn.recv(2048).decode())
+				info_local = self.info
+				info_local["numero_giocatore"] = numero
 
-			risposta = encode_pos({"giocatori": self.giocatori, "info": self.info})
-			conn.sendall(str.encode(risposta))
+				if not data:
+					print("Disconnesso")
+				else:
+					self.giocatori[numero] = data["giocatore"]
+					self.giocatori[numero]["numero_giocatore"] = numero
 
-	def paracadutismo(self):
-		data = decode_pos(conn.recv(2048).decode())
+					if data["info"]["vincitore"] is not None: 
+						self.minigioco_in_corso = None
+						info_local["vincitore"] = data["info"]["vincitore"]
 
-		if not data:
-			print("Disconnesso")
-		else:
-			self.giocatori[self.numero_giocatore] = data["giocatore"]
-			if self.gioco_finito():
-				massimo = -1
-				winner = None
-				for player in self.giocatori:
-					if player["punti"] > massimo:
-						massimo = player["punti"]
-						winner = player["numero_giocatore"]
+					self.info["minigioco"] = self.minigioco_in_corso
+					info_local["minigioco"] = self.minigioco_in_corso
 
-			self.info["vincitore"] = winner
+					risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
+					conn.sendall(str.encode(risposta))
 
+					if data["info"]["vincitore"] is not None: return
+			except:
+				break
 
-			risposta = encode_pos({"giocatori": self.giocatori, "info": self.info})
-			conn.sendall(str.encode(risposta))
+	def gara(self, conn, numero):
+		while True:
+			try:
+				data = decode_pos(conn.recv(2048).decode())
+				info_local = self.info
+				info_local["numero_giocatore"] = numero
+
+				if not data:
+					print("Disconnesso")
+				else:
+					self.giocatori[numero] = data["giocatore"]
+					self.giocatori[numero]["numero_giocatore"] = numero
+
+					if data["info"]["vincitore"] is not None: 
+						self.minigioco_in_corso = None
+						info_local["vincitore"] = data["info"]["vincitore"]
+
+					self.info["minigioco"] = self.minigioco_in_corso
+					info_local["minigioco"] = self.minigioco_in_corso
+
+					risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
+					conn.sendall(str.encode(risposta))
+
+					if data["info"]["vincitore"] is not None: return
+			except:
+				break
+
+	def paracadutismo(self, conn, numero):
+		while True:
+			try:
+				data = decode_pos(conn.recv(2048).decode())
+				info_local = self.info
+				info_local["numero_giocatore"] = numero
+
+				if not data:
+					print("Disconnesso")
+				else:
+					self.giocatori[numero] = data["giocatore"]
+					self.giocatori[numero]["numero_giocatore"] = numero
+
+					if self.gioco_finito():
+						massimo = -1
+						winner = None
+						for player in self.giocatori:
+							if player["punti"] > massimo:
+								massimo = player["punti"]
+								winner = player["numero_giocatore"]
+
+						info_local["vincitore"] = winner
+
+					self.info["minigioco"] = self.minigioco_in_corso
+					info_local["minigioco"] = self.minigioco_in_corso
+
+					risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
+					conn.sendall(str.encode(risposta))
+
+					if data["info"]["vincitore"] is not None: return
+			except:
+				break
 
 
 
 def t_client(conn, num_gio, partita):
-	partita.numero_giocatore = num_gio
-	partita.conn = conn
+	global numero_giocatori
 
-	while True:
-		try:
-			spintoni()
-		except:
-			break
+	conn.send(str.encode(encode_pos({"giocatori": partita.giocatori, "info": partita.info})))
+
+	partita.home(conn, num_gio)
 
 	print("Connessione terminata")
-	partita.giocatori[partita.numero_giocatore] = giocatore
+	partita.giocatori[num_gio] = giocatore
 	numero_giocatori -= 1
 	conn.close()
 
@@ -157,7 +243,7 @@ while True:
 	conn, addr = sock.accept()
 	print("\nConnesso a: ", addr)
 
-	numero_giocatori += 1
-	if (numero_giocatori % 4 == 1): partite.append(Partita(conn))
-
+	if (numero_giocatori % 4 == 0): partite.append(Partita())
 	start_new_thread(t_client, (conn, numero_giocatori, partite[-1]))
+
+	numero_giocatori += 1

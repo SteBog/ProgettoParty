@@ -1,3 +1,4 @@
+import re
 import pygame
 import time
 import json
@@ -16,8 +17,8 @@ class Giocatore:
 	def __init__(self):
 		self.numero_giocatore = -1
 
-		self.x = 0
-		self.y = 0
+		self.x = 10
+		self.y = 925
 
 		self.HEIGHT = 92
 		self.WIDTH = 64
@@ -141,12 +142,13 @@ class MiniGioco:
 
 	def aggiorna_giocatori(self):
 		dati = self.scarica_dati_da_server()
-		if dati is None:
+		if dati is None or dati == "":
 			self.esecuzione_in_corso = False
 			return 0
 
 		self.numero_giocatore = dati["info"]["numero_giocatore"]
 		self.info["vincitore"] = dati["info"]["vincitore"]
+
 		for i, giocatori in enumerate(dati["giocatori"]):
 			self.giocatori[i].numero_giocatore = int(giocatori["numero_giocatore"])
 			if giocatori["numero_giocatore"] != dati["info"]["numero_giocatore"]:
@@ -178,6 +180,10 @@ class MiniGioco:
 		for giocatore in self.giocatori:
 			if giocatore.ancora_vivo: numero += 1
 		return numero
+
+	def unico_vivo(self):
+		for i in range(len(self.giocatori)):
+			if self.giocatori[i].ancora_vivo: return i
 
 class SpintoniSuPiattaforma(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
@@ -249,14 +255,14 @@ class SpintoniSuPiattaforma(MiniGioco):
 			#	Uscire dal minigioco e restituire il vincitore
 			##############################################################################
 
-			if self.info["vincitore"]:
+			if self.info["vincitore"] is not None:
 				self.esecuzione_in_corso = False
-				return (self.numero_giocatore)
+				return self.info["vincitore"]
 
 			if self.tutti_pronti() and self.num_ancora_vivi() < 2:
 				self.info = {
 					"minigioco": "Spintoni",
-					"vincitore": self.numero_giocatore
+					"vincitore": self.unico_vivo()
 				}
 
 			pygame.display.update()
@@ -282,25 +288,34 @@ class GiocatoreGara(Giocatore):
 class Gara(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore)
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Sfondo Beta Pygame.png")
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Mappa_Gara.jpg")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 		self.giocatori = [GiocatoreGara(), GiocatoreGara(), GiocatoreGara(), GiocatoreGara()]
 		self.giocatori[self.numero_giocatore].x = 150
-		self.giocatori[self.numero_giocatore].y = 200 + 200 * (self.numero_giocatore % 4)
+		self.giocatori[self.numero_giocatore].y = 57 + 225 * (self.numero_giocatore % 4)
 
-		self.TRAGUARDO = 1300
+		self.TRAGUARDO = 200
 
 		self.info = {
 			"minigioco": "Gara",
 			"vincitore": None
 		}
 
-	def tutti_ancora_in_gara(self):
+	def vincitore(self):
+		classifica = []
+		finito = False
 		for giocatore in self.giocatori:
+			classifica.append(giocatore.numero_giocatore)
 			if giocatore.x >= self.TRAGUARDO:
-				return False
-		return True
+				finito = True
+		
+		if finito:
+			classifica.sort()
+			return classifica
+		else:
+			classifica = []
+			return None
 
 	def main(self):
 		while self.esecuzione_in_corso:
@@ -343,12 +358,12 @@ class Gara(MiniGioco):
 
 			if self.info["vincitore"]:
 				self.esecuzione_in_corso = False
-				return (self.numero_giocatore)
+				return self.vincitore()
 
-			if self.tutti_pronti() and not self.tutti_ancora_in_gara():
+			if self.tutti_pronti() and self.vincitore() is not None:
 				self.info = {
 					"minigioco": "Gara",
-					"vincitore": self.numero_giocatore
+					"vincitore": self.vincitore()
 				}
 
 			pygame.display.update()
@@ -358,7 +373,8 @@ class Paracadutismo(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore)
 		self.y_sfondo = 0
-		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Nuvole/Nuvole.jpg")
+		self.FINESTRA.fill([106, 210, 255])
+		self.IMMAGINE_SFONDO = pygame.image.load(PERCORSO + "/Gioco/Immagini/Nuvole/Nuvole.png")
 		self.IMMAGINE_PARTE_BASSA = pygame.image.load(PERCORSO + "/Gioco/Immagini/Nuvole/Base_Nuvole.png")
 		self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, self.y_sfondo))
 
@@ -382,6 +398,7 @@ class Paracadutismo(MiniGioco):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 
+			self.FINESTRA.fill([106, 210, 255])
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, self.y_sfondo))
 			self.disegna_parte_bassa()
 

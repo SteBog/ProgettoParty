@@ -19,6 +19,12 @@ class Schermata_Principale:
 		self.esecuzione_in_corso = True
 		self.numero_giocatore = None
 
+		self.info = {
+			"minigioco": "home",
+			"vincitore": None,
+			"ID_Utente": 2
+		}
+
 		self.posizione_local = 0
 		self.numero_minigioco = 0
 		self.posizioni = [(10, 925), (90, 600), (240, 275), (380, 550), (616, 746), (850, 602), (724, 458), (561, 314), (814, 170), (1030, 350), (1030, 656), (1264, 818), (1498, 404)]
@@ -41,9 +47,21 @@ class Schermata_Principale:
 		#	Posizione12: 1264, 818
 		#	Posizione13: 1498, 404
 
+	def player_to_dictionary(self, giocatore):
+		risultato = {
+			"numero_giocatore": giocatore.numero_giocatore,
+			"coordinata_x": giocatore.x,
+			"coordinata_y": giocatore.y,
+			"rivolto_a_destra": giocatore.rivolto_destra,
+			"ancora_vivo": giocatore.ancora_vivo,
+			"pronto": giocatore.pronto,
+			"punti": giocatore.punti
+		}
+		return risultato
+
 	def scarica_dati_da_server(self):
 		ping = time.perf_counter_ns()
-		dati_server = self.NET.send('{"giocatore": {"numero_giocatore": -1, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1, "pronto": 0, "punti": 0}, "info": {"minigioco": "Home", "vincitore": null, "ID_Utente": 2}}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+		dati_server = self.NET.send(encode_pos({"giocatore": self.player_to_dictionary(self.giocatori[int(self.numero_giocatore)]), "info": self.info}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 		ping = time.perf_counter_ns() - ping	#	latenza espressa in nano secondi
 
 		if dati_server:
@@ -53,11 +71,13 @@ class Schermata_Principale:
 
 	def aggiorna_giocatori(self):
 		dati = self.scarica_dati_da_server()
-		if dati is None:
+		if dati is None or dati == "":
 			self.esecuzione_in_corso = False
 			return 0
 
 		self.numero_giocatore = dati["info"]["numero_giocatore"]
+		self.numero_minigioco = dati["info"]["minigioco"]
+
 		for i, giocatori in enumerate(dati["giocatori"]):
 			self.giocatori[i].numero_giocatore = int(giocatori["numero_giocatore"])
 			if giocatori["numero_giocatore"] != dati["info"]["numero_giocatore"]:
@@ -75,23 +95,33 @@ class Schermata_Principale:
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
-			self.giocatori[self.numero_giocatore].x = self.posizioni[self.numero_minigioco][0]
-			self.giocatori[self.numero_giocatore].y = self.posizioni[self.numero_minigioco][1]
+			if self.numero_minigioco is not None:
+				if self.numero_minigioco % 4 == 0:
+					minigioco = SpintoniSuPiattaforma(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
+				if self.numero_minigioco % 4 == 1:
+					minigioco = Pong(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
+				if self.numero_minigioco % 4 == 2:
+					minigioco = Gara(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
+				if self.numero_minigioco % 4 == 3:
+					minigioco = Paracadutismo(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
 
-			if self.numero_minigioco % 4 == 0:
-				minigioco = SpintoniSuPiattaforma(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
-			if self.numero_minigioco % 4 == 1:
-				minigioco = Pong(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
-			if self.numero_minigioco % 4 == 2:
-				minigioco = Gara(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
-			if self.numero_minigioco % 4 == 3:
-				minigioco = Paracadutismo(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
+				vincitori = minigioco.main()
 
-			vincitori = minigioco.main()
+				if vincitori is not None:
+					if vincitori[0] == self.numero_giocatore:
+						self.posizione_local += 1
+						self.giocatori[self.numero_giocatore].x = self.posizioni[self.posizione_local][0]
+						self.giocatori[self.numero_giocatore].y = self.posizioni[self.posizione_local][1]
 
-			for vincitore in vincitori:
-				if vincitore == self.numero_giocatore:
-					self.numero_minigioco += 1
+					if self.numero_minigioco == 1 and vincitori[1] == self.numero_giocatore:
+						self.posizione_local += 1
+						self.giocatori[self.numero_giocatore].x = self.posizioni[self.posizione_local][0]
+						self.giocatori[self.numero_giocatore].y = self.posizioni[self.posizione_local][1]
+
+					vincitori = None
+					self.info["vincitore"] = None
+					for giocatore in self.giocatori:
+						giocatore.pronto = False
 
 			##############################################################################
 			#   Listener per spegnere il gioco quando clicchi sulla
@@ -109,6 +139,8 @@ class Schermata_Principale:
 			keys = pygame.key.get_pressed()
 
 			if keys[pygame.K_ESCAPE]: self.esecuzione_in_corso = False
+			if keys[pygame.K_SPACE] and not self.giocatori[self.numero_giocatore].pronto: 
+				self.giocatori[self.numero_giocatore].pronto = True
 
 			for giocatore in self.giocatori:
 				if giocatore.ancora_vivo:
