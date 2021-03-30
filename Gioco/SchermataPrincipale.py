@@ -43,7 +43,7 @@ class Schermata_Principale:
 
 	def scarica_dati_da_server(self):
 		ping = time.perf_counter_ns()
-		dati_server = self.NET.send('{"giocatore": {"numero_giocatore": -1, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1, "pronto": 0, "punti": 0}, "info": {"minigioco": "Home", "vincitore": null}}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
+		dati_server = self.NET.send('{"giocatore": {"numero_giocatore": -1, "coordinata_x": 0, "coordinata_y": 0, "rivolto_a_destra": 0, "ancora_vivo": 1, "pronto": 0, "punti": 0}, "info": {"minigioco": "Home", "vincitore": null, "ID_Utente": 2}}')	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 		ping = time.perf_counter_ns() - ping	#	latenza espressa in nano secondi
 
 		if dati_server:
@@ -58,7 +58,6 @@ class Schermata_Principale:
 			return 0
 
 		self.numero_giocatore = dati["info"]["numero_giocatore"]
-		self.info["vincitore"] = dati["info"]["vincitore"]
 		for i, giocatori in enumerate(dati["giocatori"]):
 			self.giocatori[i].numero_giocatore = int(giocatori["numero_giocatore"])
 			if giocatori["numero_giocatore"] != dati["info"]["numero_giocatore"]:
@@ -116,3 +115,4 @@ class Schermata_Principale:
 					giocatore.disegna(self.FINESTRA)
 
 			pygame.display.update()
+
