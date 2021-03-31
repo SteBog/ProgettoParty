@@ -5,13 +5,13 @@ import java.util.Date;
 public class PartitaBean {
     
 	private ArrayList<RoundBean> Round;
-	private ArrayList<GiocatorePartitaBean> Giocatore;
+	private ArrayList<GiocatorePartitaBean> Vincitore;
 	private Date DataPartita = new Date(); 
 
     // Costruttore senza argomenti
     public PartitaBean() {
     	setRound(new ArrayList<RoundBean>());
-    	setGiocatore(new ArrayList<GiocatorePartitaBean>());
+    	setVincitore(new ArrayList<GiocatorePartitaBean>());
     }
 
 	public ArrayList<RoundBean> getRound() {
@@ -22,12 +22,12 @@ public class PartitaBean {
 		Round = round;
 	}
 
-	public ArrayList<GiocatorePartitaBean> getGiocatore() {
-		return Giocatore;
+	public ArrayList<GiocatorePartitaBean> getVincitore() {
+		return Vincitore;
 	}
 
-	public void setGiocatore(ArrayList<GiocatorePartitaBean> giocatore) {
-		Giocatore = giocatore;
+	public void setVincitore(ArrayList<GiocatorePartitaBean> vincitore) {
+		Vincitore = vincitore;
 	}
 
 	public Date getDataPartita() {

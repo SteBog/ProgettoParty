@@ -2,19 +2,20 @@ package JavaBeans;
 
 import java.util.Date;
 public class UtentiBean {
-	
+    
     private String Email;
     private String Password;
     private String Username;
     private String FotoProfilo;
     private int Vittorie;
     private Date DataNascita = new Date();
-    private Date Disconnessione = new Date();
+    //private Date Disconnessione = new Date();
     
 
     // Costruttore senza argomenti
     public UtentiBean() { }
 
+    
 	public String getEmail() {
 		return this.Email;
 	}
@@ -56,14 +57,14 @@ public class UtentiBean {
 	}
 
 
-	public Date getDisconnessione() {
+	/*public Date getDisconnessione() {
 		return Disconnessione;
 	}
 
 
 	public void setDisconnessione(Date disconnessione) {
 		Disconnessione = disconnessione;
-	}
+	}*/
 
 
 	public int getVittorie() {

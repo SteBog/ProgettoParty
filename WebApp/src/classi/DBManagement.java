@@ -17,7 +17,13 @@ public class DBManagement {
 	private static final String DB_CONNECTION = "jdbc:mysql://87.250.73.23:3306/Party";	// 12320
 	private static final String DB_USER = "adminer";
 	private static final String DB_PASSWORD = "CBC349aa";
-	
+
+/*	//Parametri di accesso al database locale
+	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";	// com.mysql.cj.jdbc.Driver
+	private static final String DB_CONNECTION = "jdbc:mysql://localhost/Party";	// 12320
+	private static final String DB_USER = "root";
+	private static final String DB_PASSWORD = "";
+*/
 	private static Connection getDBConnection() throws Exception
 	{
 		System.out.println("-------MYSQL JDBC Connection----------");
@@ -68,7 +74,7 @@ public class DBManagement {
 				Utenti.setUsername(utentiList.getString("Username"));
 				Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
 				Utenti.setDataNascita(utentiList.getDate("DataNascita"));
-				Utenti.setDisconnessione(utentiList.getDate("Disconnessione"));
+				//Utenti.setDisconnessione(utentiList.getDate("Disconnessione"));
 				// PER TUTTI I CAMPI
 				
 				utentiArray.add(Utenti);
@@ -152,7 +158,8 @@ public class DBManagement {
 		Statement stmt = null;
 		Connection conn = null;
 		
-		String select = "SELECT U2.Username, U2.Disconnessione AS UltimoAccesso FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
+		//String select = "SELECT U2.Username, U2.Disconnessione AS UltimoAccesso FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
+		String select = "SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
 		System.out.println(select);
 		try
 		{
@@ -170,7 +177,7 @@ public class DBManagement {
 				Utenti.setUsername(utentiList.getString("Username"));
 				//Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
 				//Utenti.setDataNascita(utentiList.getDate("DataNascita"));
-				Utenti.setDisconnessione(utentiList.getDate("UltimoAccesso"));
+				//Utenti.setDisconnessione(utentiList.getDate("UltimoAccesso"));
 				// PER TUTTI I CAMPI
 				
 				utentiArray.add(Utenti);
@@ -308,7 +315,7 @@ public class DBManagement {
 			}
 		}
 	}
-	
+
 	public ArrayList<UtentiBean> ottieni_dati_utente(String username) throws SQLException
 	{
 		Connection conn = null;
@@ -404,6 +411,4 @@ public class DBManagement {
 			}
 		}
 	}
-
-
 }
