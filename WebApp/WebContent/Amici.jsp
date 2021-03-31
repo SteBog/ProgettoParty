@@ -110,7 +110,7 @@
 			<li class="profilo">
 				<div class="immagine_profilo">
 				</div>
-				<span class="NomeProfilo"><%= request.getSession().getAttribute("Utente").toString() %></span>
+				<a href="profilo.jsp" class="NomeProfilo"><%= request.getSession().getAttribute("Utente").toString() %></a>
 		</ul>
 	<%
 		for(UtentiBean utente:utenti)

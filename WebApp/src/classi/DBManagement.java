@@ -384,8 +384,8 @@ public class DBManagement {
 			conn = getDBConnection();
 			stmt = conn.createStatement();
 			
-			String query = "UPDATE Utenti SET Utenti.Email = '" + utente.getEmail() + "' , Utenti.Username = '" + username + "', " + 
-			"Utenti.FotoProfilo = '" + utente.getFotoProfilo() + "', Utenti.DataNascita = '" + utente.getDataNascita() + "' WHERE Utenti.Username = '" + utente.getUsername() + "'";
+			String query = "UPDATE Utenti SET Utenti.Email = '" + utente.getEmail() + "' , Utenti.Username = '" + utente.getUsername() + "', " + 
+			"Utenti.FotoProfilo = '" + utente.getFotoProfilo() + "', Utenti.DataNascita = '" + utente.getDataNascita() + "' WHERE Utenti.Username = '" + username + "'";
 		
 			stmt.executeUpdate(query);
 		}

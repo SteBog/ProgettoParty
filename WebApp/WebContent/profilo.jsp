@@ -7,8 +7,8 @@
 <%
 
 	DBManagement gestioneDB = new DBManagement();
-	UtentiBean utente = new UtentiBean();
+	ArrayList<UtentiBean> utente = new ArrayList<UtentiBean>();
 	
-	utente = gestioneDB.ottieni_dati_utente(request.getSession().getAttribute("Utente").toString()).get(0);
+	utente = gestioneDB.ottieni_dati_utente(request.getSession().getAttribute("Utente").toString());
 
 %>
