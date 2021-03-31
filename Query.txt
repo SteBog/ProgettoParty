@@ -66,3 +66,23 @@ SELECT Utenti.IDUtente, DataPartita
 FROM Utenti INNER JOIN (GiocatorePartita INNER JOIN Partita ON GiocatorePartita.IDFUtente = Partita.IDPartita) ON Utenti.IDUtente = GiocatorePartita.IDFUtente
 GROUP BY Partita.DataPartita
 
+###########################################################
+Chat
+###########################################################
+
+SELECT Messaggio.Testo, Messaggio.Data
+FROM ((Utenti AS U1 INNER JOIN Messaggio ON U1.IDUtente = Messaggio.IDFMittente)
+INNER JOIN Utenti AS U2 ON U2.IDUtente = Messaggio.IDFRicevente)
+WHERE U1.Username = "pippo" AND U2.Username = "SteBog" OR U1.Username = "SteBog" AND U2.Username = "pippo"
+ORDER BY Messaggio.Data
+
+
+###########################################################
+Scrivi
+###########################################################
+
+INSERT INTO Messaggio (IDFMittente, IDFRicevente, Testo, Data) VALUES
+	((SELECT IDUtente FROM Utenti WHERE Username = "pippo"),
+	(SELECT IDUtente FROM Utenti WHERE Username = "SteBog"),
+	"Testo",
+	current_timestamp());
