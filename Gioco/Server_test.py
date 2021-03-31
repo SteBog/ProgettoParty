@@ -40,7 +40,7 @@ mycursor = mydb.cursor()
 
 query_inserisci_partita = "INSERT INTO Partita() VALUES ()"
 
-query_inserisci_round = "INSERT INTO Round(Round.IDFMinigioco, Round.IDFPartita) VALUES (%i, %i)"
+query_inserisci_round = "INSERT INTO Round(Round.IDFMinigioco, Round.IDFPartita) VALUES (%s, %s)"
 
 ##############################################################################
 #	Funzioni per dialogo con gli host
@@ -70,11 +70,43 @@ giocatore = {
 
 elenco_minigiochi = ["Spintoni", "Gara", "Pong", "Paracadutismo"]
 
+class Pallina:
+	def __init__(self):
+		self.x = 1920 // 2
+		self.y = 1080 // 2
+		self.direzione_verticale = 0	#	1 alto, 0 dritto, -1 basso
+		self.direzione_orizzontale = 1	#	1 verso destra, -1 verso sinistra
+
+	def collisione_giocatore(self, giocatore):
+		if (self.y >= giocatore["coordinata_y"] and self.y <= giocatore["coordinata_y"] + 92) \
+			and (self.x >= giocatore["coordinata_x"] and self.x <= giocatore["coordinata_x"] + 64):
+
+			if self.x < giocatore["coordinata_x"] + 32: 
+				self.direzione_orizzontale = -1
+				self.x -= 100
+			else: 
+				self.direzione_orizzontale = 1
+				self.x += 100
+
+			if self.y < giocatore["coordinata_y"] + 31: 
+				self.direzione_verticale = 1
+				self.y -= 100
+			elif self.y > giocatore["coordinata_y"] + 61: 
+				self.direzione_verticale = -1
+				self.y += 100
+			else: self.direzione_verticale = 0
+
+	def muovi(self):
+		if self.direzione_verticale == 1: self.y -= 10
+		elif self.direzione_verticale == -1: self.y += 10
+
+		if self.direzione_orizzontale == 1: self.x += 10
+		else: self.x -= 10
+
 class Partita:
 	def __init__(self):
 		mycursor.execute(query_inserisci_partita, None)
 		mydb.commit()
-
 		self.id_partita = mycursor.lastrowid
 
 		self.giocatori = [giocatore] * 4
@@ -124,7 +156,7 @@ class Partita:
 					self.giocatori[numero]["numero_giocatore"] = numero
 
 					if self.tutti_pronti():
-						self.minigioco_in_corso = 3
+						self.minigioco_in_corso = 0
 
 					self.info["minigioco"] = self.minigioco_in_corso
 					info_local["minigioco"] = self.minigioco_in_corso
@@ -138,6 +170,13 @@ class Partita:
 				break
 
 	def spintoni(self, conn, numero):
+		try:
+			if numero == 0:
+				mycursor.execute(query_inserisci_round, (1, self.id_partita))
+				mydb.commit()
+		except Exception:
+			print(Exception.args)
+
 		while True:
 			try:
 				data = decode_pos(conn.recv(2048).decode())
@@ -164,7 +203,48 @@ class Partita:
 			except:
 				break
 
+	def pong(self, conn, numero):
+		try:
+			if numero == 0:
+				mycursor.execute(query_inserisci_round, (2, self.id_partita))
+				mydb.commit()
+		except Exception:
+			print(Exception.args)
+
+		pallina = Pallina()
+
+		while True:
+			try:
+				data = decode_pos(conn.recv(2048).decode())
+				info_local = self.info
+				info_local["numero_giocatore"] = numero
+
+				if not data:
+					print("Disconnesso")
+				else:
+					self.giocatori[numero] = data["giocatore"]
+					self.giocatori[numero]["numero_giocatore"] = numero
+
+					pallina.collisione_giocatore(self.giocatori[numero])
+					#	Implementare collisione con i bordi della mappa
+					#	Implementare conteggio dei gol e decretare i vincitori
+					pallina.muovi()
+
+					risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
+					conn.sendall(str.encode(risposta))
+
+					if data["info"]["vincitore"] is not None: return
+			except:
+				break
+
 	def gara(self, conn, numero):
+		try:
+			if numero == 0:
+				mycursor.execute(query_inserisci_round, (3, self.id_partita))
+				mydb.commit()
+		except Exception:
+			print(Exception.args)
+
 		while True:
 			try:
 				data = decode_pos(conn.recv(2048).decode())
@@ -192,6 +272,13 @@ class Partita:
 				break
 
 	def paracadutismo(self, conn, numero):
+		try:
+			if numero == 0:
+				mycursor.execute(query_inserisci_round, (4, self.id_partita))
+				mydb.commit()
+		except Exception:
+			print(Exception.args)
+
 		while True:
 			try:
 				data = decode_pos(conn.recv(2048).decode())
