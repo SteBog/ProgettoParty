@@ -315,6 +315,62 @@ public class DBManagement {
 			}
 		}
 	}
+	
+	public ArrayList<MessaggioBean> selectMessaggi(String Username1, String Username2) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String select = "SELECT Messaggio.Testo, Messaggio.Data " + 
+				"FROM ((Utenti AS U1 INNER JOIN Messaggio ON U1.IDUtente = Messaggio.IDFMittente) " + 
+				"INNER JOIN Utenti AS U2 ON U2.IDUtente = Messaggio.IDFRicevente) " + 
+				"WHERE U1.Username = '" + Username1 + "' AND U2.Username = '" + Username2 + "' OR U1.Username = '" + Username2 + "' AND U2.Username = '" + Username1 + "' " +
+				"ORDER BY Messaggio.Data";
+		
+		System.out.println(select);
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			ResultSet messaggioList = stmt.executeQuery(select);
+			
+			ArrayList<MessaggioBean> messaggiArray = new ArrayList<MessaggioBean>();
+			while (messaggioList.next())
+			{
+				MessaggioBean Messaggi = new MessaggioBean();
+				Messaggi.setTesto(messaggioList.getString("Testo"));
+				Messaggi.setData(messaggioList.getDate("Data"));
+				
+				messaggiArray.add(Messaggi);
+			}
+			return messaggiArray;
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("SELECT ERROR");
+			System.out.println(select);
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+			
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}	
+	
 
 	public ArrayList<UtentiBean> ottieni_dati_utente(String username) throws SQLException
 	{

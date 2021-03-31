@@ -83,7 +83,7 @@ public class Servlet1 extends HttpServlet {
 				request.getSession().setAttribute("Error", "false");
 				
 				request.getSession().setAttribute("Utente", Username);
-				RequestDispatcher rd = sc.getRequestDispatcher("/Amici.jsp");
+				RequestDispatcher rd = sc.getRequestDispatcher("/Messaggi.jsp");
 				rd.forward(request, response);
 			}
 			
