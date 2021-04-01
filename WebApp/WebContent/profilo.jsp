@@ -255,10 +255,10 @@
         </form>
         <div id="container_img" class="container_img" style="display: none;">
             <a href="/WebApp/Servlet_modifica_utente?img=1" style="background: url('img/1.png') center no-repeat; background-size: 50%;"></a>
-            <a href="/WebApp/Servlet_modifica_utente?img=2" type="submit" style="background: url('img/2.png') center no-repeat; background-size: 50%;"></a>
-            <a href="/WebApp/Servlet_modifica_utente?img=3" type="submit" style="background: url('img/3.png') center no-repeat; background-size: 50%;"></a>
-            <a href="/WebApp/Servlet_modifica_utente?img=4" type="submit" style="background: url('img/4.png') center no-repeat; background-size: 50%;"></a>
-            <a href="/WebApp/Servlet_modifica_utente?img=5" type="submit" style="background: url('img/5.png') center no-repeat; background-size: 50%;"></a>
+            <a href="/WebApp/Servlet_modifica_utente?img=2" style="background: url('img/2.png') center no-repeat; background-size: 50%;"></a>
+            <a href="/WebApp/Servlet_modifica_utente?img=3" style="background: url('img/3.png') center no-repeat; background-size: 50%;"></a>
+            <a href="/WebApp/Servlet_modifica_utente?img=4" style="background: url('img/4.png') center no-repeat; background-size: 50%;"></a>
+            <a href="/WebApp/Servlet_modifica_utente?img=5" style="background: url('img/5.png') center no-repeat; background-size: 50%;"></a>
         </div>
     </div>
 </body>
