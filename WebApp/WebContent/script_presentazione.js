@@ -76,12 +76,12 @@ var tl_presentazione_in_h1 = gsap.timeline({
 
 var tl_prima_riga = gsap.timeline({
     scrollTrigger: {
-        markers: true,
+        markers: false,
         pin: "#section_minigioco",
         trigger: "#section_minigioco",
         start: "top 50",
         end: "+=2000",
-        toggleActions: "restart pauese reverse pause",
+        toggleActions: "restart pause reverse pause",
         scrub: 0,
     }
 })
@@ -96,3 +96,24 @@ var tl_prima_riga = gsap.timeline({
     x: 1000,
     delay: 0
 }, 0)
+
+var tl_classifica = gsap.timeline({
+    scrollTrigger: {
+        markers: true,
+        pin: "#classifiche",
+        trigger: "#classifiche",
+        start: "top top",
+        end: "+=2000",
+        toggleActions: "restart pause reverse pause",
+        scrub: 0
+    }
+})
+.from("#podio_terzo", {
+    height: 0
+})
+.from("#podio_secondo", {
+    height: 0
+}, 1)
+.from("#podio_primo", {
+    height: 0
+})

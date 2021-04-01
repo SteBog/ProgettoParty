@@ -159,6 +159,7 @@ h1, h2
 .riga_personaggi img
 {
 	height: 130px;
+	margin: 0px 30px;
 }
 .h_personaggi
 {
@@ -168,4 +169,68 @@ h1, h2
 	left: 50%;
 	transform: translateX(-50%);
 	text-align: center;
+}
+#classifiche
+{
+	position: relative;
+	width: 100%;
+	height: 100vh;
+}
+
+
+.div_classificato
+{
+	position: absolute;
+	bottom: 0px;
+	width: 100px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+}
+#terzo_classificato
+{
+	left: 300px;
+}
+.div_classificato img
+{
+	height: 100px;
+	width: auto;
+}
+#podio_terzo
+{
+	width: 100%;
+	height: 400px;
+	background: blueviolet;
+}
+#secondo_classificato
+{
+	left: 500px;
+}
+#podio_secondo
+{
+	width: 100%;
+	height: 500px;
+	background: chocolate;
+}
+
+#primo_classificato
+{
+	left: 700px;
+}
+#podio_primo
+{
+	width: 100%;
+	height: 600px;
+	background: cornflowerblue;
+}
+
+#classifiche .banner
+{
+	position: absolute;
+	font-size: 72px;
+	top: 50%;
+	transform: translateY(-50%);
+	right: 10%;
+	width: 500px;
 }
