@@ -62,6 +62,18 @@
         {
             display: none;
         }
+        .container_img
+        {
+            width: 70%;
+            height: 100%;
+            border-radius: 0px 15px 15px 0px;
+        }
+        .container_img a
+        {
+            height: 150px;
+            width: 150px;
+            border: none;
+        }
         .modifica_profilo
         {
             margin-top: 50px;
@@ -99,13 +111,19 @@
                 document.getElementById("cambia").style.display = "none"
             }
         }
+
+        function scegli_foto()
+        {
+            document.getElementById("container_dati").style.display = "none"
+            document.getElementById("container_img").style.display = "flex"
+        }
     </script>
 </head>
 <body>
     <div class="container">
         <div class="container_foto">
             <img class="foto_profilo" src="../../Gioco/Immagini/w_p1/Wraith_01_Moving Forward_000.png" alt="Game avatar">
-            <input type="button" class="pulsante" value="Cambia Avatar" class="cambia_avatar">
+            <input type="button" class="pulsante" value="Cambia Avatar" class="cambia_avatar" onclick="scegli_foto()">
         </div>
         <div class="container_dati" id="container_dati">
             <label for="username">Nome utente</label>
@@ -123,9 +141,16 @@
             <label for="data_nascita">Data di nascita</label>
             <span id="span_data_nascita">23/01/2002</span>
             <input type="text" name="data_nascita" id="data_nascita">
-            
+
             <input type="button" value="Cambia" id="cambia" class="pulsante modifica_profilo" onclick="converti_in_input()">
             <input type="submit" value="Conferma" id="conferma" class="pulsante modifica_profilo" style="display: none;">
+        </div>
+        <div action="" id="container_img" class="container_img" style="display: none;">
+            <a href="/WebApp/Servlet_modifica_utente?img=1" type="submit" value="" style="background: url('img/1.png') center no-repeat; background-size: 50%;"></a>
+            <a type="submit" value="" style="background: url('img/2.png') center no-repeat; background-size: 50%;"></a>
+            <a type="submit" value="" style="background: url('img/3.png') center no-repeat; background-size: 50%;"></a>
+            <a type="submit" value="" style="background: url('img/4.png') center no-repeat; background-size: 50%;"></a>
+            <a type="submit" value="" style="background: url('img/5.png') center no-repeat; background-size: 50%;"></a>
         </div>
     </div>
 </body>

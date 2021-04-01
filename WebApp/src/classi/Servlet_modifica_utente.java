@@ -38,7 +38,24 @@ public class Servlet_modifica_utente extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		String nome_immagine = request.getParameter("img").toString();
+		String username = request.getSession().getAttribute("Utente").toString();
+		
+		response.setContentType("text/html");
+		
+		ServletContext sc = request.getSession().getServletContext();
+		
+		DBManagement gestoreDB = new DBManagement();
+		
+		try {
+			gestoreDB.aggiorna_immagine_utente(nome_immagine, username);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Errore");
+			e.printStackTrace();
+		}
+		RequestDispatcher rd = sc.getRequestDispatcher("/Amici.jsp");
+		rd.forward(request, response);
 	}
 
 	/**

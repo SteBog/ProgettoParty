@@ -443,13 +443,51 @@ public class DBManagement {
 		if (password == null || password == "")
 		{
 			query = "UPDATE Utenti SET Utenti.Email = '" + utente.getEmail() + "' , Utenti.Username = '" + utente.getUsername() + "', " + 
-					"Utenti.FotoProfilo = '" + utente.getFotoProfilo() + "', Utenti.DataNascita = '" + stringa_data_nascita + "' WHERE Utenti.Username = '" + username + "'";
+					"Utenti.DataNascita = '" + stringa_data_nascita + "' WHERE Utenti.Username = '" + username + "'";
 		}
 		else
 		{
 			query = "UPDATE Utenti SET Utenti.Email = '" + utente.getEmail() + "' , Utenti.Password = '" + password + "', Utenti.Username = '" + utente.getUsername() + "', " + 
 					"Utenti.DataNascita = '" + stringa_data_nascita + "' WHERE Utenti.Username = '" + username + "'";
 		}
+		
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			
+		
+			stmt.executeUpdate(query);
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("UPDATE ERROR");
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
+	public void aggiorna_immagine_utente (String nome_immagine, String utente) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String query = "UPDATE Utenti SET Utenti.FotoProfilo = '" + nome_immagine + "' WHERE Utenti.Username = '" + utente + "'";
 		
 		try
 		{
