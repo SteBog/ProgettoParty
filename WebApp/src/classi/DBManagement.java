@@ -6,7 +6,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import JavaBeans.*;
 
@@ -430,9 +432,23 @@ public class DBManagement {
 		Statement stmt = null;
 		Connection conn = null;
 		
-		if (username == null || username == "")
+		Date data_nascita = utente.getDataNascita();
+		SimpleDateFormat sdf = new SimpleDateFormat();
+		sdf.applyPattern("yyyy-MM-dd");
+		String stringa_data_nascita = sdf.format(data_nascita);
+		
+		String password = utente.getPassword();
+		String query = null;
+		
+		if (password == null || password == "")
 		{
-			username = utente.getUsername();
+			query = "UPDATE Utenti SET Utenti.Email = '" + utente.getEmail() + "' , Utenti.Username = '" + utente.getUsername() + "', " + 
+					"Utenti.FotoProfilo = '" + utente.getFotoProfilo() + "', Utenti.DataNascita = '" + stringa_data_nascita + "' WHERE Utenti.Username = '" + username + "'";
+		}
+		else
+		{
+			query = "UPDATE Utenti SET Utenti.Email = '" + utente.getEmail() + "' , Utenti.Password = '" + password + "', Utenti.Username = '" + utente.getUsername() + "', " + 
+					"Utenti.DataNascita = '" + stringa_data_nascita + "' WHERE Utenti.Username = '" + username + "'";
 		}
 		
 		try
@@ -440,8 +456,7 @@ public class DBManagement {
 			conn = getDBConnection();
 			stmt = conn.createStatement();
 			
-			String query = "UPDATE Utenti SET Utenti.Email = '" + utente.getEmail() + "' , Utenti.Username = '" + utente.getUsername() + "', " + 
-			"Utenti.FotoProfilo = '" + utente.getFotoProfilo() + "', Utenti.DataNascita = '" + utente.getDataNascita() + "' WHERE Utenti.Username = '" + username + "'";
+			
 		
 			stmt.executeUpdate(query);
 		}
