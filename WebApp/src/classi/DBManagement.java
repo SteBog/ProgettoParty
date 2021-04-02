@@ -107,52 +107,6 @@ public class DBManagement {
 			}
 		}
 	}
-	
-	public int selectStatUtenti(String Username) throws SQLException
-	{
-		Statement stmt = null;
-		Connection conn = null;
-		
-		String select = "SELECT COUNT(Partita.Vincitore) AS Vittorie FROM Partita INNER JOIN Utenti ON Partita.Vincitore = Utenti.IDUtente WHERE Utenti.Username = '" + Username + "'";
-		try
-		{
-			conn = getDBConnection();
-			stmt = conn.createStatement();
-			int Vittorie = 0;
-			
-			ResultSet Vittorielist = stmt.executeQuery(select);
-			
-			while (Vittorielist.next())
-			{
-				Vittorie = Vittorielist.getInt("Vittorie");
-				// PER TUTTI I CAMPI
-			}
-			return Vittorie;
-		}
-		catch(SQLException sqle)
-		{
-			System.out.println("SELECT ERROR");
-			System.out.println(select);
-			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
-			
-		}
-		catch(Exception err)
-		{
-			System.out.println("GENERIC ERROR");
-			throw new SQLException(err.getMessage());
-		}
-		finally
-		{
-			if (stmt != null)
-			{
-				stmt.close();
-			}
-			if (conn != null)
-			{
-				conn.close();
-			}
-		}
-	}
 
 	
 	public ArrayList<UtentiBean> selectAmici(String Username) throws SQLException
@@ -279,7 +233,6 @@ public class DBManagement {
 				"FROM (Partita INNER JOIN Utenti ON Partita.Vincitore = Utenti.IDUtente) " + 
 				"WHERE Utenti.Username = '" + Username + "';";
 		
-		System.out.println(select);
 		try
 		{
 			conn = getDBConnection();
@@ -317,6 +270,100 @@ public class DBManagement {
 			}
 		}
 	}
+	
+	public int numero_partite_giocate(String username) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String query = "SELECT COUNT(Partita.IDPartita) AS giocate FROM "
+				+ "((Partita INNER JOIN GiocatorePartita ON Partita.IDPartita = GiocatorePartita.IDFPartita) "
+				+ "INNER JOIN Utenti ON GiocatorePartita.IDFUtente = Utenti.IDUtente)\n"
+				+ "WHERE Utenti.Username = '" + username + "'";
+		
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			ResultSet partite_giocate_list = stmt.executeQuery(query);
+			int giocate = 0;
+			if(partite_giocate_list.next())
+			{
+				giocate = partite_giocate_list.getInt("giocate");
+			}
+			return giocate;
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("SELECT ERROR");
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+			
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
+	public int ore_giocate(String username) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String query = "SELECT SUM(TIMEDIFF(Accessi.OraDisconnessione, Accessi.OraConnessione)) AS tempo "
+				+ "FROM (Accessi INNER JOIN Utenti ON Utenti.IDUtente = Accessi.IDAccesso) "
+				+ "WHERE Utenti.Username = '" + username + "'";
+		
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			ResultSet ore_giocate = stmt.executeQuery(query);
+			int giocate = 0;
+			if(ore_giocate.next())
+			{
+				giocate = ore_giocate.getInt("tempo");	//	Qua sono ancora secondi
+				giocate = giocate / 3600;
+			}
+			return giocate;
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("SELECT ERROR");
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+			
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
+	
 	
 	public ArrayList<MessaggioBean> selectMessaggi(String Username1, String Username2) throws SQLException
 	{

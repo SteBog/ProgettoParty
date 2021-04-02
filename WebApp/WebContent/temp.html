@@ -1,24 +1,3 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.Date" %>
-<%@ page import="JavaBeans.*" %>
-<%@ page import="classi.DBManagement" %>
-<%@ page import="classi.Servlet1" %>
-
-<%
-	DBManagement listVittorie = new DBManagement();
-
-	String utente = request.getSession().getAttribute("Utente").toString();
-	int vittorie = listVittorie.selectVittorie(utente);
-	int giocate = listVittorie.numero_partite_giocate(utente);
-	int ore_giocate = listVittorie.ore_giocate(utente);
-	int percentuale = 0;
-	
-	if (giocate > 0) percentuale = (vittorie/giocate) * 100;
-	
-	ArrayList<qVittorieMinigiochiBean> vittorieMinigiochi = new ArrayList<qVittorieMinigiochiBean>();
-	vittorieMinigiochi = listVittorie.selectVittorieMinigiochi(request.getSession().getAttribute("Utente").toString());
-%>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -64,7 +43,7 @@
             <a class="profilo">SteBog</a>
         </nav>
 		<div class="container">
-            <span class="scritta">Percentuale partite vinte: <%=percentuale %>%</span>
+            <span class="scritta">Percentuale partite vinte: 83%</span>
             <div class="grafico">
                 <canvas id="grafico_vittorie_perse" width="200" height="200"></canvas>
             </div>
@@ -72,20 +51,16 @@
             <div class="grafico">
                 <canvas id="grafico_minigiochi" width="500" height="500"></canvas>
             </div>
-            <span class="scritta">Tempo di gioco: <%=ore_giocate %> ore</span>
+            <span class="scritta">Tempo di gioco: </span>
         </div>
 	</body>
     <script>
-    
-    	var vittorie = <%=vittorie %>;
-    	var perse = <%=giocate-vittorie %>;
-    
         var ctx = document.getElementById("grafico_vittorie_perse")
         var myDoughnutChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 datasets: [{
-                    data: [vittorie, perse],
+                    data: [10, 20],
                     backgroundColor: ["rgba(150, 0, 0, 0.8)", "rgba(0, 150, 0, 0.5)"],
                 }],
                 labels: [
