@@ -80,6 +80,7 @@ class Pallina:
 	def collisione_giocatore(self, giocatore):
 		if (self.y >= giocatore["coordinata_y"] and self.y <= giocatore["coordinata_y"] + 92) \
 			and (self.x >= giocatore["coordinata_x"] and self.x <= giocatore["coordinata_x"] + 64):
+			print("Collisione")
 
 			if self.x < giocatore["coordinata_x"] + 32: 
 				self.direzione_orizzontale = -1
@@ -95,6 +96,15 @@ class Pallina:
 				self.direzione_verticale = -1
 				self.y += 100
 			else: self.direzione_verticale = 0
+
+	def collisione_mappa(self):
+		if self.y < 0: self.direzione_verticale = -1
+		if self.y > 1060: self.direzione_verticale = 1
+
+	def is_gol(self):
+		if self.x < 0: return -1		#	Gol per quelli a sinistra
+		elif self.x > 1900: return 1	#	Gol per quelli a destra
+		else: return 0
 
 	def muovi(self):
 		if self.direzione_verticale == 1: self.y -= 10
@@ -156,7 +166,7 @@ class Partita:
 					self.giocatori[numero]["numero_giocatore"] = numero
 
 					if self.tutti_pronti():
-						self.minigioco_in_corso = 0
+						self.minigioco_in_corso = 1
 
 					self.info["minigioco"] = self.minigioco_in_corso
 					info_local["minigioco"] = self.minigioco_in_corso
@@ -165,6 +175,7 @@ class Partita:
 					conn.sendall(str.encode(risposta))
 
 					if self.minigioco_in_corso == 0: self.spintoni(conn, numero)
+					elif self.minigioco_in_corso == 1: self.pong(conn, numero)
 					elif self.minigioco_in_corso == 2: self.gara(conn, numero)
 			except:
 				break
@@ -212,6 +223,7 @@ class Partita:
 			print(Exception.args)
 
 		pallina = Pallina()
+		risultato = [0, 0]
 
 		while True:
 			try:
@@ -226,14 +238,39 @@ class Partita:
 					self.giocatori[numero]["numero_giocatore"] = numero
 
 					pallina.collisione_giocatore(self.giocatori[numero])
-					#	Implementare collisione con i bordi della mappa
-					#	Implementare conteggio dei gol e decretare i vincitori
-					pallina.muovi()
+					pallina.collisione_mappa()
+					
+					if self.tutti_pronti(): pallina.muovi()
+
+					####################################################
+					#	Specificare la posizione per tutti
+					#	e poi assegnarla all'info del
+					#	singolo giocatore
+					####################################################
+					self.info["x"] = pallina.x
+					self.info["y"] = pallina.y
+
+					info_local["x"] = pallina.x
+					info_local["y"] = pallina.y
+
+					if pallina.is_gol() == -1: 
+						risultato[0] += 1
+						pallina.x = 1920 // 2
+						pallina.y = 1080 // 2
+					elif pallina.is_gol() == 1: 
+						risultato[1] += 1
+						pallina.x = 1920 // 2
+						pallina.y = 1080 // 2
+
+					if risultato[0] > 2: info_local["vincitore"] = [0, 2]
+					elif risultato[1] > 2: info_local["vincitore"] = [1, 3]
+					else: info_local["vincitore"] = None
+					
 
 					risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
 					conn.sendall(str.encode(risposta))
 
-					if data["info"]["vincitore"] is not None: return
+					if info_local["vincitore"] is not None: return
 			except:
 				break
 

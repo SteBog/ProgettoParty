@@ -159,6 +159,8 @@ class MiniGioco:
 				self.giocatori[i].pronto = giocatori["pronto"]
 				self.giocatori[i].punti = giocatori["punti"]
 
+		return 1
+
 	def high_latency_warning(self, ping):
 		if ping // 1000000 > 60:
 			self.count_high_ping += 1
@@ -499,6 +501,10 @@ class Pong(MiniGioco):
 
 	def aggiorna_giocatori(self):
 		dati = self.scarica_dati_da_server()
+		if dati is None or dati == "":
+			self.esecuzione_in_corso = False
+			return 0
+
 		self.numero_giocatore = dati["info"]["numero_giocatore"]
 		self.info["vincitore"] = dati["info"]["vincitore"]
 
@@ -518,6 +524,8 @@ class Pong(MiniGioco):
 				self.giocatori[i].ancora_vivo = giocatori["ancora_vivo"]
 				self.giocatori[i].pronto = giocatori["pronto"]
 				self.giocatori[i].punti = giocatori["punti"]
+
+		return 1
 
 	def main(self):
 		while self.esecuzione_in_corso:
@@ -544,7 +552,7 @@ class Pong(MiniGioco):
 			#	Muovere il giocatore locale
 			##############################################################################
 
-			if self.giocatori[self.numero_giocatore].ancora_vivo and self.tutti_pronti():
+			if self.tutti_pronti():
 				self.giocatori[self.numero_giocatore].muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
 
 			##############################################################################
@@ -569,7 +577,7 @@ class Pong(MiniGioco):
 			#	Uscire dal minigioco e restituire il vincitore
 			##############################################################################
 
-			if self.info["vincitore"]:
+			if self.info["vincitore"] is not None:
 				self.esecuzione_in_corso = False
 				return self.info["vincitore"]
 
