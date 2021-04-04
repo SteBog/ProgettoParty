@@ -21,39 +21,36 @@
 <body>
     <nav>
         <div class="div-nav">
-            <li class="TitoloNav">Progetto Party</li>
-            <li class="TestoNav">Homepage</li>
-            <li class="TestoNav">I tuoi amici</li>
-            <li class="TestoNav">Come giocare</li>
+            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
+            <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
+            <a href="" class="TestoNav">Come giocare</a>
         </div>
-        <li class="profilo">
-            <div class="immagine_profilo"></div>
-        </li>
+        <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
 	</nav>
     <section id="section_introduzione">
-        <img src="../../Gioco/Immagini/w_p1/Wraith_01_Moving Forward_000.png" alt="" id="personaggio_uno">
+        <img src="img/1.png" alt="" id="personaggio_uno">
         <h1 id="testo_uno">Ti presentiamo</h1>
         <h2 id="testo_due">Progetto Party</h2>
-        <img src="../../Gioco/Immagini/w_p2/Wraith_02_Moving Forward_000.png" alt="" id="personaggio_due">
-        <img src="../../Gioco/Immagini/w_p3/Wraith_03_Moving Forward_000.png" alt="" id="personaggio_tre">
-        <img src="../../Gioco/Immagini/w_p1/Wraith_01_Moving Forward_000.png" alt="" id="personaggio_quattro">
-        <img src="../../Gioco/Immagini/Nuvole/Nuvole.png" alt="" id="sfondo_nuvole_uno">
-        <img src="../../Gioco/Immagini/Nuvole/Nuvole.png" alt="" id="sfondo_nuvole_due" style="top: -10px;">
+        <img src="img/2.png" alt="" id="personaggio_due">
+        <img src="img/3.png" alt="" id="personaggio_tre">
+        <img src="img/4.png" alt="" id="personaggio_quattro">
+        <img src="img/Nuvole.png" alt="" id="sfondo_nuvole_uno">
+        <img src="img/Nuvole.png" alt="" id="sfondo_nuvole_due" style="top: -10px;">
     </section>
     <section id="section_minigioco">
         <div class="riga_personaggi" id="prima_riga">
-            <img src="../../Gioco/Immagini/w_p1/Wraith_01_Moving Forward_000.png" alt="">
-            <img src="../../Gioco/Immagini/w_p2/Wraith_02_Moving Forward_000.png" alt="">
-            <img src="../../Gioco/Immagini/w_p3/Wraith_03_Moving Forward_000.png" alt="">
-            <img src="../../Gioco/Immagini/Pelato/Pelato_frame1.png" alt="">
-            <img src="../../Gioco/Immagini/Guerriera/Guerriera_frame1.png" alt="">
+            <img src="img/1.png" alt="">
+            <img src="img/2.png" alt="">
+            <img src="img/3.png" alt="">
+            <img src="img/4.png" alt="">
+            <img src="img/5.png" alt="">
         </div>
         <div class="riga_personaggi" id="seconda_riga">
-            <img src="../../Gioco/Immagini/w_p1/Wraith_01_Moving Forward_000.png" alt="">
-            <img src="../../Gioco/Immagini/w_p2/Wraith_02_Moving Forward_000.png" alt="">
-            <img src="../../Gioco/Immagini/w_p3/Wraith_03_Moving Forward_000.png" alt="">
-            <img src="../../Gioco/Immagini/Pelato/Pelato_frame1.png" alt="">
-            <img src="../../Gioco/Immagini/Guerriera/Guerriera_frame1.png" alt="">
+            <img src="img/1.png" alt="">
+            <img src="img/2.png" alt="">
+            <img src="img/3.png" alt="">
+            <img src="img/4.png" alt="">
+            <img src="img/5.png" alt="">
         </div>
         <h1 class="h_personaggi">Scegli tra diversi personaggi unici e fantastici</h1>
     </section>

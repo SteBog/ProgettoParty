@@ -16,6 +16,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js"></script>
+		<link rel="stylesheet" href="stili_home.css">
 		<script src="script.js"></script>
 		<style>
 			
@@ -120,17 +121,14 @@
 		</style>
 	</head>
 	<body>
-		<ul class="Navbar">
-			<li class="TitoloNav">Progetto Party</li>
-			<li class="TestoNav"><a href=#>Homepage</a></li>
-			<li class="TestoNav"><a href="Amici.jsp">I tuoi amici</a></li>
-			<li class="TestoNav"><a href="Statistiche.jsp">Statistiche</a></li>
-			<li class="TestoNav"><a href=#>Come giocare</a></li>
-			<li class="profilo">
-				<div class="immagine_profilo">
-				</div>
-				<a href="profilo.jsp" class="NomeProfilo"><%= request.getSession().getAttribute("Utente").toString() %></a>
-		</ul>
+		<nav>
+	        <div class="div-nav">
+	            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
+	            <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
+	            <a href="" class="TestoNav">Come giocare</a>
+	        </div>
+	        <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
+		</nav>
 		<div>
 	<%
 		for(MessaggioBean messaggio:messaggi)

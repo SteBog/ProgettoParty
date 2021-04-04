@@ -15,10 +15,22 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="stili_home.css">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js"></script>
 		<script src="script.js"></script>
 		<style>
-			
+			html, body
+			{
+				width: 100%;
+				height: 100vh;
+				border: 0;
+				margin: 0;
+				padding: 0;
+				background-color: #ecf0f3;
+				background-repeat:no-repeat;
+				background-size: 100%;
+				display: flex;
+			}
 			.div_amici{
 				border-radius: 5px;
 				background: #ecf0f3;
@@ -41,77 +53,17 @@
 				background-size: 100%;
 				margin-left:15px;
 			}
-			
-			.NomeProfilo{
-				margin-left:10px;
-			}
-			
-			.Navbar{
-				background-image: linear-gradient(to bottom left, #80d0c7, #13547a);
-				list-style-type:none;
-				width:200px;
-				height:100vh;
-				margin-right: 30px;
-				border: 0;
-				margin: 0;
-				padding: 0;
-				color: #ffffff;
-				position:relative;
-				
-			}
-			
-			.profilo{
-				position: absolute;
-				bottom: 0px;
-				margin-bottom:10px;
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-			}
-			
-			.TitoloNav{
-				font-size: 40px;
-				text-decoration: none;
-				text-align:center;
-				margin-bottom:20px;
-			}
-			
-			.TestoNav{
-				font-size: 15px;
-				text-decoration: none;
-				margin-left:20px;
-				margin-bottom:10px;
-			}
-			
-			html, body
-			{
-			width: 100%;
-			height: 100vh;
-			border: 0;
-			margin: 0;
-			padding: 0;
-			background-color: #ecf0f3;
-			background-repeat:no-repeat;
-			background-size: 100%;
-			display: flex;
-			}
-			
-			
-			
 		</style>
 	</head>
 	<body>
-		<ul class="Navbar">
-			<li class="TitoloNav">Progetto Party</li>
-			<li class="TestoNav"><a href=#>Homepage</a></li>
-			<li class="TestoNav"><a href="Amici.jsp">I tuoi amici</a></li>
-			<li class="TestoNav"><a href="Statistiche.jsp">Statistiche</a></li>
-			<li class="TestoNav"><a href=#>Come giocare</a></li>
-			<li class="profilo">
-				<div class="immagine_profilo">
-				</div>
-				<a href="profilo.jsp" class="NomeProfilo"><%= request.getSession().getAttribute("Utente").toString() %></a>
-		</ul>
+		<nav>
+	        <div class="div-nav">
+	            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
+	            <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
+	            <a href="" class="TestoNav">Come giocare</a>
+	        </div>
+	        <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
+		</nav>
 	<%
 		for(UtentiBean utente:utenti)
 		{

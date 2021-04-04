@@ -51,7 +51,6 @@ public class Servlet1 extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		ServletContext sc = request.getSession().getServletContext();
 		
 	}
 
@@ -83,7 +82,7 @@ public class Servlet1 extends HttpServlet {
 				request.getSession().setAttribute("Error", "false");
 				
 				request.getSession().setAttribute("Utente", Username);
-				RequestDispatcher rd = sc.getRequestDispatcher("/Messaggi.jsp");
+				RequestDispatcher rd = sc.getRequestDispatcher("/presentazione.jsp");
 				rd.forward(request, response);
 			}
 			

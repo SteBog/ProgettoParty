@@ -22,98 +22,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profilo di <%=utente.get(0).getUsername() %></title>
+    <link rel="stylesheet" href="stili_home.css">
     <style>
-        html, body
-        {
-            background: #ecf0f3;
-            margin: 0;
-            border: 0;
-            padding: 0;
-        }
-        .container
-        {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            width: 800px;
-            height: 500px;
-            border-radius: 15px;
-            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
-            display: flex;
-        }
-        .container_foto
-        {
-            width: 30%;
-            height: 100%;
-            border-radius: 15px 0px 0px 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .container_dati
-        {
-            width: 70%;
-            height: 100%;
-            border-radius: 0px 15px 15px 0px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .container_dati label
-        {
-            color: #8c8c8c;
-            width: 100px;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-        .container_dati span
-        {
-            width: 100px;
-            font-size: 18px;
-        }
-        .container_dati input[type=text]
-        {
-            display: none;
-        }
-        .container_img
-        {
-            width: 70%;
-            height: 100%;
-            border-radius: 0px 15px 15px 0px;
-        }
-        .container_img a
-        {
-            height: 150px;
-            width: 150px;
-            border: none;
-        }
-        .modifica_profilo
-        {
-            margin-top: 50px;
-        }
-        .pulsante
-        {
-            color: white;
-            background-color: #80d0c7;
-            border: 0;
-            padding: 8px 15px;
-            border-radius: 3px;
-            transition: all 0.3s ease;
-        }
-        .pulsante:hover
-        {
-            background-color: #13547a;
-        }
-        .foto_profilo
-        {
-            margin: 30px;
-            height: 150px;
-        }
-    </style><style>
         html, body
         {
             background: #ecf0f3;
@@ -228,6 +138,14 @@
     </script>
 </head>
 <body>
+	<nav>
+        <div class="div-nav">
+            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
+            <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
+            <a href="" class="TestoNav">Come giocare</a>
+        </div>
+        <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
+	</nav>
     <div class="container">
         <div class="container_foto">
             <img class="foto_profilo" src="img/<%=utente.get(0).getFotoProfilo() %>.png" alt="Game avatar">

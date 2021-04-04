@@ -90,16 +90,16 @@ var tl_prima_riga = gsap.timeline({
     y: 150
 }, 0)
 .from("#prima_riga", {
-    x: -1000
+    x: -1200
 }, 0)
 .from("#seconda_riga", {
-    x: 1000,
+    x: 1200,
     delay: 0
 }, 0)
 
 var tl_classifica = gsap.timeline({
     scrollTrigger: {
-        markers: true,
+        markers: false,
         pin: "#classifiche",
         trigger: "#classifiche",
         start: "top top",

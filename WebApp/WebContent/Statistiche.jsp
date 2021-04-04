@@ -56,13 +56,13 @@
 	</head>
 	<body>
         <nav>
-            <div class="div-nav">
-                <a href="#" class="TitoloNav">Progetto Party</a>
-                <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
-                <a class="TestoNav">Come giocare</a>
-            </div>
-            <a class="profilo">SteBog</a>
-        </nav>
+	        <div class="div-nav">
+	            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
+	            <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
+	            <a href="" class="TestoNav">Come giocare</a>
+	        </div>
+	        <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
+		</nav>
 		<div class="container">
             <span class="scritta">Percentuale partite vinte: <%=percentuale %>%</span>
             <div class="grafico">
@@ -74,6 +74,15 @@
             </div>
             <span class="scritta">Tempo di gioco: <%=ore_giocate %> ore</span>
         </div>
+        <%
+        	for (int i = 0; i < vittorieMinigiochi.size(); i++)
+        	{
+        		String numero = vittorieMinigiochi.get(i).toString();
+        %>
+        	<span><%=numero %></span>
+        <%
+        	}
+        %>
 	</body>
     <script>
     
@@ -108,6 +117,7 @@
                     maxBarThickness: 8,
                     minBarLength: 0,
                     backgroundColor: ["rgba(0, 110, 200, 0.6)", "rgba(200, 0, 103, 0.6)", "rgba(200, 157, 0, 0.6)", "rgba(200, 73, 0, 0.6)"],
+                    borderColor: ["rgba(0, 110, 200, 0.8)", "rgba(200, 0, 103, 0.8)", "rgba(200, 157, 0, 0.8)", "rgba(200, 73, 0, 0.8)"],
                     borderWidth: 1,
                     data: [
                         23,
