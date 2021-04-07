@@ -134,6 +134,7 @@ class MiniGioco:
 		ping = time.perf_counter_ns()
 		dati_server = self.NET.send(encode_pos({"giocatore": self.player_to_dictionary(self.giocatori[int(self.numero_giocatore)]), "info": self.info}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 		ping = time.perf_counter_ns() - ping	#	latenza espressa in nano secondi
+		self.high_latency_warning(ping)
 
 		if dati_server:
 			dati_server = decode_pos(dati_server)
