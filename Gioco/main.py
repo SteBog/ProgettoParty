@@ -14,7 +14,7 @@ if __name__ == "__main__":
 	FINESTRA.blit(SFONDO_SCHERMATA_PRINCIPALE, (0, 0))
 
 	click = False
-	NET = Connessione()
+	NET = None
 
 	while True:
 		pygame.time.delay(20)
@@ -24,6 +24,7 @@ if __name__ == "__main__":
 
 		if pulsante_1.collidepoint((mouse_x, mouse_y)):
 			if click:
+				NET = Connessione()
 				minigioco = Schermata_Principale(FINESTRA, NET, SCREEN_HEIGHT, SCREEN_WIDTH)
 				minigioco.main()
 

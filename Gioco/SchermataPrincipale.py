@@ -61,6 +61,7 @@ class Schermata_Principale:
 
 	def scarica_dati_da_server(self):
 		ping = time.perf_counter_ns()
+		dati_server = ""
 		dati_server = self.NET.send(encode_pos({"giocatore": self.player_to_dictionary(self.giocatori[int(self.numero_giocatore)]), "info": self.info}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 		ping = time.perf_counter_ns() - ping	#	latenza espressa in nano secondi
 
@@ -89,6 +90,9 @@ class Schermata_Principale:
 				self.giocatori[i].punti = giocatori["punti"]
 
 	def main(self):
+		for giocatore in self.giocatori:
+			giocatore.carica_immagini(giocatore.personaggio)
+			
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 			if self.aggiorna_giocatori() == 0: break
@@ -108,6 +112,7 @@ class Schermata_Principale:
 				vincitori = minigioco.main()
 
 				if vincitori is not None:
+					self.giocatori[self.numero_giocatore].pronto = False
 					if vincitori[0] == self.numero_giocatore:
 						self.posizione_local += 1
 						self.giocatori[self.numero_giocatore].x = self.posizioni[self.posizione_local][0]
@@ -120,8 +125,6 @@ class Schermata_Principale:
 
 					vincitori = None
 					self.info["vincitore"] = None
-					for giocatore in self.giocatori:
-						giocatore.pronto = False
 
 			##############################################################################
 			#   Listener per spegnere il gioco quando clicchi sulla

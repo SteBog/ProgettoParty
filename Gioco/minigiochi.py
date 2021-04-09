@@ -23,19 +23,14 @@ class Giocatore:
 		self.HEIGHT = 92
 		self.WIDTH = 64
 
-		self.immagini = []
-		for i in range(0, 12):
-			if i < 10:
-				percorso_frame = PERCORSO + "/Gioco/Immagini/w_p1/Wraith_01_Moving Forward_00" + str(i) + ".png"
-			else:
-				percorso_frame = PERCORSO + "/Gioco/Immagini/w_p1/Wraith_01_Moving Forward_0" + str(i) + ".png"
-			self.immagini.append(pygame.image.load(percorso_frame))
-			self.immagini[i] = pygame.transform.scale(self.immagini[i], (self.WIDTH, self.HEIGHT))
-		self.rettangolo_collisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
+		self.personaggio = None
+		self.num_frame = {1: 12, 2: 12, 3: 12, 4: 3, 5: 3}
 
-		self.rivolto_destra = False
+		self.immagini = []
+		
+		self.rivolto_destra = True
 		self.velocita = 10
-		self.ancora_vivo = True
+		self.ancora_vivo = False
 		self.pronto = False
 		self.index_animation = 0
 		self.punti = 0
@@ -101,6 +96,13 @@ class Giocatore:
 				else:
 					self.x += 70
 
+	def carica_immagini(self, personaggio):
+		for i in range(0, self.num_frame[personaggio]):
+			percorso_frame = PERCORSO + "/Gioco/Immagini/w_p" + str(personaggio) + "/" + str(personaggio) + "_" + str(i) + ".png"
+			self.immagini.append(pygame.image.load(percorso_frame))
+			self.immagini[i] = pygame.transform.scale(self.immagini[i], (self.WIDTH, self.HEIGHT))
+		self.rettangolo_collisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
+
 class MiniGioco:
 	def __init__(self, finestra, connessione, altezza_schermo, larghezza_schermo, numero_giocatore):
 		self.FINESTRA = finestra
@@ -132,6 +134,7 @@ class MiniGioco:
 
 	def scarica_dati_da_server(self):
 		ping = time.perf_counter_ns()
+		dati_server = ""
 		dati_server = self.NET.send(encode_pos({"giocatore": self.player_to_dictionary(self.giocatori[int(self.numero_giocatore)]), "info": self.info}))	#	Invio posizione giocatore locale e ricezione posizione altri giocatori
 		ping = time.perf_counter_ns() - ping	#	latenza espressa in nano secondi
 		self.high_latency_warning(ping)
@@ -188,6 +191,15 @@ class MiniGioco:
 		for i in range(len(self.giocatori)):
 			if self.giocatori[i].ancora_vivo: return i
 
+	def vincitore(self):
+		classifica = [0, 0, 0, 0]
+
+		newlist = sorted(self.giocatori, key=lambda x: x.punti, reverse=True)
+
+		for i in newlist: classifica.append(i.numero_giocatore)
+
+		return classifica
+
 class SpintoniSuPiattaforma(MiniGioco):
 	def __init__(self, finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore):
 		super().__init__(finestra, connessione, schermo_altezza, schermo_larghezza, numero_giocatore)
@@ -208,6 +220,9 @@ class SpintoniSuPiattaforma(MiniGioco):
 		}
 
 	def main(self):
+		for giocatore in self.giocatori:
+			giocatore.carica_immagini(giocatore.personaggio)
+
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
@@ -233,6 +248,7 @@ class SpintoniSuPiattaforma(MiniGioco):
 
 			if self.giocatori[self.numero_giocatore].ancora_vivo and self.tutti_pronti():
 				self.giocatori[self.numero_giocatore].muovi(keys, self.SCREEN_HEIGHT, self.SCREEN_WIDTH)
+				self.giocatori[self.numero_giocatore].punti += 10
 
 			#	verificare che il giocatore sia all'interno del cerchio (piattaforma)
 			if (self.giocatori[self.numero_giocatore].x - 960)**2 + (self.giocatori[self.numero_giocatore].y - 540)**2 > 425**2:
@@ -260,12 +276,12 @@ class SpintoniSuPiattaforma(MiniGioco):
 
 			if self.info["vincitore"] is not None:
 				self.esecuzione_in_corso = False
-				return self.info["vincitore"]
+				return self.vincitore()
 
 			if self.tutti_pronti() and self.num_ancora_vivi() < 2:
 				self.info = {
 					"minigioco": "Spintoni",
-					"vincitore": self.unico_vivo()
+					"vincitore": self.vincitore()
 				}
 
 			pygame.display.update()
@@ -458,7 +474,7 @@ class Paracadutismo(MiniGioco):
 
 			if self.info["vincitore"] is not None:
 				self.esecuzione_in_corso = False
-				return (self.numero_giocatore)
+				return self.vincitore()
 
 			pygame.display.update()
 
@@ -528,6 +544,18 @@ class Pong(MiniGioco):
 
 		return 1
 
+	def vincitore(self, vincitori):
+		classifica = [0, 0, 0, 0]
+		classifica[0] = vincitori[0]
+		classifica[1] = vincitori[1]
+
+		if vincitori[0] == 0:
+			classifica[2] = 1
+			classifica[3] = 3
+		else:
+			classifica[2] = 0
+			classifica[3] = 2
+
 	def main(self):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
@@ -580,6 +608,6 @@ class Pong(MiniGioco):
 
 			if self.info["vincitore"] is not None:
 				self.esecuzione_in_corso = False
-				return self.info["vincitore"]
+				return self.vincitore(self.info["vincitore"])
 
 			pygame.display.update()

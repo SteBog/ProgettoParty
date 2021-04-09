@@ -41,8 +41,11 @@ query_inserisci_partita = "INSERT INTO Partita() VALUES ()"
 
 query_inserisci_round = "INSERT INTO Round(Round.IDFMinigioco, Round.IDFPartita) VALUES (%s, %s)"
 
-query_inserisci_giocatore = "INSERT INTO GiocatorePartita(IDFUtente, IDFPartita, NumeroGiocatore) " + \
-	"VALUES (%s, %s, %s)"
+query_inserisci_giocatore = "INSERT INTO GiocatorePartita(IDFUtente, IDFPartita, NumeroGiocatore) VALUES (%s, %s, %s)"
+
+query_inserisci_classificato = "INSERT INTO ClassificatoRound(IDFRound, IDFGiocatore, Posizione) VALUES (%s, %s, %s)"
+
+query_select_personaggio = "SELECT Utenti.FotoProfilo FROM Utenti WHERE Utenti.IDUtente = %s"
 
 ##############################################################################
 #	Funzioni per dialogo con gli host
@@ -64,7 +67,7 @@ giocatore = {
 	"numero_giocatore": -1,
 	"coordinata_x": 10,
 	"coordinata_y": 925,
-	"rivolto_a_destra": False,
+	"rivolto_a_destra": True,
 	"ancora_vivo": False,
 	"pronto": False,
 	"punti": 0
@@ -145,6 +148,27 @@ class Partita:
 
 		return mycursor.lastrowid
 
+	def inserisci_giocatore_partita(self, conn, numero):
+		data = decode_pos(conn.recv(2048).decode())
+		valori = (data["info"]["ID_Utente"], self.id_partita, numero)
+
+		mycursor.execute(query_inserisci_giocatore, valori)
+		mydb.commit()
+
+		id_giocatore_partita = mycursor.lastrowid
+
+		mycursor.execute(query_select_personaggio, data["info"]["ID_Utente"])
+		myresult = mycursor.fetchall()
+
+		for x in myresult: personaggio = x
+
+		info_local = self.info
+		info_local["numero_giocatore"] = numero
+		risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
+		conn.sendall(str.encode(risposta))
+
+		self.home(conn, numero)
+
 	def gioco_finito(self):
 		for player in self.giocatori:
 			if player["ancora_vivo"]:
@@ -158,24 +182,11 @@ class Partita:
 		return True
 
 	def home(self, conn, numero):
-
-		inserito = False
-		id_giocatore_partita = None
-
 		while True:
 			try:
 				data = decode_pos(conn.recv(2048).decode())
 				info_local = self.info
 				info_local["numero_giocatore"] = numero
-
-				if not inserito:
-					valori = (data["info"]["ID_Utente"], self.id_partita, numero)
-
-					mycursor.execute(query_inserisci_giocatore, valori)
-					mydb.commit()
-
-					id_giocatore_partita = mycursor.lastrowid
-					inserito = True
 
 				if not data:
 					print("Disconnesso")
@@ -183,7 +194,7 @@ class Partita:
 					self.giocatori[numero] = data["giocatore"]
 					self.giocatori[numero]["numero_giocatore"] = numero
 
-					if self.tutti_pronti():
+					if self.tutti_pronti() and numero == 1:
 						self.minigioco_in_corso = self.minigiochi_giocati % 4
 						self.minigiochi_giocati += 1
 
@@ -196,17 +207,20 @@ class Partita:
 					if self.minigioco_in_corso == 0: self.spintoni(conn, numero)
 					elif self.minigioco_in_corso == 1: self.pong(conn, numero)
 					elif self.minigioco_in_corso == 2: self.gara(conn, numero)
-					elif self.minigioco_in_corso == 3: self.paracadutismo(conn, numero)
-			except Exception:
-				print(Exception.args)
+					#	elif self.minigioco_in_corso == 3: self.paracadutismo(conn, numero)
+
+					self.info["vincitore"] = None
+			except Exception as e:
+				print(str(e))
+				break
 
 	def spintoni(self, conn, numero):
 		try:
 			if numero == 0:
 				mycursor.execute(query_inserisci_round, (1, self.id_partita))
 				mydb.commit()
-		except Exception:
-			print(Exception.args)
+		except Exception as e:
+			print(str(e))
 
 		while True:
 			try:
@@ -241,8 +255,8 @@ class Partita:
 			if numero == 0:
 				mycursor.execute(query_inserisci_round, (2, self.id_partita))
 				mydb.commit()
-		except Exception:
-			print(Exception.args)
+		except Exception as e:
+			print(str(e))
 
 		self.risultato = [0, 0]
 		while True:
@@ -382,7 +396,8 @@ def t_client(conn, num_gio, partita):
 
 	conn.send(str.encode(encode_pos({"giocatori": partita.giocatori, "info": partita.info})))
 
-	partita.home(conn, num_gio)
+	#partita.home(conn, num_gio)
+	partita.inserisci_giocatore_partita(conn, num_gio)
 
 	print("Connessione terminata")
 	partita.giocatori[num_gio] = giocatore
@@ -394,7 +409,9 @@ while True:
 	conn, addr = sock.accept()
 	print("\nConnesso a: ", addr)
 
-	if (numero_giocatori % 4 == 0): partite.append(Partita())
+	if (numero_giocatori % 4 == 0): 
+		partite.append(Partita())
+		print("NUOVA PARTITA")
 	start_new_thread(t_client, (conn, numero_giocatori, partite[-1]))
 
 	numero_giocatori += 1
