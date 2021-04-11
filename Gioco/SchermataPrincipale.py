@@ -98,10 +98,12 @@ class Schermata_Principale:
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 
 			if self.numero_minigioco is not None:
+				minigioco_di_coppia = False
 				if self.numero_minigioco % 4 == 0:
 					minigioco = SpintoniSuPiattaforma(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
 				if self.numero_minigioco % 4 == 1:
 					minigioco = Pong(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
+					minigioco_di_coppia = True
 				if self.numero_minigioco % 4 == 2:
 					minigioco = Gara(self.FINESTRA, self.NET, self.SCREEN_HEIGHT, self.SCREEN_WIDTH, self.numero_giocatore)
 				if self.numero_minigioco % 4 == 3:
@@ -116,7 +118,7 @@ class Schermata_Principale:
 						self.giocatori[self.numero_giocatore].x = self.posizioni[self.posizione_local][0]
 						self.giocatori[self.numero_giocatore].y = self.posizioni[self.posizione_local][1]
 
-					if self.numero_minigioco == 1 and vincitori[1] == self.numero_giocatore:
+					if minigioco_di_coppia and vincitori[1] == self.numero_giocatore:
 						self.posizione_local += 1
 						self.giocatori[self.numero_giocatore].x = self.posizioni[self.posizione_local][0]
 						self.giocatori[self.numero_giocatore].y = self.posizioni[self.posizione_local][1]

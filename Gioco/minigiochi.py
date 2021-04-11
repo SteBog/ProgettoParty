@@ -325,18 +325,19 @@ class Gara(MiniGioco):
 
 	def vincitore(self):
 		classifica = []
+		indici_classifica = []
 		finito = False
+
 		for giocatore in self.giocatori:
-			classifica.append(giocatore.numero_giocatore)
+			classifica.append(giocatore)
 			if giocatore.x >= self.TRAGUARDO:
 				finito = True
 		
 		if finito:
-			classifica.sort()
-			print(classifica)
-			return classifica
+			classifica = sorted(self.giocatori, key=lambda giocatore: giocatore.x, reverse=True)
+			for classificato in classifica: indici_classifica.append(classificato.numero_giocatore)
+			return indici_classifica
 		else:
-			print("None")
 			return None
 
 	def main(self):
