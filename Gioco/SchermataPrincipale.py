@@ -81,6 +81,7 @@ class Schermata_Principale:
 
 		for i, giocatori in enumerate(dati["giocatori"]):
 			self.giocatori[i].numero_giocatore = int(giocatori["numero_giocatore"])
+			self.giocatori[i].personaggio = giocatori["personaggio"]
 			if giocatori["numero_giocatore"] != dati["info"]["numero_giocatore"]:
 				self.giocatori[i].x = giocatori["coordinata_x"]
 				self.giocatori[i].y = giocatori["coordinata_y"]
@@ -89,10 +90,7 @@ class Schermata_Principale:
 				self.giocatori[i].pronto = giocatori["pronto"]
 				self.giocatori[i].punti = giocatori["punti"]
 
-	def main(self):
-		for giocatore in self.giocatori:
-			giocatore.carica_immagini(giocatore.personaggio)
-			
+	def main(self):	
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
 			if self.aggiorna_giocatori() == 0: break
@@ -126,6 +124,8 @@ class Schermata_Principale:
 					vincitori = None
 					self.info["vincitore"] = None
 
+				print(f"Numero: {self.numero_giocatore} - posizione: {self.posizione_local}")
+
 			##############################################################################
 			#   Listener per spegnere il gioco quando clicchi sulla
 			#   x rossa
@@ -146,7 +146,11 @@ class Schermata_Principale:
 				self.giocatori[self.numero_giocatore].pronto = True
 
 			for giocatore in self.giocatori:
-				if giocatore.ancora_vivo:
+				if len(giocatore.immagini) == 0 and giocatore.personaggio is not None:
+					giocatore.carica_immagini(giocatore.personaggio)
+
+			for giocatore in self.giocatori:
+				if giocatore.ancora_vivo and giocatore.numero_giocatore != -1:
 					giocatore.disegna(self.FINESTRA)
 
 			pygame.display.update()

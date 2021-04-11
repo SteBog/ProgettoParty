@@ -24,7 +24,6 @@ class Giocatore:
 		self.WIDTH = 64
 
 		self.personaggio = None
-		self.num_frame = {1: 12, 2: 12, 3: 12, 4: 3, 5: 3}
 
 		self.immagini = []
 		
@@ -36,9 +35,9 @@ class Giocatore:
 		self.punti = 0
 
 	def disegna(self, finestra):
-		if self.index_animation < 11:
+		if self.index_animation < len(self.immagini) - 1:
 			self.index_animation += 1
-		elif self.index_animation >= 11:
+		elif self.index_animation >= len(self.immagini) - 1:
 			self.index_animation = 0
 
 		self.rettangolo_collisione = pygame.Rect(self.x, self.y, self.WIDTH, self.HEIGHT)
@@ -97,7 +96,7 @@ class Giocatore:
 					self.x += 70
 
 	def carica_immagini(self, personaggio):
-		for i in range(0, self.num_frame[personaggio]):
+		for i in range(0, 12):
 			percorso_frame = PERCORSO + "/Gioco/Immagini/w_p" + str(personaggio) + "/" + str(personaggio) + "_" + str(i) + ".png"
 			self.immagini.append(pygame.image.load(percorso_frame))
 			self.immagini[i] = pygame.transform.scale(self.immagini[i], (self.WIDTH, self.HEIGHT))
@@ -155,6 +154,7 @@ class MiniGioco:
 
 		for i, giocatori in enumerate(dati["giocatori"]):
 			self.giocatori[i].numero_giocatore = int(giocatori["numero_giocatore"])
+			self.giocatori[i].personaggio = giocatori["personaggio"]
 			if giocatori["numero_giocatore"] != dati["info"]["numero_giocatore"]:
 				self.giocatori[i].x = giocatori["coordinata_x"]
 				self.giocatori[i].y = giocatori["coordinata_y"]
@@ -192,7 +192,7 @@ class MiniGioco:
 			if self.giocatori[i].ancora_vivo: return i
 
 	def vincitore(self):
-		classifica = [0, 0, 0, 0]
+		classifica = []
 
 		newlist = sorted(self.giocatori, key=lambda x: x.punti, reverse=True)
 
@@ -220,11 +220,9 @@ class SpintoniSuPiattaforma(MiniGioco):
 		}
 
 	def main(self):
-		for giocatore in self.giocatori:
-			giocatore.carica_immagini(giocatore.personaggio)
-
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
+
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
 			if self.aggiorna_giocatori() == 0: break
 
@@ -267,7 +265,11 @@ class SpintoniSuPiattaforma(MiniGioco):
 			##############################################################################
 
 			for giocatore in self.giocatori:
-				if giocatore.numero_giocatore != -1 and giocatore.ancora_vivo:
+				if len(giocatore.immagini) == 0 and giocatore.personaggio is not None:
+					giocatore.carica_immagini(giocatore.personaggio)
+
+			for giocatore in self.giocatori:
+				if giocatore.numero_giocatore != -1 and giocatore.ancora_vivo and len(giocatore.immagini) > 0:
 					giocatore.disegna(self.FINESTRA)
 
 			##############################################################################
@@ -314,7 +316,7 @@ class Gara(MiniGioco):
 		self.giocatori[self.numero_giocatore].x = 150
 		self.giocatori[self.numero_giocatore].y = 57 + 225 * (self.numero_giocatore % 4)
 
-		self.TRAGUARDO = 200
+		self.TRAGUARDO = 1500
 
 		self.info = {
 			"minigioco": "Gara",
@@ -331,9 +333,10 @@ class Gara(MiniGioco):
 		
 		if finito:
 			classifica.sort()
+			print(classifica)
 			return classifica
 		else:
-			classifica = []
+			print("None")
 			return None
 
 	def main(self):
@@ -368,7 +371,11 @@ class Gara(MiniGioco):
 			##############################################################################
 
 			for giocatore in self.giocatori:
-				if giocatore.numero_giocatore != -1:
+				if len(giocatore.immagini) == 0 and giocatore.personaggio is not None:
+					giocatore.carica_immagini(giocatore.personaggio)
+
+			for giocatore in self.giocatori:
+				if giocatore.numero_giocatore != -1 and len(giocatore.immagini) > 0:
 					giocatore.disegna(self.FINESTRA)
 
 			##############################################################################
@@ -465,7 +472,11 @@ class Paracadutismo(MiniGioco):
 			##############################################################################
 
 			for giocatore in self.giocatori:
-				if giocatore.numero_giocatore != -1:
+				if len(giocatore.immagini) == 0 and giocatore.personaggio is not None:
+					giocatore.carica_immagini(giocatore.personaggio)
+
+			for giocatore in self.giocatori:
+				if giocatore.numero_giocatore != -1 and len(giocatore.immagini) > 0:
 					giocatore.disegna(self.FINESTRA)
 
 			##############################################################################
@@ -534,6 +545,7 @@ class Pong(MiniGioco):
 
 		for i, giocatori in enumerate(dati["giocatori"]):
 			self.giocatori[i].numero_giocatore = int(giocatori["numero_giocatore"])
+			self.giocatori[i].personaggio = giocatori["personaggio"]
 			if giocatori["numero_giocatore"] != dati["info"]["numero_giocatore"]:
 				self.giocatori[i].x = giocatori["coordinata_x"]
 				self.giocatori[i].y = giocatori["coordinata_y"]
@@ -555,6 +567,8 @@ class Pong(MiniGioco):
 		else:
 			classifica[2] = 0
 			classifica[3] = 2
+
+		return classifica
 
 	def main(self):
 		while self.esecuzione_in_corso:
@@ -597,7 +611,11 @@ class Pong(MiniGioco):
 			##############################################################################
 
 			for giocatore in self.giocatori:
-				if giocatore.numero_giocatore != -1 and giocatore.ancora_vivo:
+				if len(giocatore.immagini) == 0 and giocatore.personaggio is not None:
+					giocatore.carica_immagini(giocatore.personaggio)
+
+			for giocatore in self.giocatori:
+				if giocatore.numero_giocatore != -1 and giocatore.ancora_vivo and len(giocatore.immagini) > 0:
 					giocatore.disegna(self.FINESTRA)
 
 			self.pallina.disegna(self.FINESTRA, self.info["x"], self.info["y"])

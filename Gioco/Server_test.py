@@ -45,7 +45,7 @@ query_inserisci_giocatore = "INSERT INTO GiocatorePartita(IDFUtente, IDFPartita,
 
 query_inserisci_classificato = "INSERT INTO ClassificatoRound(IDFRound, IDFGiocatore, Posizione) VALUES (%s, %s, %s)"
 
-query_select_personaggio = "SELECT Utenti.FotoProfilo FROM Utenti WHERE Utenti.IDUtente = %s"
+query_select_personaggio = "SELECT Utenti.FotoProfilo FROM Utenti WHERE Utenti.IDUtente = "
 
 ##############################################################################
 #	Funzioni per dialogo con gli host
@@ -68,6 +68,7 @@ giocatore = {
 	"coordinata_x": 10,
 	"coordinata_y": 925,
 	"rivolto_a_destra": True,
+	"personaggio": None,
 	"ancora_vivo": False,
 	"pronto": False,
 	"punti": 0
@@ -106,8 +107,8 @@ class Pallina:
 		if self.y > 1060: self.direzione_verticale = 1
 
 	def is_gol(self):
-		if self.x < 0: return -1		#	Gol per quelli a sinistra
-		elif self.x > 1900: return 1	#	Gol per quelli a destra
+		if self.x < 0: return -1		#	Gol per quelli a destra
+		elif self.x > 1900: return 1	#	Gol per quelli a sinistra
 		else: return 0
 
 	def muovi(self):
@@ -157,17 +158,22 @@ class Partita:
 
 		id_giocatore_partita = mycursor.lastrowid
 
-		mycursor.execute(query_select_personaggio, data["info"]["ID_Utente"])
+		mycursor.execute(query_select_personaggio + str(data["info"]["ID_Utente"]))
 		myresult = mycursor.fetchall()
 
-		for x in myresult: personaggio = x
+		personaggio = None
+		for x in myresult: 
+			personaggio = x[0]
 
 		info_local = self.info
 		info_local["numero_giocatore"] = numero
+		self.giocatori[numero]["ancora_vivo"] = True
+		self.giocatori[numero]["personaggio"] = int(personaggio)
+
 		risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
 		conn.sendall(str.encode(risposta))
 
-		self.home(conn, numero)
+		self.home(conn, numero, personaggio)
 
 	def gioco_finito(self):
 		for player in self.giocatori:
@@ -181,7 +187,7 @@ class Partita:
 				return False
 		return True
 
-	def home(self, conn, numero):
+	def home(self, conn, numero, personaggio):
 		while True:
 			try:
 				data = decode_pos(conn.recv(2048).decode())
@@ -193,9 +199,10 @@ class Partita:
 				else:
 					self.giocatori[numero] = data["giocatore"]
 					self.giocatori[numero]["numero_giocatore"] = numero
+					self.giocatori[numero]["personaggio"] = int(personaggio)
 
 					if self.tutti_pronti() and numero == 1:
-						self.minigioco_in_corso = self.minigiochi_giocati % 4
+						self.minigioco_in_corso = self.minigiochi_giocati % 3
 						self.minigiochi_giocati += 1
 
 					self.info["minigioco"] = self.minigioco_in_corso
@@ -204,9 +211,15 @@ class Partita:
 					risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
 					conn.sendall(str.encode(risposta))
 
-					if self.minigioco_in_corso == 0: self.spintoni(conn, numero)
-					elif self.minigioco_in_corso == 1: self.pong(conn, numero)
-					elif self.minigioco_in_corso == 2: self.gara(conn, numero)
+					if self.minigioco_in_corso == 0: 
+						self.spintoni(conn, numero, personaggio)
+						self.minigioco_in_corso = None
+					elif self.minigioco_in_corso == 1: 
+						self.pong(conn, numero, personaggio)
+						self.minigioco_in_corso = None
+					elif self.minigioco_in_corso == 2: 
+						self.gara(conn, numero, personaggio)
+						self.minigioco_in_corso = None
 					#	elif self.minigioco_in_corso == 3: self.paracadutismo(conn, numero)
 
 					self.info["vincitore"] = None
@@ -214,7 +227,7 @@ class Partita:
 				print(str(e))
 				break
 
-	def spintoni(self, conn, numero):
+	def spintoni(self, conn, numero, personaggio):
 		try:
 			if numero == 0:
 				mycursor.execute(query_inserisci_round, (1, self.id_partita))
@@ -233,6 +246,7 @@ class Partita:
 				else:
 					self.giocatori[numero] = data["giocatore"]
 					self.giocatori[numero]["numero_giocatore"] = numero
+					self.giocatori[numero]["personaggio"] = int(personaggio)
 
 					if data["info"]["vincitore"] is not None: 
 						self.minigioco_in_corso = None
@@ -250,7 +264,7 @@ class Partita:
 			except:
 				break
 
-	def pong(self, conn, numero):
+	def pong(self, conn, numero, personaggio):
 		try:
 			if numero == 0:
 				mycursor.execute(query_inserisci_round, (2, self.id_partita))
@@ -270,6 +284,7 @@ class Partita:
 				else:
 					self.giocatori[numero] = data["giocatore"]
 					self.giocatori[numero]["numero_giocatore"] = numero
+					self.giocatori[numero]["personaggio"] = int(personaggio)
 
 					self.pallina.collisione_giocatore(self.giocatori[numero])
 					self.pallina.collisione_mappa()
@@ -283,17 +298,16 @@ class Partita:
 					####################################################
 
 					if self.pallina.is_gol() == -1: 
-						self.risultato[0] += 1
+						self.risultato[1] += 1
 						self.pallina.x = 1920 // 2
 						self.pallina.y = 1080 // 2
 					elif self.pallina.is_gol() == 1: 
-						self.risultato[1] += 1
+						self.risultato[0] += 1
 						self.pallina.x = 1920 // 2
 						self.pallina.y = 1080 // 2
 
 					if self.risultato[0] > 2: info_local["vincitore"] = [0, 2]
 					elif self.risultato[1] > 2: info_local["vincitore"] = [1, 3]
-					else: info_local["vincitore"] = None
 					
 					self.info["x"] = self.pallina.x
 					self.info["y"] = self.pallina.y
@@ -311,7 +325,7 @@ class Partita:
 			except:
 				break
 
-	def gara(self, conn, numero):
+	def gara(self, conn, numero, personaggio):
 		try:
 			if numero == 0:
 				mycursor.execute(query_inserisci_round, (3, self.id_partita))
@@ -330,6 +344,7 @@ class Partita:
 				else:
 					self.giocatori[numero] = data["giocatore"]
 					self.giocatori[numero]["numero_giocatore"] = numero
+					self.giocatori[numero]["personaggio"] = int(personaggio)
 
 					if data["info"]["vincitore"] is not None: 
 						self.minigioco_in_corso = None
@@ -347,7 +362,7 @@ class Partita:
 			except:
 				break
 
-	def paracadutismo(self, conn, numero):
+	def paracadutismo(self, conn, numero, personaggio):
 		try:
 			if numero == 0:
 				mycursor.execute(query_inserisci_round, (4, self.id_partita))
@@ -366,6 +381,7 @@ class Partita:
 				else:
 					self.giocatori[numero] = data["giocatore"]
 					self.giocatori[numero]["numero_giocatore"] = numero
+					self.giocatori[numero]["personaggio"] = int(personaggio)
 
 					if self.gioco_finito():
 						massimo = -1
