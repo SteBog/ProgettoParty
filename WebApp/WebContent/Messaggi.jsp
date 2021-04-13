@@ -46,20 +46,7 @@
 			.NomeProfilo{
 				margin-left:10px;
 			}
-			
-			.Navbar{
-				background-image: linear-gradient(to bottom left, #80d0c7, #13547a);
-				list-style-type:none;
-				width:200px;
-				height:100vh;
-				margin-right: 30px;
-				border: 0;
-				margin: 0;
-				padding: 0;
-				color: #ffffff;
-				position:relative;
-				
-			}
+		
 			
 			.profilo{
 				position: absolute;
@@ -117,18 +104,34 @@
  			color: #aaa;
 			}
 			
+			.icon_msg{
+				width: 30px;
+				height: 30px;
+				background-image: url("img/Icon_msg.png");
+			}
 			
+			.msgBar{
+				position: absolute;
+   				bottom: 0;
+  				width: 100%;
+  				height: 50px;
+  				display: flex:
+			}
+			
+			.msgBox{
+				width: 80%;
+			}
 		</style>
 	</head>
 	<body>
-		<nav>
+		<!-- <nav>
 	        <div class="div-nav">
 	            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
 	            <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
 	            <a href="" class="TestoNav">Come giocare</a>
 	        </div>
 	        <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
-		</nav>
+		</nav>-->
 		<div>
 	<%
 		for(MessaggioBean messaggio:messaggi)
@@ -142,6 +145,12 @@
 			<span class="chat-message-timestamp"><%=Data %></span>
 		</div>
 	<% } %>
+	</div>
+	<div class="msgBar">
+		<form action="/WebApp/ServletInviaMessaggio" method="post">
+			<input type="text" name="messaggio" class="msgBox">
+			<span><input type="submit" value="invia"><img src="img/Icon_msg.png" class="icon_msg"></span>
+		</form>
 	</div>
 	</body>
 </html>

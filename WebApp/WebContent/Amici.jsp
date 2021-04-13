@@ -53,17 +53,24 @@
 				background-size: 100%;
 				margin-left:15px;
 			}
+			
+			.icon_msg{
+				width: 30px;
+				height: 30px;
+				background-image: url("img/Icon_msg.png");
+			}
 		</style>
 	</head>
 	<body>
 		<nav>
-	        <div class="div-nav">
+	        <!-- <div class="div-nav">
 	            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
 	            <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
 	            <a href="" class="TestoNav">Come giocare</a>
 	        </div>
 	        <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
-		</nav>
+		</nav>-->
+	<form action="/WebApp/ServletMessaggi" method="post">
 	<%
 		for(UtentiBean utente:utenti)
 		{
@@ -75,7 +82,9 @@
 				</div>
 			<span class="NomeProfilo">Nome: <%=Username %></span>
 			<span>Ultimo accesso:<%//Disconnessione %></span>
+			<span><input type="submit" name="UtenteRicevente" value="<%=Username %>"><img src="img/Icon_msg.png" class="icon_msg"></span>
 		</div>
 	<% } %>
+	</form>
 	</body>
 </html>

@@ -420,6 +420,51 @@ public class DBManagement {
 		}
 	}	
 	
+	public void inviaMessaggio(String Username1, String Username2, String Testo) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String query = null;
+		
+		query = "INSERT INTO Messaggio (IDFMittente, IDFRicevente, Testo, Data) VALUES" + 
+				"	((SELECT IDUtente FROM Utenti WHERE Username = '" + Username1 + "'," + 
+				"	(SELECT IDUtente FROM Utenti WHERE Username = '" + Username2 + "'," + 
+				    Testo + "," + 
+				"	current_timestamp());";
+		
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			
+		
+			stmt.executeUpdate(query);
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("UPDATE ERROR");
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
+	
 
 	public ArrayList<UtentiBean> ottieni_dati_utente(String username) throws SQLException
 	{
