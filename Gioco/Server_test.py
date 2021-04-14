@@ -173,7 +173,7 @@ class Partita:
 		risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
 		conn.sendall(str.encode(risposta))
 
-		self.home(conn, numero, personaggio)
+		self.home(conn, numero, personaggio, id_giocatore_partita)
 
 	def gioco_finito(self):
 		for player in self.giocatori:
@@ -187,7 +187,13 @@ class Partita:
 				return False
 		return True
 
-	def home(self, conn, numero, personaggio):
+	def posizione_classifica(self, numero_giocatore, classifica):
+		for i in range(4):
+			if numero_giocatore == classifica[i]:
+				return i
+		return -1
+
+	def home(self, conn, numero, personaggio, id_gio_par):
 		while True:
 			try:
 				data = decode_pos(conn.recv(2048).decode())
@@ -212,13 +218,13 @@ class Partita:
 					conn.sendall(str.encode(risposta))
 
 					if self.minigioco_in_corso == 0: 
-						self.spintoni(conn, numero, personaggio)
+						self.spintoni(conn, numero, personaggio, id_gio_par)
 						self.minigioco_in_corso = None
 					elif self.minigioco_in_corso == 1: 
-						self.pong(conn, numero, personaggio)
+						self.pong(conn, numero, personaggio, id_gio_par)
 						self.minigioco_in_corso = None
 					elif self.minigioco_in_corso == 2: 
-						self.gara(conn, numero, personaggio)
+						self.gara(conn, numero, personaggio, id_gio_par)
 						self.minigioco_in_corso = None
 					#	elif self.minigioco_in_corso == 3: self.paracadutismo(conn, numero)
 
@@ -227,11 +233,10 @@ class Partita:
 				print(str(e))
 				break
 
-	def spintoni(self, conn, numero, personaggio):
+	def spintoni(self, conn, numero, personaggio, id_gio_par):
 		try:
 			if numero == 0:
-				mycursor.execute(query_inserisci_round, (1, self.id_partita))
-				mydb.commit()
+				id_round = self.inserisci_round(1)
 		except Exception as e:
 			print(str(e))
 
@@ -259,6 +264,14 @@ class Partita:
 					conn.sendall(str.encode(risposta))
 
 					if data["info"]["vincitore"] is not None:
+						posizione = self.posizione_classifica(info_local["vincitore"])
+						
+						try:
+							mycursor.execute(query_inserisci_classificato, (id_round, id_gio_par, posizione))
+							mydb.commit()
+						except Exception as errore:
+							print(str(errore))
+
 						self.minigioco_in_corso = None
 						return
 			except:
@@ -267,8 +280,7 @@ class Partita:
 	def pong(self, conn, numero, personaggio):
 		try:
 			if numero == 0:
-				mycursor.execute(query_inserisci_round, (2, self.id_partita))
-				mydb.commit()
+				id_round = self.inserisci_round(2)
 		except Exception as e:
 			print(str(e))
 
@@ -328,8 +340,7 @@ class Partita:
 	def gara(self, conn, numero, personaggio):
 		try:
 			if numero == 0:
-				mycursor.execute(query_inserisci_round, (3, self.id_partita))
-				mydb.commit()
+				id_round = self.inserisci_round(3)
 		except Exception:
 			print(Exception.args)
 
@@ -365,8 +376,7 @@ class Partita:
 	def paracadutismo(self, conn, numero, personaggio):
 		try:
 			if numero == 0:
-				mycursor.execute(query_inserisci_round, (4, self.id_partita))
-				mydb.commit()
+				id_round = self.inserisci_round(4)
 		except Exception:
 			print(Exception.args)
 
