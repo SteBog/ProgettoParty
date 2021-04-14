@@ -118,6 +118,7 @@ class MiniGioco:
 			"minigioco": None,
 			"vincitore": None
 		}
+		self.count_high_ping = 0
 
 	def player_to_dictionary(self, giocatore):
 		risultato = {
@@ -299,11 +300,11 @@ class GiocatoreGara(Giocatore):
 		#	ultimo_tasto = 1 -> freccia in su
 		#	ultimo_tasto = 0 -> freccia in giu
 		if not self.ultimo_tasto == 1 and tasti[pygame.K_UP] and not tasti[pygame.K_DOWN]:
-			self.x += 3
+			self.x += 10
 			self.ultimo_tasto = 1
 
 		if not self.ultimo_tasto == 0 and tasti[pygame.K_DOWN] and not tasti[pygame.K_UP]:
-			self.x += 3
+			self.x += 10
 			self.ultimo_tasto = 0
 
 class Gara(MiniGioco):
@@ -316,7 +317,7 @@ class Gara(MiniGioco):
 		self.giocatori[self.numero_giocatore].x = 150
 		self.giocatori[self.numero_giocatore].y = 57 + 225 * (self.numero_giocatore % 4)
 
-		self.TRAGUARDO = 1500
+		self.TRAGUARDO = 1900
 
 		self.info = {
 			"minigioco": "Gara",
