@@ -8,7 +8,7 @@
 	DBManagement listUtenti = new DBManagement();
 	ArrayList<UtentiBean> utenti = new ArrayList<UtentiBean>();
 	// Utente da session
-	utenti = listUtenti.selectAmici(request.getSession().getAttribute("Utente").toString());
+	utenti = listUtenti.selectTuttiUtenti(request.getSession().getAttribute("Utente").toString());
 %>
 <!DOCTYPE html>
 <html>
@@ -58,6 +58,7 @@
 				width: 30px;
 				height: 30px;
 				background-image: url("img/Icon_msg.png");
+				background-size: 100%;
 			}
 			
 			.icon_friend{
@@ -89,8 +90,8 @@
 				<div class="immagine_profilo">
 				</div>
 			<span class="NomeProfilo">Nome: <%=Username %></span>
-			<span>Ultimo accesso:<%//Disconnessione %></span>
-			<span><input type="submit" name="UtenteRicevente" value="<%=Username %>"><img src="img/Icon_msg.png" class="icon_msg"></span>
+			<span><input type="submit" name="UtenteRicevente" value="<%=Username %>"><img class="icon_msg"></span>
+			<span><input type="submit" name="AggiungiUtente" value="<%=Username %>"><img class="icon_friend"></span>
 		</div>
 	<% } %>
 	</form>

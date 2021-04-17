@@ -108,6 +108,7 @@
 				width: 30px;
 				height: 30px;
 				background-image: url("img/Icon_msg.png");
+				background-size: 100%;
 			}
 			
 			.msgBar{
@@ -149,7 +150,7 @@
 	<div class="msgBar">
 		<form action="/WebApp/ServletInviaMessaggio" method="post">
 			<input type="text" name="messaggio" class="msgBox">
-			<span><input type="submit" value="invia"><img src="img/Icon_msg.png" class="icon_msg"></span>
+			<span><input type="submit" value="invia"><img class="icon_msg"></span>
 		</form>
 	</div>
 	</body>

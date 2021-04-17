@@ -165,6 +165,61 @@ public class DBManagement {
 		}
 	}
 	
+	public ArrayList<UtentiBean> selectTuttiUtenti(String Username) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String select = "SELECT Utenti.Username FROM Utenti WHERE Utenti.Username NOT IN (SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "') AND Utenti.Username !='" + Username + "'";
+		System.out.println(select);
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			ResultSet utentiList = stmt.executeQuery(select);
+			
+			ArrayList<UtentiBean> utentiArray = new ArrayList<UtentiBean>();
+			while (utentiList.next())
+			{
+				UtentiBean Utenti = new UtentiBean();
+				//Utenti.setEmail(utentiList.getString("Email"));
+				//Utenti.setPassword(utentiList.getString("Password"));
+				Utenti.setUsername(utentiList.getString("Username"));
+				//Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
+				//Utenti.setDataNascita(utentiList.getDate("DataNascita"));
+				//Utenti.setDisconnessione(utentiList.getDate("UltimoAccesso"));
+				// PER TUTTI I CAMPI
+				
+				utentiArray.add(Utenti);
+			}
+			return utentiArray;
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("SELECT ERROR");
+			System.out.println(select);
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+			
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
+	
 	
 	public ArrayList<qVittorieMinigiochiBean> selectVittorieMinigiochi(String Username) throws SQLException
 	{
