@@ -428,10 +428,12 @@ public class DBManagement {
 		String query = null;
 		
 		query = "INSERT INTO Messaggio (IDFMittente, IDFRicevente, Testo, Data) VALUES" + 
-				"	((SELECT IDUtente FROM Utenti WHERE Username = '" + Username1 + "'," + 
-				"	(SELECT IDUtente FROM Utenti WHERE Username = '" + Username2 + "'," + 
-				    Testo + "," + 
+				"	((SELECT IDUtente FROM Utenti WHERE Username = '" + Username1 + "')," + 
+				"	(SELECT IDUtente FROM Utenti WHERE Username = '" + Username2 + "')," + 
+				"'" + Testo + "'," + 
 				"	current_timestamp());";
+		
+		System.out.println(query);
 		
 		try
 		{

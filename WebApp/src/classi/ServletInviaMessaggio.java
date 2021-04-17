@@ -63,26 +63,23 @@ public class ServletInviaMessaggio extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String Messaggio = request.getParameter("messaggio");
 		
-		/*
-				// Esempio
+		
 				response.setContentType("text/html");
 
 				ServletContext sc = request.getSession().getServletContext();
 				
-				DBManagement gestoreDB = new DBManagement();
+				DBManagement listMessaggi = new DBManagement();
 				
 				try {
-					gestoreDB.inviaMessaggio(utente, old_Username);
-					request.getSession().removeAttribute("Utente");
-					request.getSession().setAttribute("Utente", utente.getUsername());
+					listMessaggi.inviaMessaggio(request.getSession().getAttribute("Utente").toString(), request.getSession().getAttribute("UtenteRicevente").toString(), Messaggio);
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				RequestDispatcher rd = sc.getRequestDispatcher("/Amici.jsp");
+				RequestDispatcher rd = sc.getRequestDispatcher("/Messaggi.jsp");
 				rd.forward(request, response);
 		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());*/
+		response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 
 }
