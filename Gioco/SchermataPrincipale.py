@@ -22,6 +22,7 @@ class Schermata_Principale:
 		self.info = {
 			"minigioco": "home",
 			"vincitore": None,
+			"vincitore_partita": None,
 			"ID_Utente": 2
 		}
 
@@ -72,7 +73,7 @@ class Schermata_Principale:
 
 	def aggiorna_giocatori(self):
 		dati = self.scarica_dati_da_server()
-		if dati is None or dati == "":
+		if dati is None or dati == "" or dati["info"]["vincitore_partita"]:
 			self.esecuzione_in_corso = False
 			return 0
 
@@ -96,6 +97,9 @@ class Schermata_Principale:
 			if self.aggiorna_giocatori() == 0: break
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+
+			if self.giocatori[self.numero_giocatore].pronto:
+				self.giocatori[self.numero_giocatore].disegna_pronto(self.FINESTRA)
 
 			if self.numero_minigioco is not None:
 				minigioco_di_coppia = False
@@ -125,6 +129,8 @@ class Schermata_Principale:
 
 					vincitori = None
 					self.info["vincitore"] = None
+
+					if self.posizione_local == 12: self.info["vincitore_partita"] = self.numero_giocatore
 
 				print(f"Numero: {self.numero_giocatore} - posizione: {self.posizione_local}")
 
