@@ -2,6 +2,7 @@ import pygame
 import os
 from Network import Connessione
 from SchermataPrincipale import *
+import webbrowser
 
 pygame.init()
 
@@ -19,16 +20,32 @@ if __name__ == "__main__":
 	while True:
 		pygame.time.delay(20)
 		FINESTRA.blit(SFONDO_SCHERMATA_PRINCIPALE, (0, 0))
+
+
+
 		mouse_x, mouse_y = pygame.mouse.get_pos()
-		pulsante_1 = pygame.Rect(100, 100, 100, 30)
+		pulsante_1 = pygame.Rect(860, 800, 200, 48)
+		pulsante_1_img = pygame.image.load(PERCORSO + "/Gioco/Immagini/Pulsante_home_1.png")
+		pulsante_1_img = pygame.transform.scale(pulsante_1_img, (200, 48))
+
+		pulsante_2 = pygame.Rect(860, 860, 200, 48)
+		pulsante_2_img = pygame.image.load(PERCORSO + "/Gioco/Immagini/Pulsante_home_2.png")
+		pulsante_2_img = pygame.transform.scale(pulsante_2_img, (200, 48))
 
 		if pulsante_1.collidepoint((mouse_x, mouse_y)):
 			if click:
 				NET = Connessione()
 				minigioco = Schermata_Principale(FINESTRA, NET, SCREEN_HEIGHT, SCREEN_WIDTH)
 				minigioco.main()
+		if pulsante_2.collidepoint((mouse_x, mouse_y)):
+			if click:
+				webbrowser.open_new_tab("http://localhost:8080/WebApp")
 
-		pygame.draw.rect(FINESTRA, (0, 0, 255), pulsante_1)
+		pygame.draw.rect(FINESTRA, (90, 70, 183), pulsante_1)
+		FINESTRA.blit(pulsante_1_img, (860, 800))
+
+		pygame.draw.rect(FINESTRA, (90, 70, 183), pulsante_2)
+		FINESTRA.blit(pulsante_2_img, (860, 860))
 
 		click = False
 

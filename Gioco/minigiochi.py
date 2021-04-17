@@ -26,6 +26,8 @@ class Giocatore:
 		self.personaggio = None
 
 		self.immagini = []
+		self.immagine_pronto = pygame.image.load(PERCORSO + "/Gioco/Immagini/Pronto.png")
+		self.immagine_pronto = pygame.transform.scale(self.immagine_pronto, (150, 150))
 		
 		self.rivolto_destra = True
 		self.velocita = 10
@@ -33,6 +35,9 @@ class Giocatore:
 		self.pronto = False
 		self.index_animation = 0
 		self.punti = 0
+
+	def disegna_pronto(self, finestra):
+		finestra.blit(self.immagine_pronto, (100, 100))
 
 	def disegna(self, finestra):
 		if self.index_animation < len(self.immagini) - 1:
@@ -225,6 +230,9 @@ class SpintoniSuPiattaforma(MiniGioco):
 			pygame.time.delay(20)
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+			if self.giocatori[self.numero_giocatore].pronto and not self.tutti_pronti():
+				self.giocatori[self.numero_giocatore].disegna_pronto(self.FINESTRA)
+
 			if self.aggiorna_giocatori() == 0: break
 
 			##############################################################################
@@ -282,10 +290,9 @@ class SpintoniSuPiattaforma(MiniGioco):
 				return self.vincitore()
 
 			if self.tutti_pronti() and self.num_ancora_vivi() < 2:
-				self.info = {
-					"minigioco": "Spintoni",
-					"vincitore": self.vincitore()
-				}
+				self.info["vincitore"] = self.vincitore()
+			else:
+				self.info["vincitore"] = None
 
 			pygame.display.update()
 
@@ -344,7 +351,11 @@ class Gara(MiniGioco):
 	def main(self):
 		while self.esecuzione_in_corso:
 			pygame.time.delay(20)
+
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+			if self.giocatori[self.numero_giocatore].pronto and not self.tutti_pronti():
+				self.giocatori[self.numero_giocatore].disegna_pronto(self.FINESTRA)
+
 			if self.aggiorna_giocatori() == 0: break
 
 			##############################################################################
@@ -384,15 +395,14 @@ class Gara(MiniGioco):
 			#	Uscire dal minigioco e restituire il vincitore
 			##############################################################################
 
-			if self.info["vincitore"]:
+			if self.info["vincitore"] is not None:
 				self.esecuzione_in_corso = False
 				return self.vincitore()
 
 			if self.tutti_pronti() and self.vincitore() is not None:
-				self.info = {
-					"minigioco": "Gara",
-					"vincitore": self.vincitore()
-				}
+				self.info["vincitore"] = self.vincitore()
+			else:
+				self.info["vincitore"] = None
 
 			pygame.display.update()
 
@@ -577,6 +587,9 @@ class Pong(MiniGioco):
 			pygame.time.delay(20)
 
 			self.FINESTRA.blit(self.IMMAGINE_SFONDO, (0, 0))
+			if self.giocatori[self.numero_giocatore].pronto and not self.tutti_pronti():
+				self.giocatori[self.numero_giocatore].disegna_pronto(self.FINESTRA)
+
 			if self.aggiorna_giocatori() == 0: break
 
 			##############################################################################

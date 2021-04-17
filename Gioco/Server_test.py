@@ -47,6 +47,8 @@ query_inserisci_classificato = "INSERT INTO ClassificatoRound(IDFRound, IDFGioca
 
 query_select_personaggio = "SELECT Utenti.FotoProfilo FROM Utenti WHERE Utenti.IDUtente = "
 
+query_aggiorna_vincitore = "UPDATE Partita SET Partita.Vincitore = %s WHERE Partita.IDPartita = %s"
+
 ##############################################################################
 #	Funzioni per dialogo con gli host
 ##############################################################################
@@ -135,6 +137,7 @@ class Partita:
 
 		self.info = {
 			"vincitore": None,
+			"vincitore_partita": None,
 			"numero_giocatore": None,
 			"minigioco": self.minigioco_in_corso,
 			"x": 1920 // 2,
@@ -173,7 +176,11 @@ class Partita:
 		risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
 		conn.sendall(str.encode(risposta))
 
-		self.home(conn, numero, personaggio, id_giocatore_partita)
+		vincitore = self.home(conn, numero, personaggio, id_giocatore_partita)
+
+		query_aggiorna_vincitore = "UPDATE Partita SET Partita.Vincitore = " + str(vincitore) + " WHERE Partita.IDPartita = " + str(self.id_partita)
+		mycursor.execute(query_aggiorna_vincitore)
+		mydb.commit()
 
 	def gioco_finito(self):
 		for player in self.giocatori:
@@ -196,7 +203,7 @@ class Partita:
 	def home(self, conn, numero, personaggio, id_gio_par):
 		while True:
 			try:
-				data = decode_pos(conn.recv(2048).decode())
+				data = decode_pos(conn.recv(4096).decode())
 				info_local = self.info
 				info_local["numero_giocatore"] = numero
 
@@ -218,31 +225,54 @@ class Partita:
 					conn.sendall(str.encode(risposta))
 
 					if self.minigioco_in_corso == 0: 
-						self.spintoni(conn, numero, personaggio, id_gio_par)
+						ritorno = self.spintoni(conn, numero, personaggio)
+
+						mycursor.execute(query_inserisci_classificato, (self.info["id_round"], id_gio_par, ritorno))
+						mydb.commit()
+
 						self.minigioco_in_corso = None
 					elif self.minigioco_in_corso == 1: 
-						self.pong(conn, numero, personaggio, id_gio_par)
+						ritorno = self.pong(conn, numero, personaggio)
+
+						if ritorno[0] == numero or ritorno[1] == numero:
+							mycursor.execute(query_inserisci_classificato, (self.info["id_round"], id_gio_par, 0))
+							mydb.commit()
+						else:
+							mycursor.execute(query_inserisci_classificato, (self.info["id_round"], id_gio_par, 1))
+							mydb.commit()
+
 						self.minigioco_in_corso = None
 					elif self.minigioco_in_corso == 2: 
-						self.gara(conn, numero, personaggio, id_gio_par)
+						ritorno = self.gara(conn, numero, personaggio)
+
+						mycursor.execute(query_inserisci_classificato, (self.info["id_round"], id_gio_par, ritorno))
+						mydb.commit()
+
 						self.minigioco_in_corso = None
-					#	elif self.minigioco_in_corso == 3: self.paracadutismo(conn, numero)
 
 					self.info["vincitore"] = None
+					if self.info["vincitore_partita"] is not None:
+						return self.info["vincitore_partita"]
+
+					if data["info"]["vincitore_partita"] is not None:
+						self.info["vincitore_partita"] = data["info"]["vincitore_partita"]
+						self.minigioco_in_corso = None
 			except Exception as e:
 				print(str(e))
+				print("Home")
 				break
 
-	def spintoni(self, conn, numero, personaggio, id_gio_par):
+	def spintoni(self, conn, numero, personaggio):
 		try:
 			if numero == 0:
 				id_round = self.inserisci_round(1)
+				self.info["id_round"] = id_round
 		except Exception as e:
 			print(str(e))
 
 		while True:
 			try:
-				data = decode_pos(conn.recv(2048).decode())
+				data = decode_pos(conn.recv(4096).decode())
 				info_local = self.info
 				info_local["numero_giocatore"] = numero
 
@@ -253,41 +283,38 @@ class Partita:
 					self.giocatori[numero]["numero_giocatore"] = numero
 					self.giocatori[numero]["personaggio"] = int(personaggio)
 
-					if data["info"]["vincitore"] is not None: 
-						self.minigioco_in_corso = None
-						info_local["vincitore"] = data["info"]["vincitore"]
+					if data["info"]["vincitore"] is not None:
+						self.info["vincitore"] = data["info"]["vincitore"]
 
 					self.info["minigioco"] = self.minigioco_in_corso
 					info_local["minigioco"] = self.minigioco_in_corso
+					info_local["vincitore"] = self.info["vincitore"]
 
 					risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
 					conn.sendall(str.encode(risposta))
 
-					if data["info"]["vincitore"] is not None:
-						posizione = self.posizione_classifica(info_local["vincitore"])
-						
-						try:
-							mycursor.execute(query_inserisci_classificato, (id_round, id_gio_par, posizione))
-							mydb.commit()
-						except Exception as errore:
-							print(str(errore))
-
+					if self.info["vincitore"] is not None:
 						self.minigioco_in_corso = None
-						return
-			except:
+
+						posizione = self.posizione_classifica(numero, info_local["vincitore"])
+						return posizione
+			except Exception as errore:
+				print(str(errore))
+				print("Spintoni")
 				break
 
 	def pong(self, conn, numero, personaggio):
 		try:
 			if numero == 0:
 				id_round = self.inserisci_round(2)
+				self.info["id_round"] = id_round
 		except Exception as e:
 			print(str(e))
 
 		self.risultato = [0, 0]
 		while True:
 			try:
-				data = decode_pos(conn.recv(2048).decode())
+				data = decode_pos(conn.recv(4096).decode())
 				info_local = self.info
 				info_local["numero_giocatore"] = numero
 
@@ -333,7 +360,7 @@ class Partita:
 					if info_local["vincitore"] is not None:
 						self.pallina = Pallina()
 						self.minigioco_in_corso = None
-						return
+						return info_local["vincitore"]
 			except:
 				break
 
@@ -341,12 +368,13 @@ class Partita:
 		try:
 			if numero == 0:
 				id_round = self.inserisci_round(3)
+				self.info["id_round"] = id_round
 		except Exception:
 			print(Exception.args)
 
 		while True:
 			try:
-				data = decode_pos(conn.recv(2048).decode())
+				data = decode_pos(conn.recv(4096).decode())
 				info_local = self.info
 				info_local["numero_giocatore"] = numero
 
@@ -358,18 +386,20 @@ class Partita:
 					self.giocatori[numero]["personaggio"] = int(personaggio)
 
 					if data["info"]["vincitore"] is not None: 
-						self.minigioco_in_corso = None
-						info_local["vincitore"] = data["info"]["vincitore"]
+						self.info["vincitore"] = data["info"]["vincitore"]
 
 					self.info["minigioco"] = self.minigioco_in_corso
 					info_local["minigioco"] = self.minigioco_in_corso
+					info_local["vincitore"] = self.info["vincitore"]
 
 					risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
 					conn.sendall(str.encode(risposta))
 
 					if data["info"]["vincitore"] is not None:
 						self.minigioco_in_corso = None
-						return
+						
+						posizione = self.posizione_classifica(numero, info_local["vincitore"])
+						return posizione
 			except:
 				break
 
@@ -401,17 +431,20 @@ class Partita:
 								massimo = player["punti"]
 								winner = player["numero_giocatore"]
 
-						info_local["vincitore"] = winner
+						self.info["vincitore"] = winner
 
 					self.info["minigioco"] = self.minigioco_in_corso
 					info_local["minigioco"] = self.minigioco_in_corso
+					info_local["vincitore"] = self.info["vincitore"]
 
 					risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
 					conn.sendall(str.encode(risposta))
 
 					if data["info"]["vincitore"] is not None:
 						self.minigioco_in_corso = None
-						return
+						
+						posizione = self.posizione_classifica(numero, info_local["vincitore"])
+						return posizione
 			except:
 				break
 
@@ -422,7 +455,6 @@ def t_client(conn, num_gio, partita):
 
 	conn.send(str.encode(encode_pos({"giocatori": partita.giocatori, "info": partita.info})))
 
-	#partita.home(conn, num_gio)
 	partita.inserisci_giocatore_partita(conn, num_gio)
 
 	print("Connessione terminata")
