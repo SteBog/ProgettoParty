@@ -11,6 +11,7 @@ import mysql.connector
 #INDIRIZZO_IP_SERVER = "127.0.0.1"
 INDIRIZZO_IP_SERVER = "87.250.73.23"
 PORTA_SERVER = 8100
+QUANTITA_DATI_TRASMESSI = 1024
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -27,15 +28,6 @@ print("Attendo connessione...")
 ##############################################################################
 #	Connessione database
 ##############################################################################
-
-mydb = mysql.connector.connect(
-	host="localhost",
-	user="adminer",
-	password="CBC349aa",
-	database="Party"
-)
-
-mycursor = mydb.cursor()
 
 query_inserisci_partita = "INSERT INTO Partita() VALUES ()"
 
@@ -122,9 +114,8 @@ class Pallina:
 
 class Partita:
 	def __init__(self):
-		mycursor.execute(query_inserisci_partita, None)
-		mydb.commit()
-		self.id_partita = mycursor.lastrowid
+		self.id_partita = None
+		#self.id_partita = mycursor.lastrowid
 
 		self.giocatori = [giocatore] * 4
 
@@ -141,23 +132,27 @@ class Partita:
 			"numero_giocatore": None,
 			"minigioco": self.minigioco_in_corso,
 			"x": 1920 // 2,
-			"y": 1080 // 2
+			"y": 1080 // 2,
+			"id_round": None
 		}
 	
-	def inserisci_round(self, idf_minigioco):
+	def inserisci_round(self, idf_minigioco, mydb):
 		valori = (idf_minigioco, self.id_partita)
+		mycursor = mydb.cursor()
 
 		mycursor.execute(query_inserisci_round, valori)
 		mydb.commit()
 
 		return mycursor.lastrowid
 
-	def inserisci_giocatore_partita(self, conn, numero):
-		data = decode_pos(conn.recv(2048).decode())
+	def inserisci_giocatore_partita(self, conn, numero, connessione_db):
+		mycursor = connessione_db.cursor()
+
+		data = decode_pos(conn.recv(QUANTITA_DATI_TRASMESSI).decode())
 		valori = (data["info"]["ID_Utente"], self.id_partita, numero)
 
 		mycursor.execute(query_inserisci_giocatore, valori)
-		mydb.commit()
+		connessione_db.commit()
 
 		id_giocatore_partita = mycursor.lastrowid
 
@@ -176,11 +171,11 @@ class Partita:
 		risposta = encode_pos({"giocatori": self.giocatori, "info": info_local})
 		conn.sendall(str.encode(risposta))
 
-		vincitore = self.home(conn, numero, personaggio, id_giocatore_partita)
+		vincitore = self.home(conn, numero, personaggio, id_giocatore_partita, connessione_db)
 
 		query_aggiorna_vincitore = "UPDATE Partita SET Partita.Vincitore = " + str(vincitore) + " WHERE Partita.IDPartita = " + str(self.id_partita)
 		mycursor.execute(query_aggiorna_vincitore)
-		mydb.commit()
+		connessione_db.commit()
 
 	def gioco_finito(self):
 		for player in self.giocatori:
@@ -200,10 +195,11 @@ class Partita:
 				return i
 		return -1
 
-	def home(self, conn, numero, personaggio, id_gio_par):
+	def home(self, conn, numero, personaggio, id_gio_par, connessione_db):
+		mycursor = connessione_db.cursor()
 		while True:
 			try:
-				data = decode_pos(conn.recv(4096).decode())
+				data = decode_pos(conn.recv(QUANTITA_DATI_TRASMESSI).decode())
 				info_local = self.info
 				info_local["numero_giocatore"] = numero
 
@@ -225,28 +221,28 @@ class Partita:
 					conn.sendall(str.encode(risposta))
 
 					if self.minigioco_in_corso == 0: 
-						ritorno = self.spintoni(conn, numero, personaggio)
+						ritorno = self.spintoni(conn, numero, personaggio, connessione_db)
 
 						mycursor.execute(query_inserisci_classificato, (self.info["id_round"], id_gio_par, ritorno))
-						mydb.commit()
+						connessione_db.commit()
 
 						self.minigioco_in_corso = None
 					elif self.minigioco_in_corso == 1: 
-						ritorno = self.pong(conn, numero, personaggio)
+						ritorno = self.pong(conn, numero, personaggio, connessione_db)
 
 						if ritorno[0] == numero or ritorno[1] == numero:
 							mycursor.execute(query_inserisci_classificato, (self.info["id_round"], id_gio_par, 0))
-							mydb.commit()
+							connessione_db.commit()
 						else:
 							mycursor.execute(query_inserisci_classificato, (self.info["id_round"], id_gio_par, 1))
-							mydb.commit()
+							connessione_db.commit()
 
 						self.minigioco_in_corso = None
 					elif self.minigioco_in_corso == 2: 
-						ritorno = self.gara(conn, numero, personaggio)
+						ritorno = self.gara(conn, numero, personaggio, connessione_db)
 
 						mycursor.execute(query_inserisci_classificato, (self.info["id_round"], id_gio_par, ritorno))
-						mydb.commit()
+						connessione_db.commit()
 
 						self.minigioco_in_corso = None
 
@@ -260,19 +256,20 @@ class Partita:
 			except Exception as e:
 				print(str(e))
 				print("Home")
+				print(self.info)
 				break
 
-	def spintoni(self, conn, numero, personaggio):
+	def spintoni(self, conn, numero, personaggio, mydb):
 		try:
 			if numero == 0:
-				id_round = self.inserisci_round(1)
+				id_round = self.inserisci_round(1, mydb)
 				self.info["id_round"] = id_round
 		except Exception as e:
 			print(str(e))
 
 		while True:
 			try:
-				data = decode_pos(conn.recv(4096).decode())
+				data = decode_pos(conn.recv(QUANTITA_DATI_TRASMESSI).decode())
 				info_local = self.info
 				info_local["numero_giocatore"] = numero
 
@@ -303,10 +300,10 @@ class Partita:
 				print("Spintoni")
 				break
 
-	def pong(self, conn, numero, personaggio):
+	def pong(self, conn, numero, personaggio, mydb):
 		try:
 			if numero == 0:
-				id_round = self.inserisci_round(2)
+				id_round = self.inserisci_round(2, mydb)
 				self.info["id_round"] = id_round
 		except Exception as e:
 			print(str(e))
@@ -314,7 +311,7 @@ class Partita:
 		self.risultato = [0, 0]
 		while True:
 			try:
-				data = decode_pos(conn.recv(4096).decode())
+				data = decode_pos(conn.recv(QUANTITA_DATI_TRASMESSI).decode())
 				info_local = self.info
 				info_local["numero_giocatore"] = numero
 
@@ -364,17 +361,17 @@ class Partita:
 			except:
 				break
 
-	def gara(self, conn, numero, personaggio):
+	def gara(self, conn, numero, personaggio, mydb):
 		try:
 			if numero == 0:
-				id_round = self.inserisci_round(3)
+				id_round = self.inserisci_round(3, mydb)
 				self.info["id_round"] = id_round
 		except Exception:
 			print(Exception.args)
 
 		while True:
 			try:
-				data = decode_pos(conn.recv(4096).decode())
+				data = decode_pos(conn.recv(QUANTITA_DATI_TRASMESSI).decode())
 				info_local = self.info
 				info_local["numero_giocatore"] = numero
 
@@ -412,7 +409,7 @@ class Partita:
 
 		while True:
 			try:
-				data = decode_pos(conn.recv(2048).decode())
+				data = decode_pos(conn.recv(QUANTITA_DATI_TRASMESSI).decode())
 				info_local = self.info
 				info_local["numero_giocatore"] = numero
 
@@ -453,9 +450,22 @@ class Partita:
 def t_client(conn, num_gio, partita):
 	global numero_giocatori
 
+	mydb = mysql.connector.connect(
+		host="localhost",
+		user="adminer",
+		password="CBC349aa",
+		database="Party"
+	)
+
+	if num_gio == 0:
+		mycursor = mydb.cursor()
+		mycursor.execute(query_inserisci_partita, None)
+		mydb.commit()
+		partita.id_partita = mycursor.lastrowid
+
 	conn.send(str.encode(encode_pos({"giocatori": partita.giocatori, "info": partita.info})))
 
-	partita.inserisci_giocatore_partita(conn, num_gio)
+	partita.inserisci_giocatore_partita(conn, num_gio, mydb)
 
 	print("Connessione terminata")
 	partita.giocatori[num_gio] = giocatore

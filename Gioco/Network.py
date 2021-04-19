@@ -11,15 +11,17 @@ class Connessione():
 	def connect(self):
 		try:
 			self.client.connect(self.addr)
-			return self.client.recv(4096).decode()
+			return self.client.recv(1024).decode()
 		except Exception as e:
 			print("Impossibile connettersi al server")
 			print(str(e))
 
 	def send(self, data):
+		dim = len(data.encode('utf-8'))
+		if dim > 1024: print(dim)
 		try:
 			self.client.send(str.encode(data))
-			return self.client.recv(4096).decode()
+			return self.client.recv(1024).decode()
 		except socket.error as e:
 			str(e)
 			return None

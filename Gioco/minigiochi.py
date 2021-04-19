@@ -1,4 +1,3 @@
-import re
 import pygame
 import time
 import json
@@ -150,7 +149,12 @@ class MiniGioco:
 		return dati_server
 
 	def aggiorna_giocatori(self):
+		tentativo = 0
 		dati = self.scarica_dati_da_server()
+		while tentativo < 3 and (dati is None or dati == ""):
+			dati = self.scarica_dati_da_server()
+			tentativo += 1
+			
 		if dati is None or dati == "":
 			self.esecuzione_in_corso = False
 			return 0
