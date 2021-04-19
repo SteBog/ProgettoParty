@@ -8,7 +8,7 @@
 	DBManagement listMessaggi = new DBManagement();
 	ArrayList<MessaggioBean> messaggi = new ArrayList<MessaggioBean>();
 	// Utente da session
-	messaggi = listMessaggi.selectMessaggi(request.getSession().getAttribute("Utente").toString(), "SteBog");
+	messaggi = listMessaggi.selectMessaggi(request.getSession().getAttribute("Utente").toString(), request.getSession().getAttribute("UtenteRicevente").toString());
 %>
 <!DOCTYPE html>
 <html>
