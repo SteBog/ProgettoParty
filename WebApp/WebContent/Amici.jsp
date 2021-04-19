@@ -30,69 +30,114 @@
 				background-repeat:no-repeat;
 				background-size: 100%;
 				display: flex;
+				flex-direction: column;
 			}
-			.div_amici{
+			.div_amici
+			{
 				border-radius: 5px;
-				background: #ecf0f3;
+				/*background: #ecf0f3;
 				box-shadow:  5px 5px 5px #87898b,
-                -5px -5px 5px #ffffff;
-				height: 50px;
-				width: 400px;
+                -5px -5px 5px #ffffff;*/
+				background: white;
+				height: 100px;
+				width: 200px;
 				margin-right:20px;
 				margin:20px;
 				display: flex;
-				flex-direction: row;
-				align-items: center;
+				flex-direction: column;
+				align-items: flex-start;
+				padding: 15px;
 			}
 
-			.immagine_profilo{
+			.immagine_profilo
+			{
 				width: 30px;
 				height: 30px;
 				border-radius: 50%;
 				background-image: url("default.png");
 				background-size: 100%;
-				margin-left:15px;
 			}
 			
-			.icon_msg{
+			.icon_msg
+			{
 				width: 30px;
 				height: 30px;
 				background-image: url("img/Icon_msg.png");
+				background-size: cover;
+				border: 0px solid black;
 			}
 			
-			.icon_friend{
-				width: 50px;
-				height: 50px;
-				background-image: url("img/Icon_friend.png");
+			.icon_friend
+			{
+				display: block;
+				height: auto;
+				width: 200px;
+				margin: 70px 0px 0px 20px;
 				background-size: 100%;
+				border: 1px solid black;
+				padding: 30px;
+				color: black;
+				text-decoration: none;
+				border-radius: 10px;
+				text-align: center;
+			}
+			form
+			{
+				margin-top: 0px;
+				display: flex;
+				flex-wrap: wrap;
+			}
+			form span
+			{
+				display: block;
+				margin: 5px 0px;
 			}
 		</style>
 	</head>
 	<body>
 		<nav>
-	        <!-- <div class="div-nav">
-	            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
-	            <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
-	            <a href="" class="TestoNav">Come giocare</a>
-	        </div>
-	        <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
-		</nav>-->
-	<a href="ListaUtenti.jsp" class="icon_friend">
-	<form action="/WebApp/ServletMessaggi" method="post">
-	<%
-		for(UtentiBean utente:utenti)
-		{
-			String Username = utente.getUsername();
-			//Date Disconnessione = utente.getDisconnessione();
-	%>
-		<div class="div_amici">
-				<div class="immagine_profilo">
-				</div>
-			<span class="NomeProfilo">Nome: <%=Username %></span>
-			<span>Ultimo accesso:<%//Disconnessione %></span>
-			<span><input type="submit" name="UtenteRicevente" value="<%=Username %>"><img src="img/Icon_msg.png" class="icon_msg"></span>
-		</div>
-	<% } %>
-	</form>
+			<div class="div-nav">
+				<a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
+				<a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
+				<a href="" class="TestoNav">Come giocare</a>
+			</div>
+			<a href="profilo.jsp" class="profilo"><!--<%=request.getSession().getAttribute("Utente").toString() %>--></a>
+		</nav>
+		<a href="ListaUtenti.jsp" class="icon_friend">Stringi una nuova amicizia</a>
+		<form action="/WebApp/ServletMessaggi" method="post">
+		<%
+			for(UtentiBean utente:utenti)
+			{
+				String Username = utente.getUsername();
+		%>
+			<div class="div_amici">
+				<span><%=Username %></span>
+				<span>Nome Utente</span>
+				<<span>Ultimo accesso:<%//Disconnessione %></span>
+				<span>Ultimo accesso: oggi</span>
+				<span>
+					<input type="submit" name="UtenteRicevente" value="" class="icon_msg">
+				</span>
+			</div>
+			<div class="div_amici">
+				<span><%=Username %></span>
+				<span>Nome Utente</span>
+				<span>Ultimo accesso:<%//Disconnessione %></span>
+				<span>Ultimo accesso: oggi</span>
+				<span>
+					<input type="submit" name="UtenteRicevente" value="" class="icon_msg">
+				</span>
+			</div>
+			<div class="div_amici">
+				<span><%=Username %></span>
+				<span>Nome Utente</span>
+				<span>Ultimo accesso:<%//Disconnessione %></span>
+				<span>Ultimo accesso: oggi</span>
+				<span>
+					<input type="submit" name="UtenteRicevente" value="" class="icon_msg">
+				</span>
+			</div>
+		<% } %>
+		</form>
 	</body>
 </html>
