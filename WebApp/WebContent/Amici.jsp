@@ -118,6 +118,7 @@
 				<span><%=Username %></span>
 				<span>Ultimo accesso:<%//Disconnessione %></span>
 				<a href="/WebApp/ServletMessaggi?UtenteRicevente=<%=Username %>" class="icon_msg"></a>
+				<a href="/WebApp/VisualizzaStatistiche?utente_richiesto=<%=Username %>" class="icon_stats"></a>
 			</div>
 		<% } %>
 		</div>

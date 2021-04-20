@@ -17,7 +17,7 @@
 	if (giocate > 0) percentuale = (vittorie/giocate) * 100;
 	
 	ArrayList<qVittorieMinigiochiBean> vittorieMinigiochi = new ArrayList<qVittorieMinigiochiBean>();
-	vittorieMinigiochi = listVittorie.selectVittorieMinigiochi(request.getSession().getAttribute("Utente").toString());
+	vittorieMinigiochi = listVittorie.selectVittorieMinigiochi(request.getSession().getAttribute("utente_richiesto").toString());
 %>
 <!DOCTYPE html>
 <html>
@@ -94,7 +94,7 @@
             type: 'doughnut',
             data: {
                 datasets: [{
-                    data: [vittorie, perse],
+                    data: [perse, vittorie],
                     backgroundColor: ["rgba(150, 0, 0, 0.8)", "rgba(0, 150, 0, 0.5)"],
                 }],
                 labels: [
