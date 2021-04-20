@@ -64,6 +64,16 @@
 				background-image: url("img/Icon_msg.png");
 				background-size: cover;
 				border: 0px solid black;
+				margin: 2px;
+			}
+			.icon_stats
+			{
+				width: 20px;
+				height: 20px;
+				background-image: url("img/icon_stats.png");
+				background-size: cover;
+				border: 0px solid black;
+				margin: 2px;
 			}
 			
 			.icon_friend
