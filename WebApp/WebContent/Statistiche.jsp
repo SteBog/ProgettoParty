@@ -8,13 +8,16 @@
 <%
 	DBManagement listVittorie = new DBManagement();
 
-	String utente = request.getSession().getAttribute("Utente").toString();
-	int vittorie = listVittorie.selectVittorie(utente);
-	int giocate = listVittorie.numero_partite_giocate(utente);
+	String utente = request.getSession().getAttribute("utente_richiesto").toString();
+	float vittorie = listVittorie.selectVittorie(utente);
+	float giocate = listVittorie.numero_partite_giocate(utente);
 	int ore_giocate = listVittorie.ore_giocate(utente);
-	int percentuale = 0;
+	float percentuale = 0;
 	
-	if (giocate > 0) percentuale = (vittorie/giocate) * 100;
+	if (giocate > 0)
+	{
+		percentuale = (vittorie/giocate) * 100;
+	}
 	
 	ArrayList<qVittorieMinigiochiBean> vittorieMinigiochi = new ArrayList<qVittorieMinigiochiBean>();
 	vittorieMinigiochi = listVittorie.selectVittorieMinigiochi(request.getSession().getAttribute("utente_richiesto").toString());
@@ -64,7 +67,7 @@
 	        <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
 		</nav>
 		<div class="container">
-            <span class="scritta">Percentuale partite vinte: <%=percentuale %>%</span>
+            <span class="scritta" id="span_perc"></span>
             <div class="grafico">
                 <canvas id="grafico_vittorie_perse" width="200" height="200"></canvas>
             </div>
@@ -88,6 +91,9 @@
     
     	var vittorie = <%=vittorie %>;
     	var perse = <%=giocate-vittorie %>;
+    	
+    	var perc = (<%=percentuale %>).toFixed(2);
+    	document.getElementById("span_perc").innerHTML = "Percentuale partite vinte: " + perc + "%"
     
         var ctx = document.getElementById("grafico_vittorie_perse")
         var myDoughnutChart = new Chart(ctx, {
@@ -109,21 +115,20 @@
         var myBarChart = new Chart(barre, {
             type: 'bar',
             data: {
-                labels: ["Spintoni", "Pong", "Gara", "Paracadutismo"],
+                labels: ["Spintoni", "Pong", "Gara"],
                 datasets: [{
                     label: "",
                     barPercentage: 0.5,
                     barThickness: 6,
                     maxBarThickness: 8,
                     minBarLength: 0,
-                    backgroundColor: ["rgba(0, 110, 200, 0.6)", "rgba(200, 0, 103, 0.6)", "rgba(200, 157, 0, 0.6)", "rgba(200, 73, 0, 0.6)"],
-                    borderColor: ["rgba(0, 110, 200, 0.8)", "rgba(200, 0, 103, 0.8)", "rgba(200, 157, 0, 0.8)", "rgba(200, 73, 0, 0.8)"],
+                    backgroundColor: ["rgba(0, 110, 200, 0.6)", "rgba(200, 0, 103, 0.6)", "rgba(200, 157, 0, 0.6)"],
+                    borderColor: ["rgba(0, 110, 200, 0.8)", "rgba(200, 0, 103, 0.8)", "rgba(200, 157, 0, 0.8)"],
                     borderWidth: 1,
                     data: [
                         23,
                         20,
-                        27,
-                        25
+                        27
                     ]
                 }]
             },

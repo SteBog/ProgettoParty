@@ -280,14 +280,17 @@ public class DBManagement {
 		}
 	}
 	
-	public int selectVittorie(String Username) throws SQLException
+	public float selectVittorie(String Username) throws SQLException
 	{
 		Statement stmt = null;
 		Connection conn = null;
 		
-		String select = "SELECT COUNT(Partita.Vincitore) AS Vittorie " + 
-				"FROM (Partita INNER JOIN Utenti ON Partita.Vincitore = Utenti.IDUtente) " + 
-				"WHERE Utenti.Username = '" + Username + "';";
+		String select = "SELECT COUNT(Partita.IDPartita) AS Vittorie FROM "
+				+ "((Partita INNER JOIN GiocatorePartita ON Partita.IDPartita = GiocatorePartita.IDFPartita) "
+				+ " INNER JOIN Utenti ON GiocatorePartita.IDFUtente = Utenti.IDUtente) "
+				+ " WHERE Utenti.Username = '" + Username + "' AND GiocatorePartita.NumeroGiocatore = Partita.Vincitore";
+		System.out.println(select);
+		
 		
 		try
 		{
@@ -295,10 +298,10 @@ public class DBManagement {
 			stmt = conn.createStatement();
 			
 			ResultSet vittorieList = stmt.executeQuery(select);
-			int Vittorie = 0;
+			float Vittorie = 0;
 			if(vittorieList.next())
 			{
-				Vittorie = vittorieList.getInt("Vittorie");
+				Vittorie = vittorieList.getFloat("Vittorie");
 			}
 			return Vittorie;
 		}
@@ -327,7 +330,7 @@ public class DBManagement {
 		}
 	}
 	
-	public int numero_partite_giocate(String username) throws SQLException
+	public float numero_partite_giocate(String username) throws SQLException
 	{
 		Statement stmt = null;
 		Connection conn = null;
@@ -343,10 +346,10 @@ public class DBManagement {
 			stmt = conn.createStatement();
 			
 			ResultSet partite_giocate_list = stmt.executeQuery(query);
-			int giocate = 0;
+			float giocate = 0;
 			if(partite_giocate_list.next())
 			{
-				giocate = partite_giocate_list.getInt("giocate");
+				giocate = partite_giocate_list.getFloat("giocate");
 			}
 			return giocate;
 		}
