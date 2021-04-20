@@ -171,7 +171,12 @@ public class DBManagement {
 		Statement stmt = null;
 		Connection conn = null;
 		
-		String select = "SELECT Utenti.Username, Utenti.FotoProfilo FROM Utenti WHERE Utenti.Username NOT IN (SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "') AND Utenti.Username !='" + Username + "'";
+		String select = "SELECT Utenti.Username, Utenti.FotoProfilo FROM Utenti WHERE Utenti.Username " + 
+				"NOT IN(" + 
+				"SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "' AND U2.Username != '" + Username + "' " + 
+				"UNION " + 
+				"SELECT U1.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U2.Username ='" + Username + "' AND U1.Username != '" + Username + "' " + 
+				") AND Utenti.Username !='" + Username + "'";
 		System.out.println(select);
 		try
 		{
