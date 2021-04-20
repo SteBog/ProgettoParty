@@ -16,7 +16,6 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<link rel="stylesheet" href="stili_home.css">
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js"></script>
 		<script src="script.js"></script>
 		<style>
 			html, body
@@ -60,8 +59,8 @@
 			
 			.icon_msg
 			{
-				width: 30px;
-				height: 30px;
+				width: 20px;
+				height: 20px;
 				background-image: url("img/Icon_msg.png");
 				background-size: cover;
 				border: 0px solid black;
@@ -81,16 +80,21 @@
 				border-radius: 10px;
 				text-align: center;
 			}
-			form
+			.container
 			{
 				margin-top: 0px;
 				display: flex;
 				flex-wrap: wrap;
 			}
-			form span
+			.container span
 			{
 				display: block;
 				margin: 5px 0px;
+				width: 100%;
+			}
+			.non-visibile
+			{
+				display: none;
 			}
 		</style>
 	</head>
@@ -101,10 +105,10 @@
 				<a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
 				<a href="" class="TestoNav">Come giocare</a>
 			</div>
-			<a href="profilo.jsp" class="profilo"><!--<%=request.getSession().getAttribute("Utente").toString() %>--></a>
+			<a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
 		</nav>
 		<a href="ListaUtenti.jsp" class="icon_friend">Stringi una nuova amicizia</a>
-		<form action="/WebApp/ServletMessaggi" method="post">
+		<div class="container">
 		<%
 			for(UtentiBean utente:utenti)
 			{
@@ -112,32 +116,10 @@
 		%>
 			<div class="div_amici">
 				<span><%=Username %></span>
-				<span>Nome Utente</span>
-				<<span>Ultimo accesso:<%//Disconnessione %></span>
-				<span>Ultimo accesso: oggi</span>
-				<span>
-					<input type="submit" name="UtenteRicevente" value="" class="icon_msg">
-				</span>
-			</div>
-			<div class="div_amici">
-				<span><%=Username %></span>
-				<span>Nome Utente</span>
 				<span>Ultimo accesso:<%//Disconnessione %></span>
-				<span>Ultimo accesso: oggi</span>
-				<span>
-					<input type="submit" name="UtenteRicevente" value="" class="icon_msg">
-				</span>
-			</div>
-			<div class="div_amici">
-				<span><%=Username %></span>
-				<span>Nome Utente</span>
-				<span>Ultimo accesso:<%//Disconnessione %></span>
-				<span>Ultimo accesso: oggi</span>
-				<span>
-					<input type="submit" name="UtenteRicevente" value="" class="icon_msg">
-				</span>
+				<a href="/WebApp/ServletMessaggi?UtenteRicevente=<%=Username %>" class="icon_msg"></a>
 			</div>
 		<% } %>
-		</form>
+		</div>
 	</body>
 </html>

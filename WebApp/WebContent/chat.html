@@ -94,18 +94,15 @@
                 for(UtentiBean utente:utenti)
                 {
                     String Username = utente.getUsername();
-                    String foto_profilo = utente.getFotoProfilo();
                     //Date Disconnessione = utente.getDisconnessione();
             %>
             <div class="utente">
-                <div class="immagine-profilo" style="background-image: url('img/<%=foto_profilo %>.png');"></div>
+                <div class="immagine-profilo" style="background-image: url('img/1.png');"></div>
                 <div class="dettagli-profilo">
                     <span class="nome-profilo"><%=Username %></span>
                     <a class="chat-utente" href="/WebApp/ServletMessaggi?UtenteRicevente=<%=Username %>"></a>
                     <a class="aggiungi-amico" href=""></a>
                 </div>
             </div>
-            <% } %>
-    	</div>
 	</body>
 </html>

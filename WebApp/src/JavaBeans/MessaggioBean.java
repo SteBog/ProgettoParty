@@ -8,7 +8,8 @@ public class MessaggioBean {
 	
 
 	private int idfMittente;    
-	private int idfDestinatario; 
+	private int idfDestinatario;
+	private String Utente;
 	private String Testo;
     private Date Data = new Date();
     
@@ -24,6 +25,14 @@ public class MessaggioBean {
 	}
 	public void setIdfDestinatario(int idfDestinatario) {
 		this.idfDestinatario = idfDestinatario;
+	}
+	public String getUtente()
+	{
+		return Utente;
+	}
+	public void setUtente(String utente)
+	{
+		Utente = utente;
 	}
 	public String getTesto() {
 		return Testo;
