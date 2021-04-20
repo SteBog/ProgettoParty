@@ -114,9 +114,8 @@ public class DBManagement {
 		Statement stmt = null;
 		Connection conn = null;
 		
-	
-		//String select = "SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
-		String select = "SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "' AND U2.Username != '" + Username + "' UNION SELECT U1.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U2.Username ='" + Username + "' AND U1.Username != '" + Username + "'";
+		//String select = "SELECT U2.Username, U2.Disconnessione AS UltimoAccesso FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
+		String select = "SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
 		System.out.println(select);
 		try
 		{
@@ -171,12 +170,7 @@ public class DBManagement {
 		Statement stmt = null;
 		Connection conn = null;
 		
-		String select = "SELECT Utenti.Username, Utenti.FotoProfilo FROM Utenti WHERE Utenti.Username " + 
-				"NOT IN(" + 
-				"SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "' AND U2.Username != '" + Username + "' " + 
-				"UNION " + 
-				"SELECT U1.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U2.Username ='" + Username + "' AND U1.Username != '" + Username + "' " + 
-				") AND Utenti.Username !='" + Username + "'";
+		String select = "SELECT Utenti.Username FROM Utenti WHERE Utenti.Username NOT IN (SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "') AND Utenti.Username !='" + Username + "'";
 		System.out.println(select);
 		try
 		{
@@ -192,7 +186,7 @@ public class DBManagement {
 				//Utenti.setEmail(utentiList.getString("Email"));
 				//Utenti.setPassword(utentiList.getString("Password"));
 				Utenti.setUsername(utentiList.getString("Username"));
-				Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
+				//Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
 				//Utenti.setDataNascita(utentiList.getDate("DataNascita"));
 				//Utenti.setDisconnessione(utentiList.getDate("UltimoAccesso"));
 				// PER TUTTI I CAMPI
@@ -431,7 +425,7 @@ public class DBManagement {
 		Statement stmt = null;
 		Connection conn = null;
 		
-		String select = "SELECT Messaggio.Testo, Messaggio.Data, U1.Username " + 
+		String select = "SELECT Messaggio.Testo, Messaggio.Data " + 
 				"FROM ((Utenti AS U1 INNER JOIN Messaggio ON U1.IDUtente = Messaggio.IDFMittente) " + 
 				"INNER JOIN Utenti AS U2 ON U2.IDUtente = Messaggio.IDFRicevente) " + 
 				"WHERE U1.Username = '" + Username1 + "' AND U2.Username = '" + Username2 + "' OR U1.Username = '" + Username2 + "' AND U2.Username = '" + Username1 + "' " +
@@ -451,7 +445,6 @@ public class DBManagement {
 				MessaggioBean Messaggi = new MessaggioBean();
 				Messaggi.setTesto(messaggioList.getString("Testo"));
 				Messaggi.setData(messaggioList.getDate("Data"));
-				Messaggi.setUtente(messaggioList.getString("Username"));
 				
 				messaggiArray.add(Messaggi);
 			}
@@ -676,4 +669,54 @@ public class DBManagement {
 			}
 		}
 	}
+	
+	
+	
+	
+	public void Registrazione(String Username, String Password, String Email, String DataNascita) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String query = null;
+		
+		query = "INSERT INTO `Utenti`(`Email`, `Password`, `Username`, `FotoProfilo`, `DataNascita`) VALUES ('"+Email+"','"+Password+"','"+Username+"', 1 ,'"+DataNascita+"')";
+		
+		System.out.println(query);
+		
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			
+		
+			stmt.executeUpdate(query);
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("UPDATE ERROR");
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
+	
+	
+	
+	
 }
