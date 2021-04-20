@@ -7,3 +7,4 @@ Servers/
 .DS_Store
 WebApp/build/
 /WebApp/build/
+Gioco/__pycache__
