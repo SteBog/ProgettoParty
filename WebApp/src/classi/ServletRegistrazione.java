@@ -5,6 +5,7 @@ import JavaBeans.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -62,7 +63,7 @@ public class ServletRegistrazione extends HttpServlet {
 		String Username = request.getParameter("username");
 		String Password = request.getParameter("password");
 		String Email = request.getParameter("email");
-		Date DataNascita = request.getParameter("dataNascita");
+		String DataNascita = request.getParameter("dataNascita");
 		
 		// Esempio
 		response.setContentType("text/html");
@@ -72,7 +73,7 @@ public class ServletRegistrazione extends HttpServlet {
 		DBManagement listUtenti = new DBManagement();
 		try
 		{
-			utenti = listUtenti.Registrazione(Username,Password,Email,DataNascita);
+			listUtenti.Registrazione(Username,Password,Email,DataNascita);
 				
 				request.getSession().setAttribute("Utente", Username);
 				RequestDispatcher rd = sc.getRequestDispatcher("/presentazione.jsp");
