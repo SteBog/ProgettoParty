@@ -18,6 +18,25 @@
 	
 	ArrayList<qVittorieMinigiochiBean> vittorieMinigiochi = new ArrayList<qVittorieMinigiochiBean>();
 	vittorieMinigiochi = listVittorie.selectVittorieMinigiochi(request.getSession().getAttribute("utente_richiesto").toString());
+	
+	// Prova
+    
+    String valoriVittorie = "";
+	String valoriMinigiochi = "";
+	for(qVittorieMinigiochiBean Vittorie:vittorieMinigiochi)
+	{
+		valoriVittorie += "'" + Vittorie.getVittorieMinigiochi() + "',";
+		valoriMinigiochi += "'" + Vittorie.getMinigioco() + "',";
+	}
+	
+	if(valoriVittorie.length() > 0 && valoriMinigiochi.length() > 0){
+	valoriVittorie = valoriVittorie.substring(0, valoriVittorie.length() - 1);
+	valoriMinigiochi = valoriMinigiochi.substring(0, valoriMinigiochi.length() - 1);
+	}
+	
+	System.out.println(valoriVittorie);
+	System.out.println(valoriMinigiochi);
+    // Fine prova
 %>
 <!DOCTYPE html>
 <html>
@@ -104,12 +123,12 @@
             },
             options: Chart.defaults.doughnut
         });
-
+        
         var barre = document.getElementById("grafico_minigiochi")
         var myBarChart = new Chart(barre, {
             type: 'bar',
             data: {
-                labels: ["Spintoni", "Pong", "Gara", "Paracadutismo"],
+                labels: [<%=valoriMinigiochi %>],
                 datasets: [{
                     label: "",
                     barPercentage: 0.5,
@@ -120,10 +139,7 @@
                     borderColor: ["rgba(0, 110, 200, 0.8)", "rgba(200, 0, 103, 0.8)", "rgba(200, 157, 0, 0.8)", "rgba(200, 73, 0, 0.8)"],
                     borderWidth: 1,
                     data: [
-                        23,
-                        20,
-                        27,
-                        25
+                       <%=valoriVittorie %>
                     ]
                 }]
             },

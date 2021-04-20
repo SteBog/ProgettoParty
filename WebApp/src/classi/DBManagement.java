@@ -233,11 +233,11 @@ public class DBManagement {
 		Connection conn = null;
 		
 		String select = "SELECT COUNT(ClassificatoRound.Posizione) AS VittorieMinigiochi, Minigioco.Nome AS Minigioco " + 
-				"FROM ((((ClassificatoRound INNER JOIN Round ON ClassificatoRound.IDFRound = Round.IDRound) " + 
-				"INNER JOIN Minigioco ON Round.IDFMinigioco = Minigioco.IDMinigioco) " + 
-				"INNER JOIN GiocatorePartita ON ClassificatoRound.IDFGiocatore = GiocatorePartita.IDFUtente) " + 
-				"INNER JOIN Utenti ON GiocatorePartita.IDFUtente = Utenti.IDUtente) " + 
-				"WHERE Utenti.Username = '" + Username + "' AND ClassificatoRound.Posizione = 1 " + 
+				"FROM ClassificatoRound INNER JOIN GiocatorePartita ON ClassificatoRound.IDFGiocatore = GiocatorePartita.IDGiocatorePartita " + 
+				"INNER JOIN Utenti ON GiocatorePartita.IDFUtente = Utenti.IDUtente " + 
+				"INNER JOIN Round ON ClassificatoRound.IDFRound = Round.IDRound " + 
+				"INNER JOIN Minigioco ON Round.IDFMinigioco = Minigioco.idMinigioco " + 
+				"WHERE Utenti.Username = '" + Username + "' AND ClassificatoRound.Posizione = 0 " + 
 				"GROUP BY Minigioco.Nome";
 		
 		System.out.println(select);
