@@ -114,8 +114,9 @@ public class DBManagement {
 		Statement stmt = null;
 		Connection conn = null;
 		
-		//String select = "SELECT U2.Username, U2.Disconnessione AS UltimoAccesso FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
-		String select = "SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
+	
+		//String select = "SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
+		String select = "SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "' AND U2.Username != '" + Username + "' UNION SELECT U1.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U2.Username ='" + Username + "' AND U1.Username != '" + Username + "'";
 		System.out.println(select);
 		try
 		{
@@ -170,7 +171,7 @@ public class DBManagement {
 		Statement stmt = null;
 		Connection conn = null;
 		
-		String select = "SELECT Utenti.Username FROM Utenti WHERE Utenti.Username NOT IN (SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "') AND Utenti.Username !='" + Username + "'";
+		String select = "SELECT Utenti.Username, Utenti.FotoProfilo FROM Utenti WHERE Utenti.Username NOT IN (SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "') AND Utenti.Username !='" + Username + "'";
 		System.out.println(select);
 		try
 		{
@@ -186,7 +187,7 @@ public class DBManagement {
 				//Utenti.setEmail(utentiList.getString("Email"));
 				//Utenti.setPassword(utentiList.getString("Password"));
 				Utenti.setUsername(utentiList.getString("Username"));
-				//Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
+				Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
 				//Utenti.setDataNascita(utentiList.getDate("DataNascita"));
 				//Utenti.setDisconnessione(utentiList.getDate("UltimoAccesso"));
 				// PER TUTTI I CAMPI
@@ -279,14 +280,17 @@ public class DBManagement {
 		}
 	}
 	
-	public int selectVittorie(String Username) throws SQLException
+	public float selectVittorie(String Username) throws SQLException
 	{
 		Statement stmt = null;
 		Connection conn = null;
 		
-		String select = "SELECT COUNT(Partita.Vincitore) AS Vittorie " + 
-				"FROM (Partita INNER JOIN Utenti ON Partita.Vincitore = Utenti.IDUtente) " + 
-				"WHERE Utenti.Username = '" + Username + "';";
+		String select = "SELECT COUNT(Partita.IDPartita) AS Vittorie FROM "
+				+ "((Partita INNER JOIN GiocatorePartita ON Partita.IDPartita = GiocatorePartita.IDFPartita) "
+				+ " INNER JOIN Utenti ON GiocatorePartita.IDFUtente = Utenti.IDUtente) "
+				+ " WHERE Utenti.Username = '" + Username + "' AND GiocatorePartita.NumeroGiocatore = Partita.Vincitore";
+		System.out.println(select);
+		
 		
 		try
 		{
@@ -294,10 +298,10 @@ public class DBManagement {
 			stmt = conn.createStatement();
 			
 			ResultSet vittorieList = stmt.executeQuery(select);
-			int Vittorie = 0;
+			float Vittorie = 0;
 			if(vittorieList.next())
 			{
-				Vittorie = vittorieList.getInt("Vittorie");
+				Vittorie = vittorieList.getFloat("Vittorie");
 			}
 			return Vittorie;
 		}
@@ -326,7 +330,7 @@ public class DBManagement {
 		}
 	}
 	
-	public int numero_partite_giocate(String username) throws SQLException
+	public float numero_partite_giocate(String username) throws SQLException
 	{
 		Statement stmt = null;
 		Connection conn = null;
@@ -342,10 +346,10 @@ public class DBManagement {
 			stmt = conn.createStatement();
 			
 			ResultSet partite_giocate_list = stmt.executeQuery(query);
-			int giocate = 0;
+			float giocate = 0;
 			if(partite_giocate_list.next())
 			{
-				giocate = partite_giocate_list.getInt("giocate");
+				giocate = partite_giocate_list.getFloat("giocate");
 			}
 			return giocate;
 		}
@@ -425,7 +429,7 @@ public class DBManagement {
 		Statement stmt = null;
 		Connection conn = null;
 		
-		String select = "SELECT Messaggio.Testo, Messaggio.Data " + 
+		String select = "SELECT Messaggio.Testo, Messaggio.Data, U1.Username " + 
 				"FROM ((Utenti AS U1 INNER JOIN Messaggio ON U1.IDUtente = Messaggio.IDFMittente) " + 
 				"INNER JOIN Utenti AS U2 ON U2.IDUtente = Messaggio.IDFRicevente) " + 
 				"WHERE U1.Username = '" + Username1 + "' AND U2.Username = '" + Username2 + "' OR U1.Username = '" + Username2 + "' AND U2.Username = '" + Username1 + "' " +
@@ -445,6 +449,7 @@ public class DBManagement {
 				MessaggioBean Messaggi = new MessaggioBean();
 				Messaggi.setTesto(messaggioList.getString("Testo"));
 				Messaggi.setData(messaggioList.getDate("Data"));
+				Messaggi.setUtente(messaggioList.getString("Username"));
 				
 				messaggiArray.add(Messaggi);
 			}
@@ -669,10 +674,7 @@ public class DBManagement {
 			}
 		}
 	}
-	
-	
-	
-	
+
 	public void Registrazione(String Username, String Password, String Email, String DataNascita) throws SQLException
 	{
 		Statement stmt = null;
@@ -715,8 +717,4 @@ public class DBManagement {
 			}
 		}
 	}
-	
-	
-	
-	
 }
