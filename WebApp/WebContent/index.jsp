@@ -43,6 +43,7 @@
 					<span class="titolo_progetto">Progetto Party</span>
 					<input type="text" name="email" id="email_registrazione" placeholder="Email">
 					<input type="password" name="password" id="password_registrazione" placeholder="Password">
+					<input type="data" name="dataNascita" id="dataNascita_registrazione" placeholder="La tua data di nascita">
 					<input type="button" onclick="prossimo_div_registrazione();" class="pulsante_form" value="Avanti">
 					<span class="scritta_basso" onclick="precedente_div_login();">Torna alla schermata di login</span>
 				</div>
