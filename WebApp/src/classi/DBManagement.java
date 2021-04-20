@@ -285,14 +285,17 @@ public class DBManagement {
 		}
 	}
 	
-	public int selectVittorie(String Username) throws SQLException
+	public float selectVittorie(String Username) throws SQLException
 	{
 		Statement stmt = null;
 		Connection conn = null;
 		
-		String select = "SELECT COUNT(Partita.Vincitore) AS Vittorie " + 
-				"FROM (Partita INNER JOIN Utenti ON Partita.Vincitore = Utenti.IDUtente) " + 
-				"WHERE Utenti.Username = '" + Username + "';";
+		String select = "SELECT COUNT(Partita.IDPartita) AS Vittorie FROM "
+				+ "((Partita INNER JOIN GiocatorePartita ON Partita.IDPartita = GiocatorePartita.IDFPartita) "
+				+ " INNER JOIN Utenti ON GiocatorePartita.IDFUtente = Utenti.IDUtente) "
+				+ " WHERE Utenti.Username = '" + Username + "' AND GiocatorePartita.NumeroGiocatore = Partita.Vincitore";
+		System.out.println(select);
+		
 		
 		try
 		{
@@ -300,10 +303,10 @@ public class DBManagement {
 			stmt = conn.createStatement();
 			
 			ResultSet vittorieList = stmt.executeQuery(select);
-			int Vittorie = 0;
+			float Vittorie = 0;
 			if(vittorieList.next())
 			{
-				Vittorie = vittorieList.getInt("Vittorie");
+				Vittorie = vittorieList.getFloat("Vittorie");
 			}
 			return Vittorie;
 		}
@@ -332,7 +335,7 @@ public class DBManagement {
 		}
 	}
 	
-	public int numero_partite_giocate(String username) throws SQLException
+	public float numero_partite_giocate(String username) throws SQLException
 	{
 		Statement stmt = null;
 		Connection conn = null;
@@ -348,10 +351,10 @@ public class DBManagement {
 			stmt = conn.createStatement();
 			
 			ResultSet partite_giocate_list = stmt.executeQuery(query);
-			int giocate = 0;
+			float giocate = 0;
 			if(partite_giocate_list.next())
 			{
-				giocate = partite_giocate_list.getInt("giocate");
+				giocate = partite_giocate_list.getFloat("giocate");
 			}
 			return giocate;
 		}
@@ -378,6 +381,7 @@ public class DBManagement {
 			}
 		}
 	}
+	
 	public int ore_giocate(String username) throws SQLException
 	{
 		Statement stmt = null;
@@ -644,6 +648,49 @@ public class DBManagement {
 		Connection conn = null;
 		
 		String query = "UPDATE Utenti SET Utenti.FotoProfilo = '" + nome_immagine + "' WHERE Utenti.Username = '" + utente + "'";
+		
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			
+		
+			stmt.executeUpdate(query);
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("UPDATE ERROR");
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
+	
+	public void Registrazione(String Username, String Password, String Email, String DataNascita) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String query = null;
+		
+		query = "INSERT INTO `Utenti`(`Email`, `Password`, `Username`, `FotoProfilo`, `DataNascita`) VALUES ('"+Email+"','"+Password+"','"+Username+"', 1 ,'"+DataNascita+"')";
+		
+		System.out.println(query);
 		
 		try
 		{
