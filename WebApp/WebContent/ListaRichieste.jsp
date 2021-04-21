@@ -8,7 +8,7 @@
 	DBManagement listUtenti = new DBManagement();
 	ArrayList<UtentiBean> utenti = new ArrayList<UtentiBean>();
 	// Utente da session
-	utenti = listUtenti.selectTuttiUtenti(request.getSession().getAttribute("Utente").toString());
+	utenti = listUtenti.selectRichiesteAmico(request.getSession().getAttribute("Utente").toString());
 %>
 <!DOCTYPE html>
 <html>
@@ -98,13 +98,14 @@
                     //Date Disconnessione = utente.getDisconnessione();
             %>
             <div class="utente">
+            Richiesta:
                 <div class="immagine-profilo" style="background-image: url('img/<%=foto_profilo %>.png');"></div>
                 <div class="dettagli-profilo">
                     <span class="nome-profilo"><%=Username %></span>
                     <a class="chat-utente" href="/WebApp/ServletMessaggi?UtenteRicevente=<%=Username %>"></a>
-                    <a class="aggiungi-amico" href="ListaUtenti.jsp" onclick="<%
-                    listUtenti.inviaRichiestaAmico(request.getSession().getAttribute("Utente").toString(), Username);
-                %>"></a>
+                    <a class="aggiungi-amico" href="ListaRichieste.jsp" onclick="<%
+                        listUtenti.accettaRichiestaAmico(request.getSession().getAttribute("Utente").toString(), Username);
+                    %>"></a>
                 </div>
             </div>
             <% } %>

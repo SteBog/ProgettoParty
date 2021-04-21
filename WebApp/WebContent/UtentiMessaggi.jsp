@@ -5,10 +5,10 @@
 <%@ page import="classi.Servlet1" %>
 
 <%
-	DBManagement listUtenti = new DBManagement();
-	ArrayList<UtentiBean> utenti = new ArrayList<UtentiBean>();
-	// Utente da session
-	utenti = listUtenti.selectAmici(request.getSession().getAttribute("Utente").toString());
+		DBManagement listMessaggi = new DBManagement();
+		ArrayList<MessaggioBean> messaggi = new ArrayList<MessaggioBean>();
+		// Utente da session
+		messaggi = listMessaggi.selectUtentiMessaggi(request.getSession().getAttribute("Utente").toString());
 %>
 <!DOCTYPE html>
 <html>
@@ -117,20 +117,15 @@
 			</div>
 			<a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
 		</nav>
-		<a href="ListaUtenti.jsp" class="icon_friend">Stringi una nuova amicizia</a>
-		<a href="ListaRichieste.jsp" class="icon_friend">Richieste in sospeso</a>
-		<a class="icon_friend" href="UtentiMessaggi.jsp">CHAT</a>
 		<div class="container">
 		<%
-			for(UtentiBean utente:utenti)
+			for(MessaggioBean messaggio:messaggi)
 			{
-				String Username = utente.getUsername();
+				String Username = messaggio.getUtente();
 		%>
 			<div class="div_amici">
 				<span><%=Username %></span>
-				<span>Ultimo accesso:<%//Disconnessione %></span>
 				<a href="/WebApp/ServletMessaggi?UtenteRicevente=<%=Username %>" class="icon_msg"></a>
-				<a href="/WebApp/VisualizzaStatistiche?utente_richiesto=<%=Username %>" class="icon_stats"></a>
 			</div>
 		<% } %>
 		</div>
