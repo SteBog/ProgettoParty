@@ -8,14 +8,17 @@ html, body
 nav
 {
     position: fixed;
-    top: 0;
-    width: 100%;
-    height: 50px;
-    background-color: #1593bb;
-	z-index : 3;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+    top: 10px;
+	left: 50%;
+	transform: translateX(-50%);
+    width: 60%;
+    height: 50px;
+    background-color: #1593bb;
+	border-radius: 20px;
+	z-index : 3;
 	font-family: 'RocknRoll One', sans-serif;
 }
 .div-nav{
@@ -23,10 +26,12 @@ nav
 	align-items: center;		
 }
 .TitoloNav{
-	font-size: 40px;
+	font-size: 25px;
 	text-decoration: none;
 	margin-left:20px;
 	color: black;
+	white-space: nowrap;
+	font-weight: bolder;
 }
 		
 .TestoNav{
@@ -35,10 +40,14 @@ nav
 	margin-left:20px;
 	color: black;
 	margin-top: 0px;
+	white-space: nowrap;
 }
 .profilo{
 	justify-self:flex-end;
-	margin-right: 30px;
+	margin: 0px 30px;
+	white-space: nowrap;
+	color: black;
+	text-decoration: none;
 }
 .immagine_profilo{
 	width: 30px;
@@ -55,7 +64,7 @@ nav
 #section_introduzione
 {
     position: relative;
-    top: 50px;
+    top: 0;
     width: 100%;
 	height: auto;
 }

@@ -110,12 +110,11 @@
 	</head>
 	<body>
 		<nav>
-			<div class="div-nav">
-				<a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
-				<a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
-				<a href="" class="TestoNav">Come giocare</a>
-			</div>
-			<a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
+            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
+	        <div class="div-nav">
+                <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
+                <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
+	        </div>
 		</nav>
 		<a href="ListaUtenti.jsp" class="icon_friend">Stringi una nuova amicizia</a>
 		<div class="container">
