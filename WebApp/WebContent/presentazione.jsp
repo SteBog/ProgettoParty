@@ -20,13 +20,12 @@
 -->
 <body>
     <nav>
+        <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
         <div class="div-nav">
-            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
             <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
-            <a href="" class="TestoNav">Come giocare</a>
+            <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
         </div>
-        <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
-	</nav>
+    </nav>
     <section id="section_introduzione">
         <img src="img/1.png" alt="" id="personaggio_uno">
         <h1 id="testo_uno">Ti presentiamo</h1>
