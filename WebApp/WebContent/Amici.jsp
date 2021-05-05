@@ -47,7 +47,6 @@
 				align-items: flex-start;
 				padding: 15px;
 			}
-
 			.immagine_profilo
 			{
 				width: 30px;
@@ -76,19 +75,34 @@
 				margin: 2px;
 			}
 			
-			.icon_friend
+			.richiesta_amicizia
 			{
 				display: block;
 				height: auto;
-				width: 200px;
-				margin: 70px 0px 0px 20px;
+				width: 45%;
 				background-size: 100%;
-				border: 1px solid black;
+				border-bottom: 1px solid black;
+				border-right: 1px solid black;
 				padding: 30px;
 				color: black;
 				text-decoration: none;
-				border-radius: 10px;
 				text-align: center;
+				background-color: #d7d7d7;
+				opacity:0.2;
+			}
+			.amicizia_sopseso{
+				display: block;
+				height: auto;
+				width: 45%;
+				background-size: 100%;
+				border-bottom: 1px solid black;
+				border-left: 1px solid black;
+				padding: 30px;
+				color: black;
+				text-decoration: none;
+				text-align: center;
+				background-color: #d7d7d7;
+				opacity:0.2;
 			}
 			.container
 			{
@@ -96,15 +110,36 @@
 				display: flex;
 				flex-wrap: wrap;
 			}
+			.container_button
+			{				
+				display: flex;
+				flex-wrap: wrap;
+				flex-direction:row;
+			}
 			.container span
 			{
 				display: block;
 				margin: 5px 0px;
 				width: 100%;
 			}
+			button_container{
+				float: left;
+			}
 			.non-visibile
 			{
 				display: none;
+			}
+			.chat
+			{
+				width: 50px;
+				height: 50px;
+				background-size: contain;
+				background-image: url(ProgettoParty/WebApp/WebContent/img/icon_msg.png);
+				background-repeat: no-repeat;
+				margin-left: 180vh;
+				margin-top: 10px;
+				border-radius: 50%;
+				border: 1px solid black;
 			}
 		</style>
 	</head>
@@ -116,9 +151,11 @@
             <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
         </div>
     </nav>
-		<a href="ListaUtenti.jsp" class="icon_friend">Stringi una nuova amicizia</a>
-		<a href="ListaRichieste.jsp" class="icon_friend">Richieste in sospeso</a>
-		<a class="icon_friend" href="UtentiMessaggi.jsp">CHAT</a>
+	<a class="chat" href="UtentiMessaggi.jsp"></a>
+	<div class="container_button">
+			<a href="ListaUtenti.jsp" class="richiesta_amicizia">richiesta di amicizia</a>
+			<a href="ListaRichieste.jsp" class="amicizia_sopseso">Richieste in sospeso</a>
+	</div>
 		<div class="container">
 		<%
 			for(UtentiBean utente:utenti)
