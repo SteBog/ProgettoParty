@@ -23,7 +23,7 @@ class Schermata_Principale:
 			"minigioco": "home",
 			"vincitore": None,
 			"vincitore_partita": None,
-			"ID_Utente": 2
+			"ID_Utente": 3
 		}
 
 		self.posizione_local = 0
