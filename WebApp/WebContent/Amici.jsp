@@ -153,7 +153,7 @@
     </nav>
 	<a class="chat" href="UtentiMessaggi.jsp"></a>
 	<div class="container_button">
-			<a href="ListaUtenti.jsp" class="richiesta_amicizia">richiesta di amicizia</a>
+			<a href="ListaUtenti.jsp" class="richiesta_amicizia">Invia richiesta amico</a>
 			<a href="ListaRichieste.jsp" class="amicizia_sopseso">Richieste in sospeso</a>
 	</div>
 		<div class="container">

@@ -18,7 +18,6 @@
 		<link rel="stylesheet" href="stili_home.css">
 		<script src="script.js"></script>
 		<style>
-			<style>
 			html, body
 			{
 				width: 100%;
@@ -41,13 +40,16 @@
 				background: white;
 				height: 100px;
 				width: 200px;
-				margin-right:20px;
-				margin:20px;
+				margin-right: 20px;
+				margin-top: 40px;
+				margin-left: 20px;
+				margin-bottom: 20px;
 				display: flex;
 				flex-direction: column;
 				align-items: flex-start;
 				padding: 15px;
 			}
+
 			.immagine_profilo
 			{
 				width: 30px;
@@ -76,34 +78,19 @@
 				margin: 2px;
 			}
 			
-			.richiesta_amicizia
+			.icon_friend
 			{
 				display: block;
 				height: auto;
-				width: 45%;
+				width: 200px;
+				margin: 70px 0px 0px 20px;
 				background-size: 100%;
-				border-bottom: 1px solid black;
-				border-right: 1px solid black;
+				border: 1px solid black;
 				padding: 30px;
 				color: black;
 				text-decoration: none;
+				border-radius: 10px;
 				text-align: center;
-				background-color: #d7d7d7;
-				opacity:0.2;
-			}
-			.amicizia_sopseso{
-				display: block;
-				height: auto;
-				width: 45%;
-				background-size: 100%;
-				border-bottom: 1px solid black;
-				border-left: 1px solid black;
-				padding: 30px;
-				color: black;
-				text-decoration: none;
-				text-align: center;
-				background-color: #d7d7d7;
-				opacity:0.2;
 			}
 			.container
 			{
@@ -111,36 +98,21 @@
 				display: flex;
 				flex-wrap: wrap;
 			}
-			.container_button
-			{				
-				display: flex;
-				flex-wrap: wrap;
-				flex-direction:row;
-			}
 			.container span
 			{
 				display: block;
 				margin: 5px 0px;
 				width: 100%;
 			}
-			button_container{
-				float: left;
-			}
 			.non-visibile
 			{
 				display: none;
 			}
-			.chat
+			.titolo
 			{
-				width: 50px;
-				height: 50px;
-				background-size: contain;
-				background-image: url(ProgettoParty/WebApp/WebContent/img/icon_msg.png);
-				background-repeat: no-repeat;
-				margin-left: 180vh;
-				margin-top: 10px;
-				border-radius: 50%;
-				border: 1px solid black;
+				margin-top: 75px;
+				font-size: 48px;
+				margin-left: 40%;
 			}
 		</style>
 	</head>
@@ -152,6 +124,7 @@
 	            <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
 	        </div>
 	    </nav>
+	    <span class="titolo">Chat recenti:</span>
 		<div class="container">
 		<%
 			for(MessaggioBean messaggio:messaggi)
