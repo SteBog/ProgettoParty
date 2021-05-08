@@ -103,7 +103,7 @@
                     <span class="nome-profilo"><%=Username %></span>
                     <a class="chat-utente" href="/WebApp/ServletMessaggi?UtenteRicevente=<%=Username %>"></a>
                     <a class="aggiungi-amico" href="ListaRichieste.jsp" onclick="<%
-                        listUtenti.accettaRichiestaAmico(request.getSession().getAttribute("Utente").toString(), Username);
+                        listUtenti.accettaRichiestaAmico(Username, request.getSession().getAttribute("Utente").toString());
                     %>"></a>
                 </div>
             </div>

@@ -134,7 +134,7 @@
 				width: 50px;
 				height: 50px;
 				background-size: contain;
-				background-image: url(ProgettoParty/WebApp/WebContent/img/icon_msg.png);
+				background-image: url(img/Icon_msg.png);
 				background-repeat: no-repeat;
 				margin-left: 180vh;
 				margin-top: 10px;
