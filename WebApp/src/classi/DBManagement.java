@@ -15,10 +15,15 @@ import JavaBeans.*;
 public class DBManagement {
 	
 	//Parametri di accesso al database
-	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";	// com.mysql.cj.jdbc.Driver
-	private static final String DB_CONNECTION = "jdbc:mysql://87.250.73.23:3306/Party";	// 12320
+	/*private static final String DB_DRIVER = "com.mysql.jdbc.Driver";	// com.mysql.cj.jdbc.Driver
+	private static final String DB_CONNECTION = "jdbc:mysql://87.250.73.23:3306/Party";	// 12320*/
+	// Accesso crittografato (TLS)
+	private static final String DB_DRIVER = "com.mysql.cj.jdbc.Driver";	// com.mysql.cj.jdbc.Driver
+	private static final String DB_CONNECTION = "jdbc:mysql://87.250.73.23:3306/Party?SSLProtocol=TLSv1.2";
+	
 	private static final String DB_USER = "adminer";
 	private static final String DB_PASSWORD = "CBC349aa";
+	
 
 /*	//Parametri di accesso al database locale
 	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";	// com.mysql.cj.jdbc.Driver
