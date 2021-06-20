@@ -78,12 +78,12 @@
 	</head>
 	<body>
         <nav>
-            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
+	        <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
 	        <div class="div-nav">
-                <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
-                <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
+	            <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
+	            <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
 	        </div>
-		</nav>
+	    </nav>
 		<div class="container">
             <span class="scritta" id="span_perc"></span>
             <div class="grafico">

@@ -15,10 +15,15 @@ import JavaBeans.*;
 public class DBManagement {
 	
 	//Parametri di accesso al database
-	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";	// com.mysql.cj.jdbc.Driver
-	private static final String DB_CONNECTION = "jdbc:mysql://87.250.73.23:3306/Party";	// 12320
+	/*private static final String DB_DRIVER = "com.mysql.jdbc.Driver";	// com.mysql.cj.jdbc.Driver
+	private static final String DB_CONNECTION = "jdbc:mysql://87.250.73.23:3306/Party";	// 12320*/
+	// Accesso crittografato (TLS)
+	private static final String DB_DRIVER = "com.mysql.cj.jdbc.Driver";	// com.mysql.cj.jdbc.Driver
+	private static final String DB_CONNECTION = "jdbc:mysql://87.250.73.23:3306/Party?SSLProtocol=TLSv1.2";
+	
 	private static final String DB_USER = "adminer";
 	private static final String DB_PASSWORD = "CBC349aa";
+	
 
 /*	//Parametri di accesso al database locale
 	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";	// com.mysql.cj.jdbc.Driver
@@ -116,7 +121,64 @@ public class DBManagement {
 		
 	
 		//String select = "SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
-		String select = "SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "' AND U2.Username != '" + Username + "' UNION SELECT U1.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U2.Username ='" + Username + "' AND U1.Username != '" + Username + "'";
+		String select = "SELECT U2.Username, U2.FotoProfilo FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "' AND U2.Username != '" + Username + "' AND Amicizia.DataAmicizia IS NOT NULL UNION SELECT U1.Username, U1.FotoProfilo FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U2.Username ='" + Username + "' AND U1.Username != '" + Username + "' AND Amicizia.DataAmicizia IS NOT NULL";
+		System.out.println(select);
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			ResultSet utentiList = stmt.executeQuery(select);
+			
+			ArrayList<UtentiBean> utentiArray = new ArrayList<UtentiBean>();
+			while (utentiList.next())
+			{
+				UtentiBean Utenti = new UtentiBean();
+				//Utenti.setEmail(utentiList.getString("Email"));
+				//Utenti.setPassword(utentiList.getString("Password"));
+				Utenti.setUsername(utentiList.getString("Username"));
+				//Utenti.setFotoProfilo(utentiList.getString("FotoProfilo"));
+				//Utenti.setDataNascita(utentiList.getDate("DataNascita"));
+				//Utenti.setDisconnessione(utentiList.getDate("UltimoAccesso"));
+				// PER TUTTI I CAMPI
+				
+				utentiArray.add(Utenti);
+			}
+			return utentiArray;
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("SELECT ERROR");
+			System.out.println(select);
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+			
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
+	
+	public ArrayList<UtentiBean> selectRichiesteAmico(String Username) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+	
+		//String select = "SELECT U2.Username FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "';";
+		String select = "SELECT U2.Username, U2.FotoProfilo FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U1.Username ='" + Username + "' AND U2.Username != '" + Username + "' AND Amicizia.DataAmicizia IS NULL UNION SELECT U1.Username, U1.FotoProfilo FROM ((Utenti AS U1 INNER JOIN Amicizia ON U1.IDUtente = Amicizia.IDFUtenteRichiedente) INNER JOIN Utenti AS U2 ON U2.IDUtente = Amicizia.IDFUtenteRicevente) WHERE U2.Username ='" + Username + "' AND U1.Username != '" + Username + "' AND Amicizia.DataAmicizia IS NULL";
 		System.out.println(select);
 		try
 		{
@@ -226,6 +288,91 @@ public class DBManagement {
 		}
 	}
 	
+	public void inviaRichiestaAmico(String Username1, String Username2) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String query = null;
+		
+		query = "INSERT INTO Amicizia (Amicizia.IDFUtenteRichiedente, Amicizia.IDFUtenteRicevente) VALUES ((SELECT Utenti.IDUtente FROM Utenti WHERE Utenti.Username = '" + Username1 + "'),(SELECT Utenti.IDUtente FROM Utenti WHERE Utenti.Username = '" + Username2 + "'));";
+		
+		System.out.println(query);
+		
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			
+		
+			stmt.executeUpdate(query);
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("UPDATE ERROR");
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
+	
+	public void accettaRichiestaAmico(String Username1, String Username2) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String query = null;
+		
+		query = "UPDATE Amicizia SET DataAmicizia = CURRENT_TIMESTAMP() WHERE IDFUtenteRichiedente = (SELECT Utenti.IDUtente FROM Utenti WHERE Utenti.Username = '" + Username1 + "') AND IDFUtenteRicevente = (SELECT Utenti.IDUtente FROM Utenti WHERE Utenti.Username = '" + Username2 + "');";
+		
+		System.out.println(query);
+		
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			
+		
+			stmt.executeUpdate(query);
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("UPDATE ERROR");
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}
 	
 	public ArrayList<qVittorieMinigiochiBean> selectVittorieMinigiochi(String Username) throws SQLException
 	{
@@ -533,6 +680,64 @@ public class DBManagement {
 		}
 	}
 	
+	public ArrayList<MessaggioBean> selectUtentiMessaggi(String Username1) throws SQLException
+	{
+		Statement stmt = null;
+		Connection conn = null;
+		
+		String select = "SELECT U1.Username FROM ((Utenti AS U1 INNER JOIN Messaggio ON U1.IDUtente = Messaggio.IDFMittente) " + 
+				"INNER JOIN Utenti AS U2 ON U2.IDUtente = Messaggio.IDFRicevente) " + 
+				"WHERE U2.Username = '" + Username1 + "'" + 
+				"UNION " + 
+				"SELECT U2.Username " + 
+				"FROM ((Utenti AS U1 INNER JOIN Messaggio ON U1.IDUtente = Messaggio.IDFMittente) " + 
+				"INNER JOIN Utenti AS U2 ON U2.IDUtente = Messaggio.IDFRicevente) " + 
+				"WHERE U1.Username = '" + Username1 + "'";
+		
+		System.out.println(select);
+		try
+		{
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			
+			ResultSet messaggioList = stmt.executeQuery(select);
+			
+			ArrayList<MessaggioBean> messaggiArray = new ArrayList<MessaggioBean>();
+			while (messaggioList.next())
+			{
+				MessaggioBean Messaggi = new MessaggioBean();
+				//Messaggi.setTesto(messaggioList.getString("Testo"));
+				//Messaggi.setData(messaggioList.getDate("Data"));
+				Messaggi.setUtente(messaggioList.getString("Username"));
+				
+				messaggiArray.add(Messaggi);
+			}
+			return messaggiArray;
+		}
+		catch(SQLException sqle)
+		{
+			System.out.println("SELECT ERROR");
+			System.out.println(select);
+			throw new SQLException(sqle.getErrorCode() + ":" + sqle.getMessage());
+			
+		}
+		catch(Exception err)
+		{
+			System.out.println("GENERIC ERROR");
+			throw new SQLException(err.getMessage());
+		}
+		finally
+		{
+			if (stmt != null)
+			{
+				stmt.close();
+			}
+			if (conn != null)
+			{
+				conn.close();
+			}
+		}
+	}	
 
 	public ArrayList<UtentiBean> ottieni_dati_utente(String username) throws SQLException
 	{

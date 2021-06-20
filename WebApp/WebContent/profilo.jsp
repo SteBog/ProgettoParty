@@ -46,7 +46,7 @@
         }
         .container_foto
         {
-            width: 30%;
+            width: 50%;
             height: 100%;
             border-radius: 15px 0px 0px 15px;
             display: flex;
@@ -56,29 +56,32 @@
         }
         .container_dati
         {
-            width: 70%;
+            width: 50%;
             height: 100%;
             border-radius: 0px 15px 15px 0px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
         }
         .container_dati label
         {
             color: #8c8c8c;
-            width: 100px;
+            width: 80%;
             font-size: 16px;
             margin-top: 20px;
+            margin-left: 50px;
         }
         .container_dati span
         {
-            width: 100px;
+            width: 80%;
             font-size: 18px;
+            margin-left: 50px;
         }
         .container_dati input[type=text], .container_dati input[type=password]
         {
             display: none;
+            margin-left: 50px;
         }
         .container_img
         {
@@ -95,6 +98,7 @@
         .modifica_profilo
         {
             margin-top: 50px;
+            margin-left: 50px;
         }
         .pulsante
         {
@@ -139,13 +143,12 @@
 </head>
 <body>
 	<nav>
+        <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
         <div class="div-nav">
-            <a href="presentazione.jsp" class="TitoloNav">Progetto Party</a>
             <a href="Amici.jsp" class="TestoNav">I tuoi amici</a>
-            <a href="" class="TestoNav">Come giocare</a>
+            <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
         </div>
-        <a href="profilo.jsp" class="profilo"><%=request.getSession().getAttribute("Utente").toString() %></a>
-	</nav>
+    </nav>
     <div class="container">
         <div class="container_foto">
             <img class="foto_profilo" src="img/<%=utente.get(0).getFotoProfilo() %>.png" alt="Game avatar">
